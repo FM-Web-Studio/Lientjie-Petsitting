@@ -1,0 +1,188 @@
+/* ── Design tokens ──────────────────────────────────────────────────────── */
+:root {
+  --coral: #FF6B6B;
+  --coral-hover: #e85d5d;
+  --coral-light: #fff0f0;
+  --yellow: #FFD93D;
+  --yellow-dark: #e6c200;
+  --yellow-light: #fffbe8;
+  --teal: #4ECDC4;
+  --teal-dark: #3ab8af;
+  --teal-light: #edfaf9;
+  --purple: #C084FC;
+  --purple-dark: #a855f7;
+  --purple-light: #f5f0ff;
+  --pink: #FF8FAB;
+  --pink-light: #fff0f4;
+  --green: #4ADE80;
+  --green-dark: #22c55e;
+  --orange: #FF9A3C;
+
+  --cream: #FFFBF5;
+  --cream-medium: #FFF3E0;
+  --white: #FFFFFF;
+  --dark: #2C2C3A;
+  --grey: #6B7280;
+  --grey-light: #F3F4F6;
+  --border: #E8DDD0;
+
+  --success: #22C55E;
+  --warning: #F59E0B;
+  --error: #EF4444;
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.10);
+  --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.14);
+
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-full: 9999px;
+
+  --transition: 0.2s ease;
+  --transition-slow: 0.35s ease;
+
+  --font: 'Nunito', system-ui, sans-serif;
+  --nav-height: 72px;
+
+  /* Always-fixed surfaces — never flip with theme */
+  --surface-dark:   #1e1e2e;
+  --surface-darker: #13131f;
+  --on-dark:        #ffffff;       /* text on always-dark surfaces */
+  --on-dark-muted:  rgba(255,255,255,0.55);
+  --on-dark-faint:  rgba(255,255,255,0.1);
+
+  /* Always-fixed text on brand colour buttons */
+  --btn-text-light: #ffffff;
+  --btn-text-dark:  #1e1e2e;
+}
+
+/* ── Dark mode tokens ────────────────────────────────────────────────────── */
+html[data-theme="dark"] {
+  --cream: #0e0e1a;
+  --cream-medium: #141428;
+  --white: #1a1a2e;
+  --dark: #e8e8f5;
+  --grey: #8888aa;
+  --grey-light: #22223a;
+  --border: #2e2e50;
+
+  --coral-light: rgba(255, 107, 107, 0.14);
+  --yellow-light: rgba(255, 217, 61, 0.14);
+  --teal-light: rgba(78, 205, 196, 0.14);
+  --purple-light: rgba(168, 85, 247, 0.14);
+  --pink-light: rgba(255, 143, 171, 0.14);
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.6);
+}
+
+/* ── Reset ──────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; font-size: 16px; }
+
+body {
+  font-family: var(--font);
+  background-color: var(--cream);
+  color: var(--dark);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+img { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font-family: var(--font); cursor: pointer; border: none; background: none; }
+ul, ol { list-style: none; }
+
+/* ── Typography ─────────────────────────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 { font-weight: 800; line-height: 1.2; }
+
+/* ── Utility classes ────────────────────────────────────────────────────── */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.section { padding: 5rem 0; }
+.section-title {
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+.section-subtitle {
+  text-align: center;
+  color: var(--grey);
+  font-size: 1.1rem;
+  margin-bottom: 3rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  border-radius: var(--radius-full);
+  font-size: 1rem;
+  font-weight: 700;
+  transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+.btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.btn:active { transform: translateY(0); }
+
+.btn-primary {
+  background: var(--coral);
+  color: var(--btn-text-light);
+}
+.btn-primary:hover { background: var(--coral-hover); }
+
+.btn-secondary {
+  background: transparent;
+  color: var(--coral);
+  border-color: var(--coral);
+}
+.btn-secondary:hover { background: var(--coral-light); }
+
+.btn-teal { background: var(--teal); color: var(--btn-text-light); }
+.btn-teal:hover { background: var(--teal-dark); }
+
+.btn-yellow { background: var(--yellow); color: var(--btn-text-dark); }
+.btn-yellow:hover { background: var(--yellow-dark); }
+
+.btn-sm { padding: 0.5rem 1.25rem; font-size: 0.9rem; }
+
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.text-coral { color: var(--coral); }
+.text-teal { color: var(--teal); }
+.text-purple { color: var(--purple-dark); }
+
+.divider {
+  width: 60px;
+  height: 4px;
+  background: var(--coral);
+  border-radius: var(--radius-full);
+  margin: 0 auto 2rem;
+}
+
+/* ── Scrollbar ──────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--cream); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: var(--radius-full); }
+::-webkit-scrollbar-thumb:hover { background: var(--grey); }
+
+/* ── Focus ──────────────────────────────────────────────────────────────── */
+:focus-visible { outline: 3px solid var(--coral); outline-offset: 2px; }

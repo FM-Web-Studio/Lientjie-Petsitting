@@ -1,0 +1,133 @@
+.hero {
+  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%);
+  padding: 4rem 0;
+  text-align: center;
+  color: var(--on-dark);
+}
+
+.hero h1 { font-size: clamp(2rem, 5vw, 3.5rem); margin-bottom: 0.5rem; }
+.hero p  { font-size: 1.15rem; opacity: 0.9; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition), box-shadow var(--transition);
+  border-top: 6px solid var(--coral);
+  display: flex;
+  flex-direction: column;
+}
+
+.card[data-color="coral"]  { border-top-color: var(--coral); }
+.card[data-color="teal"]   { border-top-color: var(--teal); }
+.card[data-color="purple"] { border-top-color: var(--purple-dark); }
+.card[data-color="yellow"] { border-top-color: var(--yellow-dark); }
+.card[data-color="pink"]   { border-top-color: var(--pink); }
+.card[data-color="orange"] { border-top-color: var(--orange); }
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-md);
+}
+
+.cardTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.icon { font-size: 2.75rem; line-height: 1; }
+
+.priceBadge {
+  background: var(--coral);
+  color: var(--btn-text-light);
+  font-size: 1.3rem;
+  font-weight: 800;
+  padding: 0.35rem 0.9rem;
+  border-radius: var(--radius-md);
+  line-height: 1.3;
+  text-align: right;
+}
+
+.priceBadge span {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+.card h2 { font-size: 1.4rem; margin-bottom: 0.35rem; }
+
+.duration {
+  color: var(--grey);
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.description {
+  color: var(--grey);
+  line-height: 1.7;
+  flex: 1;
+  margin-bottom: 1rem;
+}
+
+.includes {
+  margin-bottom: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.includes li {
+  font-size: 0.9rem;
+  color: var(--dark);
+}
+
+.bookBtn { align-self: flex-start; }
+
+.note {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  background: var(--yellow-light);
+  border: 2px solid var(--yellow-dark);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  font-size: 0.95rem;
+}
+
+.note span { font-size: 2rem; flex-shrink: 0; }
+
+.note strong { display: block; margin-bottom: 0.25rem; font-size: 1.05rem; }
+
+.note a { color: var(--coral); font-weight: 700; }
+
+.loading, .empty {
+  text-align: center;
+  padding: 5rem 0;
+  font-size: 1.2rem;
+  color: var(--grey);
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 2rem;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}

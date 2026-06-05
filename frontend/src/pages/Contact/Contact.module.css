@@ -1,0 +1,110 @@
+.hero {
+  background: linear-gradient(135deg, var(--yellow) 0%, var(--orange) 100%);
+  padding: 4rem 0;
+  text-align: center;
+  color: var(--dark);
+}
+
+.hero h1 { font-size: clamp(2rem, 5vw, 3.5rem); margin-bottom: 0.5rem; }
+.hero p  { font-size: 1.15rem; opacity: 0.8; }
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 3rem;
+  align-items: start;
+}
+
+/* ── Form ───────────────────────────────────────────────────────────────── */
+.form {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.form h2 { font-size: 1.5rem; margin-bottom: 0.25rem; }
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.field label {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--dark);
+}
+
+.field input,
+.field select,
+.field textarea {
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-md);
+  font-family: var(--font);
+  font-size: 0.95rem;
+  color: var(--dark);
+  background: var(--white);
+  transition: border-color var(--transition);
+  outline: none;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: var(--coral);
+}
+
+.field textarea { resize: vertical; min-height: 120px; }
+
+/* ── Info sidebar ───────────────────────────────────────────────────────── */
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.infoCard {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.infoIcon { font-size: 1.75rem; line-height: 1; flex-shrink: 0; }
+
+.infoCard strong { display: block; font-size: 0.95rem; margin-bottom: 0.2rem; }
+.infoCard p { color: var(--grey); font-size: 0.9rem; }
+
+.promise {
+  background: linear-gradient(135deg, var(--coral-light), var(--yellow-light));
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  border: 2px solid var(--yellow-dark);
+}
+
+.promise h3 { margin-bottom: 0.5rem; font-size: 1.1rem; }
+.promise p  { color: var(--grey); font-size: 0.9rem; line-height: 1.7; }
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .row { grid-template-columns: 1fr; }
+  .form { padding: 1.5rem; }
+}
