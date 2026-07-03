@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getServices } from '../../firebase/services.js';
-import { getGalleryImages } from '../../firebase/gallery.js';
+import { getAlbums, albumCover } from '../../firebase/gallery.js';
 import { getBio } from '../../firebase/bio.js';
 import Skeleton from '../../components/Skeleton/Skeleton.jsx';
 import styles from './Home.module.css';
@@ -63,11 +63,16 @@ export default function Home() {
   useEffect(() => {
     Promise.all([
       getServices(true),
-      getGalleryImages(true),
+      getAlbums(true),
       getBio(),
-    ]).then(([s, g, b]) => {
+    ]).then(([s, albums, b]) => {
       setServices(s.slice(0, 3));
-      setGallery(g.slice(0, 6));
+      // Show each post's cover photo in the home preview grid.
+      const covers = albums
+        .filter((a) => a.images?.length)
+        .slice(0, 6)
+        .map((a) => ({ id: a.id, url: albumCover(a)?.url, caption: a.caption }));
+      setGallery(covers);
       setBio(b);
     }).finally(() => setLoading(false));
   }, []);

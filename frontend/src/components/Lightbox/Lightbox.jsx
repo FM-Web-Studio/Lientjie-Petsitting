@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import styles from './Lightbox.module.css';
 
-export default function Lightbox({ image, onClose, onPrev, onNext }) {
+export default function Lightbox({ image, onClose, onPrev, onNext, count, position }) {
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === 'Escape') onClose();
@@ -25,6 +25,7 @@ export default function Lightbox({ image, onClose, onPrev, onNext }) {
         {onPrev && <button className={`${styles.arrow} ${styles.left}`} onClick={onPrev} aria-label="Previous">‹</button>}
         <img src={image.url} alt={image.caption || 'Gallery image'} className={styles.img} />
         {onNext && <button className={`${styles.arrow} ${styles.right}`} onClick={onNext} aria-label="Next">›</button>}
+        {count > 1 && <span className={styles.counter}>{position} / {count}</span>}
         {image.caption && <p className={styles.caption}>{image.caption}</p>}
       </div>
     </div>

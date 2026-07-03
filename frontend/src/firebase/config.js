@@ -1,6 +1,7 @@
 export const COLLECTIONS = {
   services: 'petsitting_services',
   gallery: 'petsitting_gallery',
+  albums: 'petsitting_albums',
   messages: 'petsitting_messages',
   bio: 'petsitting_bio',
 };

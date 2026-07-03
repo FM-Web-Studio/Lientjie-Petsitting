@@ -21,7 +21,7 @@ export default function Admin() {
     <div className={styles.page}>
       <div className={styles.sidebar}>
         <div className={styles.adminHeader}>
-          <div className={styles.adminAvatar}>{user?.photoURL ? <img src={user.photoURL} alt="Admin" /> : '🐾'}</div>
+          <div className={styles.adminAvatar}>{user?.photoURL ? <img src={user.photoURL} alt="Admin" referrerPolicy="no-referrer" /> : '🐾'}</div>
           <div>
             <strong>Admin Panel</strong>
             <p>{user?.displayName || user?.email}</p>

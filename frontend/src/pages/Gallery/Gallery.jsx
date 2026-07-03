@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getGalleryImages } from '../../firebase/gallery.js';
+import { getAlbums, albumCover } from '../../firebase/gallery.js';
 import { GALLERY_CATEGORIES } from '../../firebase/config.js';
 import Lightbox from '../../components/Lightbox/Lightbox.jsx';
 import Skeleton from '../../components/Skeleton/Skeleton.jsx';
@@ -18,28 +18,38 @@ function GallerySkeleton() {
 }
 
 export default function Gallery() {
-  const [images, setImages] = useState([]);
+  const [albums, setAlbums] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [activeCategory, setActiveCategory] = useState('All');
-  const [lightboxIndex, setLightboxIndex] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Which post is open, and which image within it.
+  const [openPost, setOpenPost] = useState(null);
+  const [imgIndex, setImgIndex] = useState(0);
+
   useEffect(() => {
-    getGalleryImages(true)
-      .then((imgs) => { setImages(imgs); setFiltered(imgs); })
+    getAlbums(true)
+      .then((data) => {
+        // Only show posts that actually contain images.
+        const withImages = data.filter((a) => a.images?.length);
+        setAlbums(withImages);
+        setFiltered(withImages);
+      })
       .catch((err) => { console.error('Gallery load failed:', err); setError(err.message); })
       .finally(() => setLoading(false));
   }, []);
 
   useEffect(() => {
-    setFiltered(activeCategory === 'All' ? images : images.filter((i) => i.category === activeCategory));
-  }, [activeCategory, images]);
+    setFiltered(activeCategory === 'All' ? albums : albums.filter((a) => a.category === activeCategory));
+  }, [activeCategory, albums]);
 
-  const openLightbox = (index) => setLightboxIndex(index);
-  const closeLightbox = () => setLightboxIndex(null);
+  const openLightbox = (post) => { setOpenPost(post); setImgIndex(0); };
+  const closeLightbox = () => setOpenPost(null);
 
-  const lightboxImage = lightboxIndex !== null ? filtered[lightboxIndex] : null;
+  const lightboxImage = openPost
+    ? { ...openPost.images[imgIndex], caption: openPost.caption }
+    : null;
 
   return (
     <div>
@@ -80,35 +90,45 @@ export default function Gallery() {
 
           {!loading && !error && filtered.length > 0 && (
             <div className={styles.grid}>
-              {filtered.map((img, idx) => (
-                <button
-                  key={img.id}
-                  className={styles.item}
-                  onClick={() => openLightbox(idx)}
-                  aria-label={img.caption || 'View photo'}
-                >
-                  <img src={img.url} alt={img.caption || 'Pet photo'} loading="lazy" />
-                  {img.category && (
-                    <span className={styles.categoryChip}>{img.category}</span>
-                  )}
-                  {img.caption && (
-                    <div className={styles.overlay}>
-                      <span>{img.caption}</span>
-                    </div>
-                  )}
-                </button>
-              ))}
+              {filtered.map((post) => {
+                const cover = albumCover(post);
+                return (
+                  <button
+                    key={post.id}
+                    className={styles.item}
+                    onClick={() => openLightbox(post)}
+                    aria-label={post.caption || post.title || 'View post'}
+                  >
+                    <img src={cover?.url} alt={post.caption || 'Pet photo'} loading="lazy" />
+                    {post.images.length > 1 && (
+                      <span className={styles.multiBadge} aria-label={`${post.images.length} photos`}>
+                        ▦ {post.images.length}
+                      </span>
+                    )}
+                    {post.category && (
+                      <span className={styles.categoryChip}>{post.category}</span>
+                    )}
+                    {post.caption && (
+                      <div className={styles.overlay}>
+                        <span>{post.caption}</span>
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
       </section>
 
-      {lightboxImage && (
+      {openPost && (
         <Lightbox
           image={lightboxImage}
+          count={openPost.images.length}
+          position={imgIndex + 1}
           onClose={closeLightbox}
-          onPrev={lightboxIndex > 0 ? () => setLightboxIndex((i) => i - 1) : null}
-          onNext={lightboxIndex < filtered.length - 1 ? () => setLightboxIndex((i) => i + 1) : null}
+          onPrev={imgIndex > 0 ? () => setImgIndex((i) => i - 1) : null}
+          onNext={imgIndex < openPost.images.length - 1 ? () => setImgIndex((i) => i + 1) : null}
         />
       )}
     </div>

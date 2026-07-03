@@ -228,7 +228,91 @@
 
 .uploadArea { display: flex; flex-direction: column; gap: 1rem; }
 .uploadStatus { color: var(--grey); font-size: 0.9rem; }
-.uploadBtn { cursor: pointer; }
+.uploadBtn { cursor: pointer; display: inline-flex; align-items: center; }
+
+.helpText { color: var(--grey); font-size: 0.85rem; font-weight: 500; }
+p.helpText { margin: -0.5rem 0 1.25rem; }
+
+/* ── Gallery posts (folders) ─────────────────────────────────────────────── */
+.postList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.postCard {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  transition: opacity var(--transition);
+}
+
+.postCard.dimmed { opacity: 0.55; }
+.postCard.busy { pointer-events: none; opacity: 0.6; }
+
+.postCover { position: relative; }
+.postCover img { width: 100%; height: 200px; object-fit: cover; display: block; }
+.postCover .badge { position: absolute; top: 0.6rem; left: 0.6rem; }
+
+.postBody {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.thumbStrip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.thumb {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 2px solid transparent;
+}
+
+.thumb img { width: 100%; height: 100%; object-fit: cover; cursor: pointer; display: block; }
+.thumbCover { border-color: var(--coral); }
+
+.coverStar {
+  position: absolute;
+  bottom: 1px;
+  left: 2px;
+  color: gold;
+  font-size: 0.8rem;
+  text-shadow: 0 0 3px rgba(0,0,0,0.8);
+  pointer-events: none;
+}
+
+.thumbRemove {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-full);
+  background: rgba(0,0,0,0.65);
+  color: #fff;
+  border: none;
+  font-size: 0.65rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.thumbRemove:hover { background: var(--coral); }
+
+.postActions { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
 
 /* ── Bio layout ──────────────────────────────────────────────────────────── */
 .bioLayout {
