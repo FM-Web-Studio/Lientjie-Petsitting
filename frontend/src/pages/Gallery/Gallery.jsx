@@ -10,7 +10,12 @@ function GallerySkeleton() {
     <div className={styles.grid}>
       {[...Array(9)].map((_, i) => (
         <div key={i} className={styles.item} style={{ pointerEvents: 'none' }}>
-          <Skeleton style={{ width: '100%', height: '100%', borderRadius: 0 }} />
+          <div className={styles.media}>
+            <Skeleton style={{ width: '100%', height: '100%', borderRadius: 0 }} />
+          </div>
+          <div className={styles.caption}>
+            <Skeleton style={{ width: '80%', height: '0.9rem' }} />
+          </div>
         </div>
       ))}
     </div>
@@ -99,20 +104,22 @@ export default function Gallery() {
                     onClick={() => openLightbox(post)}
                     aria-label={post.caption || post.title || 'View post'}
                   >
-                    <img src={cover?.url} alt={post.caption || 'Pet photo'} loading="lazy" />
-                    {post.images.length > 1 && (
-                      <span className={styles.multiBadge} aria-label={`${post.images.length} photos`}>
-                        ▦ {post.images.length}
+                    <div className={styles.media}>
+                      <img src={cover?.url} alt={post.caption || 'Pet photo'} loading="lazy" />
+                      {post.images.length > 1 && (
+                        <span className={styles.multiBadge} aria-label={`${post.images.length} photos`}>
+                          ▦ {post.images.length}
+                        </span>
+                      )}
+                      {post.category && (
+                        <span className={styles.categoryChip}>{post.category}</span>
+                      )}
+                    </div>
+                    <div className={styles.caption}>
+                      <span className={styles.captionText}>
+                        {post.caption || post.title || 'A little moment of care 🐾'}
                       </span>
-                    )}
-                    {post.category && (
-                      <span className={styles.categoryChip}>{post.category}</span>
-                    )}
-                    {post.caption && (
-                      <div className={styles.overlay}>
-                        <span>{post.caption}</span>
-                      </div>
-                    )}
+                    </div>
                   </button>
                 );
               })}
@@ -124,6 +131,7 @@ export default function Gallery() {
       {openPost && (
         <Lightbox
           image={lightboxImage}
+          images={openPost.images}
           count={openPost.images.length}
           position={imgIndex + 1}
           onClose={closeLightbox}

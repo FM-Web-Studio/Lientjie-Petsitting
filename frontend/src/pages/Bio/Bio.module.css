@@ -1,12 +1,20 @@
 .hero {
-  background: linear-gradient(135deg, var(--pink) 0%, var(--purple-dark) 100%);
+  background: linear-gradient(135deg, #e75f8d 0%, var(--purple-dark) 100%);
   padding: 4rem 0;
   text-align: center;
   color: var(--on-dark);
 }
 
-.hero h1 { font-size: clamp(2rem, 5vw, 3.5rem); margin-bottom: 0.5rem; }
-.hero p  { font-size: 1.15rem; opacity: 0.9; }
+.hero h1 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.28);
+}
+.hero p {
+  font-size: 1.15rem;
+  color: #fff;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.32);
+}
 
 .layout {
   display: grid;

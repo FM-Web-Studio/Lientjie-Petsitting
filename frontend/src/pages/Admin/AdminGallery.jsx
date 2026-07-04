@@ -16,6 +16,9 @@ export default function AdminGallery() {
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [busyId, setBusyId] = useState(null);
+  const [createProgress, setCreateProgress] = useState(0);
+  const [addProgress, setAddProgress] = useState(0);
+  const [addingId, setAddingId] = useState(null); // post currently receiving new uploads
 
   // New-post form state
   const [title, setTitle] = useState('');
@@ -43,16 +46,23 @@ export default function AdminGallery() {
     e.preventDefault();
     if (!files.length) { addToast('Pick at least one image for the post.', 'error'); return; }
     setCreating(true);
+    setCreateProgress(0);
     try {
-      await createAlbum({ title, caption, category, files });
-      addToast(`Post created with ${files.length} photo(s)!`, 'success');
+      const { uploaded, failed } = await createAlbum({
+        title, caption, category, files, onProgress: setCreateProgress,
+      });
+      if (failed > 0) {
+        addToast(`Post created with ${uploaded} photo(s). ${failed} couldn't upload — add them again.`, 'info');
+      } else {
+        addToast(`Post created with ${uploaded} photo(s)!`, 'success');
+      }
       setTitle(''); setCaption(''); setFiles([]);
       if (fileRef.current) fileRef.current.value = '';
       load();
     } catch (err) {
       console.error(err);
       addToast('Could not create the post. Please try again.', 'error');
-    } finally { setCreating(false); }
+    } finally { setCreating(false); setCreateProgress(0); }
   };
 
   const toggleActive = async (post) => {
@@ -92,14 +102,20 @@ export default function AdminGallery() {
     const picked = Array.from(inputEl.files);
     if (!picked.length) return;
     setBusyId(post.id);
+    setAddingId(post.id);
+    setAddProgress(0);
     try {
-      await addImagesToAlbum(post.id, picked, post.images);
-      addToast(`${picked.length} photo(s) added.`, 'success');
+      const { uploaded, failed } = await addImagesToAlbum(post.id, picked, post.images, setAddProgress);
+      if (failed > 0) {
+        addToast(`${uploaded} photo(s) added. ${failed} couldn't upload — try again.`, 'info');
+      } else {
+        addToast(`${uploaded} photo(s) added.`, 'success');
+      }
       inputEl.value = '';
       load();
     } catch {
       addToast('Could not add photos.', 'error');
-    } finally { setBusyId(null); }
+    } finally { setBusyId(null); setAddingId(null); setAddProgress(0); }
   };
 
   const removeImage = async (post, index) => {
@@ -182,9 +198,17 @@ export default function AdminGallery() {
             )}
           </div>
         </div>
+        {creating && (
+          <div className={styles.progressWrap}>
+            <div className={styles.progressTrack}>
+              <div className={styles.progressFill} style={{ width: `${Math.round(createProgress * 100)}%` }} />
+            </div>
+            <span className={styles.progressLabel}>{Math.round(createProgress * 100)}%</span>
+          </div>
+        )}
         <div className={styles.formActions}>
           <button type="submit" className="btn btn-primary" disabled={creating}>
-            {creating ? '⏳ Creating…' : 'Create Post'}
+            {creating ? `⏳ Uploading… ${Math.round(createProgress * 100)}%` : 'Create Post'}
           </button>
         </div>
       </form>
@@ -213,6 +237,7 @@ export default function AdminGallery() {
             const cover = albumCover(post);
             const coverIdx = Math.min(post.coverIndex ?? 0, post.images.length - 1);
             const busy = busyId === post.id;
+            const uploading = addingId === post.id;
             return (
               <div key={post.id} className={`${styles.postCard} ${!post.active ? styles.dimmed : ''} ${busy ? styles.busy : ''}`}>
                 <div className={styles.postCover}>
@@ -274,9 +299,17 @@ export default function AdminGallery() {
                     </div>
                   </div>
 
+                  {uploading && (
+                    <div className={styles.progressWrap}>
+                      <div className={styles.progressTrack}>
+                        <div className={styles.progressFill} style={{ width: `${Math.round(addProgress * 100)}%` }} />
+                      </div>
+                      <span className={styles.progressLabel}>{Math.round(addProgress * 100)}%</span>
+                    </div>
+                  )}
                   <div className={styles.postActions}>
                     <label className={`btn btn-secondary btn-sm ${styles.uploadBtn}`}>
-                      + Add photos
+                      {uploading ? `Uploading… ${Math.round(addProgress * 100)}%` : '+ Add photos'}
                       <input
                         type="file"
                         accept="image/*"
