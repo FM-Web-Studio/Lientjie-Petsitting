@@ -4,7 +4,6 @@ import {
 import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
 import { db, storage } from './app.js';
 import { COLLECTIONS, STORAGE_PREFIX } from './config.js';
-import { compressImage } from '../utils/image.js';
 
 // How many images to upload at once. Small enough to stay gentle on mobile
 // memory, large enough to beat one-at-a-time latency.
@@ -26,18 +25,18 @@ const col = () => collection(db, COLLECTIONS.albums);
 const albumDoc = (id) => doc(db, COLLECTIONS.albums, id);
 
 /**
- * Compress + upload a single file to storage, reporting progress (0..1).
+ * Upload a single (already-prepared) file to storage, reporting progress (0..1).
+ * Compression/resizing happens earlier, off the main thread — see utils/image.js.
  * Returns its { url, storagePath }.
  */
 async function uploadFile(file, onProgress) {
-  const compressed = await compressImage(file);
-  const safeName = compressed.name.replace(/\s+/g, '_');
+  const safeName = (file.name || 'photo.jpg').replace(/\s+/g, '_');
   const fileName = `${Date.now()}_${Math.round(Math.random() * 1e6)}_${safeName}`;
   const storagePath = `${STORAGE_PREFIX}/${fileName}`;
   const storageRef = ref(storage, storagePath);
 
   await new Promise((resolve, reject) => {
-    const task = uploadBytesResumable(storageRef, compressed, { contentType: compressed.type });
+    const task = uploadBytesResumable(storageRef, file, { contentType: file.type });
     task.on(
       'state_changed',
       (snap) => onProgress?.(snap.totalBytes ? snap.bytesTransferred / snap.totalBytes : 0),
@@ -113,7 +112,7 @@ export function albumCover(album) {
 }
 
 /**
- * Create a new post from a list of files + shared metadata.
+ * Create a new post from a list of (already-prepared) files + shared metadata.
  * `onProgress` receives overall upload completion (0..1).
  * Returns { ref, uploaded, failed } so the caller can report partial failures.
  */

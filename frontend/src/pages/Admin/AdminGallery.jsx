@@ -3,6 +3,7 @@ import {
   getAlbums, createAlbum, updateAlbum, deleteAlbum,
   addImagesToAlbum, removeImageFromAlbum, albumCover,
 } from '../../firebase/gallery.js';
+import { prepareImages } from '../../utils/image.js';
 import { useToast } from '../../context/ToastContext.jsx';
 import { GALLERY_CATEGORIES } from '../../firebase/config.js';
 import Skeleton from '../../components/Skeleton/Skeleton.jsx';
@@ -20,43 +21,71 @@ export default function AdminGallery() {
   const [addProgress, setAddProgress] = useState(0);
   const [addingId, setAddingId] = useState(null); // post currently receiving new uploads
 
-  // New-post form state
+  // New-post form state. `items` holds { name, file, previewUrl } — the file is
+  // already compressed and previewUrl is a tiny thumbnail (not the full-res photo).
   const [title, setTitle] = useState('');
   const [caption, setCaption] = useState('');
   const [category, setCategory] = useState('Dogs');
-  const [files, setFiles] = useState([]);
-  const [previews, setPreviews] = useState([]);
+  const [items, setItems] = useState([]);
+  const [preparing, setPreparing] = useState(false);
+  const [prepareProgress, setPrepareProgress] = useState(0);
   const fileRef = useRef();
+  const itemsRef = useRef(items);
+  itemsRef.current = items;
 
   const load = () => getAlbums(false).then(setAlbums).finally(() => setLoading(false));
   useEffect(() => { load(); }, []);
 
-  // Build object-URL previews for the selected files; revoke them on change/unmount.
-  useEffect(() => {
-    const urls = files.map((f) => URL.createObjectURL(f));
-    setPreviews(urls);
-    return () => urls.forEach((u) => URL.revokeObjectURL(u));
-  }, [files]);
+  // Revoke any outstanding preview object-URLs when the component unmounts.
+  useEffect(() => () => itemsRef.current.forEach((it) => URL.revokeObjectURL(it.previewUrl)), []);
+
+  // Compress + build small previews off the main thread as soon as photos are picked.
+  const onSelectFiles = async (picked) => {
+    if (!picked.length) return;
+    itemsRef.current.forEach((it) => URL.revokeObjectURL(it.previewUrl));
+    setItems([]);
+    setPreparing(true);
+    setPrepareProgress(0);
+    try {
+      const prepared = await prepareImages(picked, setPrepareProgress);
+      setItems(prepared.map((p, i) => ({ ...p, name: picked[i].name })));
+    } catch (err) {
+      console.error(err);
+      addToast('Could not process those images. Please try again.', 'error');
+    } finally {
+      setPreparing(false);
+      if (fileRef.current) fileRef.current.value = '';
+    }
+  };
 
   const removeSelected = (index) => {
-    setFiles((prev) => prev.filter((_, i) => i !== index));
+    setItems((prev) => {
+      const target = prev[index];
+      if (target) URL.revokeObjectURL(target.previewUrl);
+      return prev.filter((_, i) => i !== index);
+    });
+  };
+
+  const resetSelection = () => {
+    itemsRef.current.forEach((it) => URL.revokeObjectURL(it.previewUrl));
+    setItems([]);
   };
 
   const createPost = async (e) => {
     e.preventDefault();
-    if (!files.length) { addToast('Pick at least one image for the post.', 'error'); return; }
+    if (!items.length) { addToast('Pick at least one image for the post.', 'error'); return; }
     setCreating(true);
     setCreateProgress(0);
     try {
       const { uploaded, failed } = await createAlbum({
-        title, caption, category, files, onProgress: setCreateProgress,
+        title, caption, category, files: items.map((it) => it.file), onProgress: setCreateProgress,
       });
       if (failed > 0) {
         addToast(`Post created with ${uploaded} photo(s). ${failed} couldn't upload — add them again.`, 'info');
       } else {
         addToast(`Post created with ${uploaded} photo(s)!`, 'success');
       }
-      setTitle(''); setCaption(''); setFiles([]);
+      setTitle(''); setCaption(''); resetSelection();
       if (fileRef.current) fileRef.current.value = '';
       load();
     } catch (err) {
@@ -105,7 +134,10 @@ export default function AdminGallery() {
     setAddingId(post.id);
     setAddProgress(0);
     try {
-      const { uploaded, failed } = await addImagesToAlbum(post.id, picked, post.images, setAddProgress);
+      const prepared = await prepareImages(picked);
+      const files = prepared.map((p) => p.file);
+      prepared.forEach((p) => URL.revokeObjectURL(p.previewUrl)); // no preview shown for this path
+      const { uploaded, failed } = await addImagesToAlbum(post.id, files, post.images, setAddProgress);
       if (failed > 0) {
         addToast(`${uploaded} photo(s) added. ${failed} couldn't upload — try again.`, 'info');
       } else {
@@ -165,24 +197,32 @@ export default function AdminGallery() {
             />
           </div>
           <div className={`${styles.field} ${styles.span2}`}>
-            <label>Photos {files.length > 0 && <span className={styles.helpText}>— {files.length} selected</span>}</label>
+            <label>Photos {items.length > 0 && <span className={styles.helpText}>— {items.length} selected</span>}</label>
             <label className={`btn btn-secondary btn-sm ${styles.uploadBtn}`} style={{ alignSelf: 'flex-start' }}>
-              {files.length > 0 ? 'Choose different images' : 'Choose images'}
+              {items.length > 0 ? 'Choose different images' : 'Choose images'}
               <input
                 type="file"
                 accept="image/*"
                 multiple
                 hidden
                 ref={fileRef}
-                onChange={(e) => setFiles(Array.from(e.target.files))}
-                disabled={creating}
+                onChange={(e) => onSelectFiles(Array.from(e.target.files))}
+                disabled={creating || preparing}
               />
             </label>
-            {previews.length > 0 && (
+            {preparing && (
+              <div className={styles.progressWrap}>
+                <div className={styles.progressTrack}>
+                  <div className={styles.progressFill} style={{ width: `${Math.round(prepareProgress * 100)}%` }} />
+                </div>
+                <span className={styles.progressLabel}>Processing photos… {Math.round(prepareProgress * 100)}%</span>
+              </div>
+            )}
+            {items.length > 0 && (
               <div className={styles.thumbStrip}>
-                {previews.map((src, idx) => (
-                  <div key={src} className={styles.thumb}>
-                    <img src={src} alt={files[idx]?.name || `Selected ${idx + 1}`} />
+                {items.map((it, idx) => (
+                  <div key={it.previewUrl} className={styles.thumb}>
+                    <img src={it.previewUrl} alt={it.name || `Selected ${idx + 1}`} loading="lazy" decoding="async" />
                     <button
                       type="button"
                       className={styles.thumbRemove}
@@ -207,7 +247,7 @@ export default function AdminGallery() {
           </div>
         )}
         <div className={styles.formActions}>
-          <button type="submit" className="btn btn-primary" disabled={creating}>
+          <button type="submit" className="btn btn-primary" disabled={creating || preparing}>
             {creating ? `⏳ Uploading… ${Math.round(createProgress * 100)}%` : 'Create Post'}
           </button>
         </div>
