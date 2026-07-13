@@ -29,13 +29,20 @@ export default function AdminServices() {
     if (!form.name || !form.price) return addToast('Name and price are required.', 'warning');
     setSaving(true);
     try {
-      const data = { ...form, price: Number(form.price), order: Number(form.order) };
+      const { id, ...fields } = form;
+      const data = { ...fields, price: Number(form.price), order: Number(form.order) };
       if (editing === 'new') await addService(data);
       else await updateService(editing, data);
       addToast(editing === 'new' ? 'Service added!' : 'Service updated!', 'success');
       cancel();
       load();
-    } catch { addToast('Failed to save service.', 'error'); }
+    } catch (err) {
+      console.error('Failed to save service:', err);
+      const reason = err?.code === 'permission-denied'
+        ? 'Permission denied — make sure you are signed in as an admin.'
+        : err?.message || 'Unknown error';
+      addToast(`Failed to save service: ${reason}`, 'error');
+    }
     finally { setSaving(false); }
   };
 

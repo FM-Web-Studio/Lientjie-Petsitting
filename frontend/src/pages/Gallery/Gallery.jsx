@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getAlbums, albumCover } from '../../firebase/gallery.js';
-import { GALLERY_CATEGORIES } from '../../firebase/config.js';
+import { getGalleryCategories } from '../../firebase/categories.js';
+import { GALLERY_ALL } from '../../firebase/config.js';
 import Lightbox from '../../components/Lightbox/Lightbox.jsx';
 import Skeleton from '../../components/Skeleton/Skeleton.jsx';
 import styles from './Gallery.module.css';
@@ -25,7 +26,8 @@ function GallerySkeleton() {
 export default function Gallery() {
   const [albums, setAlbums] = useState([]);
   const [filtered, setFiltered] = useState([]);
-  const [activeCategory, setActiveCategory] = useState('All');
+  const [categories, setCategories] = useState([]);
+  const [activeCategory, setActiveCategory] = useState(GALLERY_ALL);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -43,6 +45,8 @@ export default function Gallery() {
       })
       .catch((err) => { console.error('Gallery load failed:', err); setError(err.message); })
       .finally(() => setLoading(false));
+
+    getGalleryCategories().then(setCategories).catch(() => setCategories([]));
   }, []);
 
   useEffect(() => {
@@ -68,7 +72,7 @@ export default function Gallery() {
       <section className="section">
         <div className="container">
           <div className={styles.filters}>
-            {GALLERY_CATEGORIES.map((cat) => (
+            {[GALLERY_ALL, ...categories].map((cat) => (
               <button
                 key={cat}
                 className={`${styles.filterBtn} ${activeCategory === cat ? styles.active : ''}`}

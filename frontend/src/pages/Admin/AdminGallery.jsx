@@ -5,11 +5,14 @@ import {
 } from '../../firebase/gallery.js';
 import { prepareImages } from '../../utils/image.js';
 import { useToast } from '../../context/ToastContext.jsx';
-import { GALLERY_CATEGORIES } from '../../firebase/config.js';
+import { getGalleryCategories, saveGalleryCategories } from '../../firebase/categories.js';
 import Skeleton from '../../components/Skeleton/Skeleton.jsx';
 import styles from './Admin.module.css';
 
-const CATEGORY_OPTIONS = GALLERY_CATEGORIES.filter((c) => c !== 'All');
+// Ensure a post's own (possibly-removed) category still appears as an option, so
+// editing a post never silently changes its category.
+const optionsFor = (categories, current) =>
+  (current && !categories.includes(current) ? [current, ...categories] : categories);
 
 export default function AdminGallery() {
   const { addToast } = useToast();
@@ -25,8 +28,13 @@ export default function AdminGallery() {
   // already compressed and previewUrl is a tiny thumbnail (not the full-res photo).
   const [title, setTitle] = useState('');
   const [caption, setCaption] = useState('');
-  const [category, setCategory] = useState('Dogs');
+  const [category, setCategory] = useState('');
   const [items, setItems] = useState([]);
+
+  // Admin-managed album categories (shared with the public gallery filters).
+  const [categories, setCategories] = useState([]);
+  const [newCategory, setNewCategory] = useState('');
+  const [savingCats, setSavingCats] = useState(false);
   const [preparing, setPreparing] = useState(false);
   const [prepareProgress, setPrepareProgress] = useState(0);
   const fileRef = useRef();
@@ -35,6 +43,49 @@ export default function AdminGallery() {
 
   const load = () => getAlbums(false).then(setAlbums).finally(() => setLoading(false));
   useEffect(() => { load(); }, []);
+
+  // Load categories, and default the new-post picker to the first one.
+  useEffect(() => {
+    getGalleryCategories().then((cats) => {
+      setCategories(cats);
+      setCategory((prev) => (prev && cats.includes(prev) ? prev : (cats[0] || '')));
+    });
+  }, []);
+
+  const persistCategories = async (next) => {
+    setSavingCats(true);
+    try {
+      const saved = await saveGalleryCategories(next);
+      setCategories(saved);
+      setCategory((prev) => (prev && saved.includes(prev) ? prev : (saved[0] || '')));
+      return saved;
+    } catch (err) {
+      console.error('Failed to save categories:', err);
+      addToast('Could not save categories. Are you signed in as an admin?', 'error');
+      return null;
+    } finally { setSavingCats(false); }
+  };
+
+  const addCategory = async () => {
+    const name = newCategory.trim();
+    if (!name) return;
+    if (categories.some((c) => c.toLowerCase() === name.toLowerCase())) {
+      addToast('That category already exists.', 'info');
+      return;
+    }
+    const saved = await persistCategories([...categories, name]);
+    if (saved) { setNewCategory(''); addToast(`Added category "${name}".`, 'success'); }
+  };
+
+  const removeCategory = async (name) => {
+    const inUse = albums.filter((a) => a.category === name).length;
+    const msg = inUse
+      ? `Remove "${name}"? ${inUse} post(s) use it — they'll keep the label but it won't appear as a filter until you re-add it.`
+      : `Remove category "${name}"?`;
+    if (!confirm(msg)) return;
+    const saved = await persistCategories(categories.filter((c) => c !== name));
+    if (saved) addToast(`Removed category "${name}".`, 'info');
+  };
 
   // Revoke any outstanding preview object-URLs when the component unmounts.
   useEffect(() => () => itemsRef.current.forEach((it) => URL.revokeObjectURL(it.previewUrl)), []);
@@ -169,6 +220,47 @@ export default function AdminGallery() {
         <h2>📸 Gallery Posts</h2>
       </div>
 
+      {/* ── Manage categories ─────────────────────────────────────────── */}
+      <div className={styles.formCard}>
+        <h3>Album Categories</h3>
+        <p className={styles.helpText}>
+          These are the categories you can file posts under, and the filters visitors see on the gallery.
+          Add your own below.
+        </p>
+        <div className={styles.tagRow}>
+          {categories.length === 0 && <span className={styles.helpText}>No categories yet — add one.</span>}
+          {categories.map((c) => (
+            <span key={c} className={styles.tag}>
+              {c}
+              <button
+                type="button"
+                className={styles.tagRemove}
+                onClick={() => removeCategory(c)}
+                disabled={savingCats}
+                aria-label={`Remove category ${c}`}
+              >
+                ✕
+              </button>
+            </span>
+          ))}
+        </div>
+        <form
+          className={styles.inlineForm}
+          onSubmit={(e) => { e.preventDefault(); addCategory(); }}
+        >
+          <input
+            value={newCategory}
+            onChange={(e) => setNewCategory(e.target.value)}
+            placeholder="New category (e.g. Puppies)"
+            maxLength={30}
+            disabled={savingCats}
+          />
+          <button type="submit" className="btn btn-secondary btn-sm" disabled={savingCats || !newCategory.trim()}>
+            {savingCats ? 'Saving…' : '+ Add Category'}
+          </button>
+        </form>
+      </div>
+
       {/* ── Create a post ─────────────────────────────────────────────── */}
       <form className={styles.formCard} onSubmit={createPost}>
         <h3>Create a Post</h3>
@@ -184,7 +276,7 @@ export default function AdminGallery() {
           <div className={styles.field}>
             <label>Category</label>
             <select value={category} onChange={(e) => setCategory(e.target.value)}>
-              {CATEGORY_OPTIONS.map((c) => <option key={c}>{c}</option>)}
+              {categories.map((c) => <option key={c}>{c}</option>)}
             </select>
           </div>
           <div className={`${styles.field} ${styles.span2}`}>
@@ -292,10 +384,10 @@ export default function AdminGallery() {
                     <label>Category</label>
                     <select
                       className={styles.captionInput}
-                      value={post.category || 'Dogs'}
+                      value={post.category || categories[0] || ''}
                       onChange={(e) => saveCategory(post, e.target.value)}
                     >
-                      {CATEGORY_OPTIONS.map((c) => <option key={c}>{c}</option>)}
+                      {optionsFor(categories, post.category).map((c) => <option key={c}>{c}</option>)}
                     </select>
                   </div>
 
