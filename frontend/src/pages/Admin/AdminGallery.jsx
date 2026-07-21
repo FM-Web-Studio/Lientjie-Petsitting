@@ -160,6 +160,12 @@ export default function AdminGallery() {
     } finally { setBusyId(null); }
   };
 
+  const saveTitle = async (post, value) => {
+    if (value === (post.title || '')) return;
+    await updateAlbum(post.id, { title: value });
+    load();
+  };
+
   const saveCaption = async (post, value) => {
     if (value === post.caption) return;
     await updateAlbum(post.id, { caption: value });
@@ -380,6 +386,16 @@ export default function AdminGallery() {
                 </div>
 
                 <div className={styles.postBody}>
+                  <div className={styles.field}>
+                    <label>Title</label>
+                    <input
+                      className={styles.captionInput}
+                      defaultValue={post.title}
+                      placeholder="Add a title…"
+                      onBlur={(e) => saveTitle(post, e.target.value)}
+                    />
+                  </div>
+
                   <div className={styles.field}>
                     <label>Category</label>
                     <select

@@ -3,6 +3,7 @@ import { getServices, addService, updateService, deleteService } from '../../fir
 import { useToast } from '../../context/ToastContext.jsx';
 import { SERVICE_CATEGORIES } from '../../firebase/config.js';
 import Skeleton from '../../components/Skeleton/Skeleton.jsx';
+import { KebabMenu } from '../../components/index.js';
 import styles from './Admin.module.css';
 
 const BLANK = { name: '', icon: '🐾', description: '', price: '', priceUnit: 'session', duration: '', category: 'Other', order: 0, active: true };
@@ -170,6 +171,51 @@ export default function AdminServices() {
             </table>
           )
         }
+      </div>
+
+      {/* Mobile card layout (the table is hidden ≤900px). Actions live behind a ⋯ menu. */}
+      <div className={styles.cardList}>
+        {loading ? (
+          [...Array(4)].map((_, i) => (
+            <div key={i} className={styles.serviceCard}>
+              <Skeleton style={{ width: '2rem', height: '2rem', flexShrink: 0 }} />
+              <div className={styles.serviceCardInfo}>
+                <Skeleton style={{ width: '140px', height: '1rem', marginBottom: '0.3rem' }} />
+                <Skeleton style={{ width: '90px', height: '0.8rem' }} />
+              </div>
+            </div>
+          ))
+        ) : services.length === 0 ? (
+          <p className={styles.empty}>No services yet. Add your first one above!</p>
+        ) : (
+          services.map((svc) => (
+            <div key={svc.id} className={styles.serviceCard}>
+              <span className={styles.serviceCardIcon}>{svc.icon}</span>
+              <div className={styles.serviceCardInfo}>
+                <strong>{svc.name}</strong>
+                <small>{svc.category}</small>
+                <span className={styles.servicePrice}>
+                  R{svc.price} / {svc.priceUnit}{svc.duration ? ` · ${svc.duration}` : ''}
+                </span>
+                <button
+                  className={`badge ${svc.active ? styles.badgeActive : styles.badgeInactive}`}
+                  onClick={() => toggleActive(svc)}
+                  title="Toggle active"
+                >
+                  {svc.active ? 'Active' : 'Hidden'}
+                </button>
+              </div>
+              <KebabMenu
+                ariaLabel={`Actions for ${svc.name}`}
+                items={[
+                  { label: 'Edit', onClick: () => openEdit(svc) },
+                  { label: svc.active ? 'Hide' : 'Show', onClick: () => toggleActive(svc) },
+                  { label: 'Delete', danger: true, onClick: () => remove(svc) },
+                ]}
+              />
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
