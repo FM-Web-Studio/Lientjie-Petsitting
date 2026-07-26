@@ -16,7 +16,8 @@ export default function Footer() {
     <footer className={styles.footer}>
       <div className={`container ${styles.inner}`}>
         <div className={styles.brand}>
-          <span className={styles.logo}>🐾 {brand.brandName}</span>
+          <img src="/logo.png" alt="" className={styles.logoImg} />
+          <span className={styles.logo}>{brand.brandName}</span>
           <p>{brand.footerTagline}</p>
           {socials.length > 0 && (
             <p style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>

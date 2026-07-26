@@ -36,7 +36,7 @@ export default function Navigation() {
       <div className={`container ${styles.inner}`}>
 
         <Link to="/" className={styles.logo} onClick={close}>
-          <span className={styles.pawIcon}>🐾</span>
+          <img src="/logo.png" alt="" className={styles.logoImg} />
           <span className={styles.logoText}>{firstWord} {rest.length > 0 && <span>{rest.join(' ')}</span>}</span>
         </Link>
 

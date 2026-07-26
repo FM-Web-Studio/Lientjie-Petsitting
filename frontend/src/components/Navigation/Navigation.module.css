@@ -27,9 +27,11 @@
   text-decoration: none;
 }
 
-.pawIcon {
-  font-size: 1.75rem;
-  line-height: 1;
+.logoImg {
+  height: 42px;
+  width: auto;
+  display: block;
+  border-radius: var(--radius-sm);
 }
 
 .logoText {
