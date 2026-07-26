@@ -46,7 +46,7 @@
   --font: 'Nunito', system-ui, sans-serif;
   --nav-height: 72px;
 
-  /* Always-fixed surfaces — never flip with theme */
+  /* Always-fixed surfaces - never flip with theme */
   --surface-dark:   #1e1e2e;
   --surface-darker: #13131f;
   --on-dark:        #ffffff;       /* text on always-dark surfaces */
@@ -178,11 +178,22 @@ h1, h2, h3, h4, h5, h6 { font-weight: 800; line-height: 1.2; }
   margin: 0 auto 2rem;
 }
 
-/* ── Scrollbar ──────────────────────────────────────────────────────────── */
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: var(--cream); }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: var(--radius-full); }
-::-webkit-scrollbar-thumb:hover { background: var(--grey); }
+/* ── Scrollbar - no track, only a floating coral thumb ────────────────────── */
+::-webkit-scrollbar { width: 12px; height: 12px; background: transparent; }
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 107, 107, 0.5);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 107, 107, 0.8); }
+
+/* Firefox (no ::-webkit-scrollbar): thin bar, coral thumb, transparent track. */
+@supports not selector(::-webkit-scrollbar) {
+  * { scrollbar-width: thin; scrollbar-color: rgba(255, 107, 107, 0.55) transparent; }
+}
 
 /* ── Focus ──────────────────────────────────────────────────────────────── */
 :focus-visible { outline: 3px solid var(--coral); outline-offset: 2px; }

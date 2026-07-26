@@ -96,7 +96,7 @@ async function decode(file) {
 
 /**
  * Return a compressed JPEG File, or the original file when compression is
- * skipped (non-image, animated GIF) or wouldn't help. Runs on the main thread —
+ * skipped (non-image, animated GIF) or wouldn't help. Runs on the main thread -
  * used only when the worker is unavailable.
  */
 export async function compressImage(file, opts = {}) {
@@ -155,13 +155,13 @@ async function makePreview(file, opts = {}) {
 /**
  * Prepare a single file for upload. Returns { file, previewUrl }:
  *   - `file`       is a compressed JPEG (or the original if compression didn't help)
- *   - `previewUrl` is a small object-URL thumbnail — the CALLER must revokeObjectURL it
+ *   - `previewUrl` is a small object-URL thumbnail - the CALLER must revokeObjectURL it
  */
 export async function prepareImage(file, opts = {}) {
   const options = { ...DEFAULTS, ...opts };
 
   // Don't touch things we shouldn't: non-images, or GIFs (canvas kills animation).
-  // Preview straight from the original — these files are already small.
+  // Preview straight from the original - these files are already small.
   if (!file.type.startsWith('image/') || file.type === 'image/gif') {
     return { file, previewUrl: URL.createObjectURL(file) };
   }
@@ -177,7 +177,7 @@ export async function prepareImage(file, opts = {}) {
       const previewUrl = URL.createObjectURL(preview || full || file);
       return { file: uploadFile, previewUrl };
     } catch {
-      /* worker failed for this file — fall back to the main thread */
+      /* worker failed for this file - fall back to the main thread */
     }
   }
 

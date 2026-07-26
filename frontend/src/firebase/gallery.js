@@ -12,7 +12,7 @@ const UPLOAD_CONCURRENCY = 3;
 const MAX_RETRIES = 2;
 
 /*
- * Gallery is organised as "posts" (a.k.a. folders / albums) — Instagram-style.
+ * Gallery is organised as "posts" (a.k.a. folders / albums) - Instagram-style.
  * Each document in `petsitting_albums` holds many images plus a shared caption:
  *   {
  *     title, caption, category, active, order, coverIndex,
@@ -26,7 +26,7 @@ const albumDoc = (id) => doc(db, COLLECTIONS.albums, id);
 
 /**
  * Upload a single (already-prepared) file to storage, reporting progress (0..1).
- * Compression/resizing happens earlier, off the main thread — see utils/image.js.
+ * Compression/resizing happens earlier, off the main thread - see utils/image.js.
  * Returns its { url, storagePath }.
  */
 async function uploadFile(file, onProgress) {

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useTheme } from '../../context/ThemeContext.jsx';
+import { useContent } from '../../context/ContentContext.jsx';
 import { logOut } from '../../firebase/auth.js';
 import styles from './Navigation.module.css';
 
@@ -16,6 +17,9 @@ const NAV_LINKS = [
 export default function Navigation() {
   const { user, isAdmin } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { copy } = useContent();
+  const brandName = copy('brand').brandName;
+  const [firstWord, ...rest] = brandName.split(' ');
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -33,7 +37,7 @@ export default function Navigation() {
 
         <Link to="/" className={styles.logo} onClick={close}>
           <span className={styles.pawIcon}>🐾</span>
-          <span className={styles.logoText}>Lientjie's <span>Petsitting</span></span>
+          <span className={styles.logoText}>{firstWord} {rest.length > 0 && <span>{rest.join(' ')}</span>}</span>
         </Link>
 
         <div className={styles.rightGroup}>

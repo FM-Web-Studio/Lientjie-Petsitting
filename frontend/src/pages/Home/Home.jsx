@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { getServices } from '../../firebase/services.js';
 import { getAlbums, albumCover } from '../../firebase/gallery.js';
 import { getBio } from '../../firebase/bio.js';
+import { useContent } from '../../context/ContentContext.jsx';
 import Skeleton from '../../components/Skeleton/Skeleton.jsx';
 import styles from './Home.module.css';
 
@@ -55,6 +56,9 @@ function GalleryPreviewSkeleton() {
 }
 
 export default function Home() {
+  const { copy } = useContent();
+  const t = copy('home');
+  const badges = [t.badge1, t.badge2, t.badge3, t.badge4].filter(Boolean);
   const [services, setServices] = useState([]);
   const [gallery, setGallery] = useState([]);
   const [bio, setBio] = useState(null);
@@ -87,23 +91,15 @@ export default function Home() {
           ))}
         </div>
         <div className={`container ${styles.heroContent}`}>
-          <span className={styles.heroTag}>Professional Pet Care in Pretoria 🌟</span>
-          <h1 className={styles.heroTitle}>
-            Your Pet's Home<br />Away From Home!
-          </h1>
-          <p className={styles.heroSub}>
-            Loving, professional care for your furry, feathery & scaly family members.<br />
-            Because they deserve the best while you're away.
-          </p>
+          <span className={styles.heroTag}>{t.heroTag}</span>
+          <h1 className={styles.heroTitle}>{t.heroTitle}</h1>
+          <p className={styles.heroSub}>{t.heroSub}</p>
           <div className={styles.heroBtns}>
-            <Link to="/services" className="btn btn-primary">View Services</Link>
-            <Link to="/contact" className="btn btn-secondary">Book a Session</Link>
+            <Link to="/services" className="btn btn-primary">{t.heroBtnPrimary}</Link>
+            <Link to="/contact" className="btn btn-secondary">{t.heroBtnSecondary}</Link>
           </div>
           <div className={styles.heroBadges}>
-            <span>🐕 Dog Walking</span>
-            <span>🏠 Pet Sitting</span>
-            <span>🌙 Overnight Stays</span>
-            <span>🛁 Grooming</span>
+            {badges.map((b, i) => <span key={i}>{b}</span>)}
           </div>
         </div>
       </section>
@@ -111,8 +107,8 @@ export default function Home() {
       {/* ── Services Preview ──────────────────────────────────────────── */}
       <section className={`section ${styles.servicesSection}`}>
         <div className="container">
-          <h2 className="section-title">What I Offer 🐾</h2>
-          <p className="section-subtitle">Tailored care for every kind of pet</p>
+          <h2 className="section-title">{t.servicesTitle}</h2>
+          <p className="section-subtitle">{t.servicesSubtitle}</p>
           {loading ? <ServicesSkeleton /> : (
             <>
               <div className={styles.servicesGrid}>
@@ -129,7 +125,7 @@ export default function Home() {
                 ))}
               </div>
               <div className={styles.centred}>
-                <Link to="/services" className="btn btn-primary">See All Services</Link>
+                <Link to="/services" className="btn btn-primary">{t.servicesCta}</Link>
               </div>
             </>
           )}
@@ -148,11 +144,11 @@ export default function Home() {
                 }
               </div>
               <div className={styles.bioText}>
-                <span className={styles.bioTag}>Meet your petsitter</span>
+                <span className={styles.bioTag}>{t.bioTag}</span>
                 <h2>{bio.name || 'Lientjie'}</h2>
                 <p className={styles.bioTagline}>{bio.tagline}</p>
                 <p>{bio.story?.slice(0, 300)}{bio.story?.length > 300 ? '…' : ''}</p>
-                <Link to="/about" className="btn btn-teal" style={{ marginTop: '1.5rem' }}>Read My Story</Link>
+                <Link to="/about" className="btn btn-teal" style={{ marginTop: '1.5rem' }}>{t.bioCta}</Link>
               </div>
             </div>
           )}
@@ -162,8 +158,8 @@ export default function Home() {
       {/* ── Gallery Preview ───────────────────────────────────────────── */}
       <section className={`section ${styles.gallerySection}`}>
         <div className="container">
-          <h2 className="section-title">Happy Pets 📸</h2>
-          <p className="section-subtitle">Wholesome moments from my care sessions</p>
+          <h2 className="section-title">{t.galleryTitle}</h2>
+          <p className="section-subtitle">{t.gallerySubtitle}</p>
           {loading ? <GalleryPreviewSkeleton /> : (
             <>
               <div className={styles.galleryGrid}>
@@ -175,7 +171,7 @@ export default function Home() {
                 ))}
               </div>
               <div className={styles.centred}>
-                <Link to="/gallery" className="btn btn-secondary">See All Photos</Link>
+                <Link to="/gallery" className="btn btn-secondary">{t.galleryCta}</Link>
               </div>
             </>
           )}
@@ -185,9 +181,9 @@ export default function Home() {
       {/* ── CTA Banner ────────────────────────────────────────────────── */}
       <section className={styles.ctaBanner}>
         <div className={`container ${styles.ctaContent}`}>
-          <h2>Ready to book? Let's chat! 🐾</h2>
-          <p>Your pet will be in the safest, most loving hands.</p>
-          <Link to="/contact" className="btn btn-yellow">Get in Touch</Link>
+          <h2>{t.ctaTitle}</h2>
+          <p>{t.ctaText}</p>
+          <Link to="/contact" className="btn btn-yellow">{t.ctaBtn}</Link>
         </div>
       </section>
     </div>

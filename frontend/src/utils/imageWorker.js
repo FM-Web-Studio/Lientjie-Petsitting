@@ -1,7 +1,7 @@
 /*
  * Image-processing Web Worker.
  *
- * Decoding, downscaling and JPEG re-encoding are expensive — on a phone they can
+ * Decoding, downscaling and JPEG re-encoding are expensive - on a phone they can
  * freeze the UI for seconds per photo. Doing them here keeps the main thread free
  * so the page stays responsive while photos are prepared and uploaded.
  *
@@ -29,7 +29,7 @@ self.onmessage = async ({ data }) => {
   const { id, file, maxDimension, quality, previewDimension } = data;
   try {
     const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
-    // Encode sequentially — two OffscreenCanvases alive at once wastes memory on mobile.
+    // Encode sequentially - two OffscreenCanvases alive at once wastes memory on mobile.
     const full = await encode(bitmap, maxDimension, quality);
     const preview = await encode(bitmap, previewDimension, quality);
     if (typeof bitmap.close === 'function') bitmap.close();

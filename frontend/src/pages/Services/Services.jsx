@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getServices } from '../../firebase/services.js';
+import { useContent } from '../../context/ContentContext.jsx';
 import Skeleton from '../../components/Skeleton/Skeleton.jsx';
 import styles from './Services.module.css';
 
@@ -22,6 +23,8 @@ function ServiceCardSkeleton({ color }) {
 }
 
 export default function Services() {
+  const { copy } = useContent();
+  const t = copy('services');
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -37,8 +40,8 @@ export default function Services() {
     <div>
       <section className={styles.hero}>
         <div className="container">
-          <h1>My Services 🐾</h1>
-          <p>Professional, loving care tailored to your pet's needs</p>
+          <h1>{t.heroTitle}</h1>
+          <p>{t.heroSubtitle}</p>
         </div>
       </section>
 
@@ -85,7 +88,7 @@ export default function Services() {
                       ))}
                     </ul>
                   )}
-                  <Link to="/contact" className={`btn btn-primary ${styles.bookBtn}`}>Book Now</Link>
+                  <Link to="/contact" className={`btn btn-primary ${styles.bookBtn}`}>{t.bookBtn}</Link>
                 </article>
               ))}
             </div>
@@ -94,8 +97,8 @@ export default function Services() {
           <div className={styles.note}>
             <span>💬</span>
             <div>
-              <strong>Need something custom?</strong>
-              <p>Every pet is unique! <Link to="/contact">Contact me</Link> to discuss your specific needs and we'll find the perfect solution.</p>
+              <strong>{t.customTitle}</strong>
+              <p>{t.customText} <Link to="/contact">Contact me</Link>.</p>
             </div>
           </div>
         </div>

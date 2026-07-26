@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
-import { getBio, saveBio, uploadProfileImage } from '../../firebase/bio.js';
-import { useToast } from '../../context/ToastContext.jsx';
-import styles from './Admin.module.css';
+import { getBio, saveBio, uploadProfileImage } from '../../../firebase/bio.js';
+import { useToast } from '../../../context/ToastContext.jsx';
+import styles from '../Admin.module.css';
 
-const BLANK = { name: '', tagline: '', story: '', experience: '', location: '', phone: '', email: '', profileImageUrl: '', qualifications: [] };
+const BLANK = { name: '', tagline: '', story: '', experience: '', profileImageUrl: '', qualifications: [] };
 
-export default function AdminBio() {
+export default function AboutSection() {
   const { addToast } = useToast();
   const [form, setForm] = useState(BLANK);
   const [saving, setSaving] = useState(false);
@@ -38,7 +38,7 @@ export default function AdminBio() {
       setForm((f) => ({ ...f, profileImageUrl: url }));
       addToast('Profile image uploaded!', 'success');
     } catch { addToast('Image upload failed.', 'error'); }
-    finally { setUploading(false); fileRef.current.value = ''; }
+    finally { setUploading(false); if (fileRef.current) fileRef.current.value = ''; }
   };
 
   const addQual = () => {
@@ -46,22 +46,21 @@ export default function AdminBio() {
     setForm((f) => ({ ...f, qualifications: [...(f.qualifications || []), newQual.trim()] }));
     setNewQual('');
   };
-
-  const removeQual = (idx) => {
-    setForm((f) => ({ ...f, qualifications: f.qualifications.filter((_, i) => i !== idx) }));
-  };
+  const removeQual = (idx) => setForm((f) => ({ ...f, qualifications: f.qualifications.filter((_, i) => i !== idx) }));
 
   return (
     <div>
-      <div className={styles.sectionHeader}><h2>Bio & Profile</h2></div>
+      <p className={styles.intro}>
+        Your name, story and photo shown on the About page and the home-page snippet.
+        Phone, email and social links live under <strong>Contact Info</strong>.
+      </p>
 
       <div className={styles.formCard}>
         <form onSubmit={handleSave} className={styles.bioLayout}>
           <div className={styles.bioImageCol}>
             {form.profileImageUrl
               ? <img src={form.profileImageUrl} alt="Profile" className={styles.profilePreview} />
-              : <div className={styles.profilePlaceholder}>🐾</div>
-            }
+              : <div className={styles.profilePlaceholder}>🐾</div>}
             <label className={`btn btn-secondary btn-sm ${styles.uploadBtn}`}>
               {uploading ? 'Uploading…' : 'Change Photo'}
               <input type="file" accept="image/*" ref={fileRef} onChange={handleImageUpload} style={{ display: 'none' }} disabled={uploading} />
@@ -85,18 +84,6 @@ export default function AdminBio() {
               <div className={`${styles.field} ${styles.span2}`}>
                 <label>Story (separate paragraphs with a new line)</label>
                 <textarea value={form.story} onChange={set('story')} rows={8} placeholder="Tell visitors about yourself…" />
-              </div>
-              <div className={styles.field}>
-                <label>Location</label>
-                <input value={form.location} onChange={set('location')} placeholder="Pretoria, South Africa" />
-              </div>
-              <div className={styles.field}>
-                <label>Phone</label>
-                <input value={form.phone} onChange={set('phone')} placeholder="+27 82 000 0000" />
-              </div>
-              <div className={`${styles.field} ${styles.span2}`}>
-                <label>Email</label>
-                <input type="email" value={form.email} onChange={set('email')} placeholder="lientjie@example.com" />
               </div>
             </div>
 

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { getAlbums, albumCover } from '../../firebase/gallery.js';
 import { getGalleryCategories } from '../../firebase/categories.js';
 import { GALLERY_ALL } from '../../firebase/config.js';
+import { useContent } from '../../context/ContentContext.jsx';
 import Lightbox from '../../components/Lightbox/Lightbox.jsx';
 import Skeleton from '../../components/Skeleton/Skeleton.jsx';
 import styles from './Gallery.module.css';
@@ -24,6 +25,8 @@ function GallerySkeleton() {
 }
 
 export default function Gallery() {
+  const { copy } = useContent();
+  const t = copy('gallery');
   const [albums, setAlbums] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -64,8 +67,8 @@ export default function Gallery() {
     <div>
       <section className={styles.hero}>
         <div className="container">
-          <h1>Our Happy Pets 📸</h1>
-          <p>Wholesome moments from every care session</p>
+          <h1>{t.heroTitle}</h1>
+          <p>{t.heroSubtitle}</p>
         </div>
       </section>
 
@@ -93,7 +96,7 @@ export default function Gallery() {
 
           {!loading && !error && filtered.length === 0 && (
             <div className={styles.empty}>
-              <p>🐾 No photos here yet — check back soon!</p>
+              <p>🐾 No photos here yet - check back soon!</p>
             </div>
           )}
 

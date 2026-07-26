@@ -1,17 +1,29 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { sendMessage } from '../../firebase/contact.js';
+import { getServices } from '../../firebase/services.js';
 import { useToast } from '../../context/ToastContext.jsx';
+import { useContent } from '../../context/ContentContext.jsx';
 import { PET_TYPES } from '../../firebase/config.js';
 import styles from './Contact.module.css';
 
-const INITIAL = {
-  name: '', email: '', phone: '', petName: '', petType: '', serviceInterest: '', message: '',
-};
+const INITIAL = { name: '', email: '', phone: '', petName: '', petType: '', serviceInterest: '', message: '' };
 
 export default function Contact() {
   const { addToast } = useToast();
+  const { copy } = useContent();
+  const t = copy('contactPage');
+  const info = copy('contact');
   const [form, setForm] = useState(INITIAL);
   const [sending, setSending] = useState(false);
+  const [serviceNames, setServiceNames] = useState([]);
+
+  // Derive the "service interested in" options from the real services list, so
+  // the dropdown never drifts from what's actually offered.
+  useEffect(() => {
+    getServices(true)
+      .then((list) => setServiceNames(list.map((s) => s.name).filter(Boolean)))
+      .catch(() => setServiceNames([]));
+  }, []);
 
   const set = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
 
@@ -33,19 +45,21 @@ export default function Contact() {
     }
   };
 
+  const serviceOptions = serviceNames.length ? serviceNames : ['Dog Walking', 'Pet Sitting', 'Overnight Stay', 'Grooming', 'Other'];
+
   return (
     <div>
       <section className={styles.hero}>
         <div className="container">
-          <h1>Let's Chat! 💬</h1>
-          <p>Fill in the form and I'll get back to you as soon as possible</p>
+          <h1>{t.heroTitle}</h1>
+          <p>{t.heroSubtitle}</p>
         </div>
       </section>
 
       <section className="section">
         <div className={`container ${styles.layout}`}>
           <form onSubmit={handleSubmit} className={styles.form} noValidate>
-            <h2>Send a Message</h2>
+            <h2>{t.formTitle}</h2>
 
             <div className={styles.row}>
               <div className={styles.field}>
@@ -67,12 +81,7 @@ export default function Contact() {
                 <label>Service Interested In</label>
                 <select value={form.serviceInterest} onChange={set('serviceInterest')}>
                   <option value="">Select a service…</option>
-                  <option>Dog Walking</option>
-                  <option>Pet Sitting</option>
-                  <option>Overnight Stay</option>
-                  <option>Bath &amp; Groom</option>
-                  <option>Vet Transport</option>
-                  <option>Other</option>
+                  {serviceOptions.map((s) => <option key={s}>{s}</option>)}
                 </select>
               </div>
             </div>
@@ -86,52 +95,68 @@ export default function Contact() {
                 <label>Pet Type</label>
                 <select value={form.petType} onChange={set('petType')}>
                   <option value="">Select…</option>
-                  {PET_TYPES.map((t) => <option key={t}>{t}</option>)}
+                  {PET_TYPES.map((t2) => <option key={t2}>{t2}</option>)}
                 </select>
               </div>
             </div>
 
             <div className={styles.field}>
               <label>Message *</label>
-              <textarea
-                value={form.message}
-                onChange={set('message')}
-                rows={5}
-                placeholder="Tell me about your pet and what you need…"
-                required
-              />
+              <textarea value={form.message} onChange={set('message')} rows={5} placeholder="Tell me about your pet and what you need…" required />
             </div>
 
             <button type="submit" className="btn btn-primary" disabled={sending} style={{ width: '100%', justifyContent: 'center' }}>
-              {sending ? 'Sending…' : 'Send Message 🐾'}
+              {sending ? 'Sending…' : t.sendBtn}
             </button>
           </form>
 
           <aside className={styles.info}>
-            <div className={styles.infoCard}>
-              <span className={styles.infoIcon}>📍</span>
-              <div>
-                <strong>Location</strong>
-                <p>Pretoria, South Africa</p>
+            {info.location && (
+              <div className={styles.infoCard}>
+                <span className={styles.infoIcon}>📍</span>
+                <div><strong>Location</strong><p>{info.location}</p></div>
               </div>
-            </div>
-            <div className={styles.infoCard}>
-              <span className={styles.infoIcon}>⏰</span>
-              <div>
-                <strong>Response Time</strong>
-                <p>Within 24 hours</p>
+            )}
+            {info.phone && (
+              <div className={styles.infoCard}>
+                <span className={styles.infoIcon}>📞</span>
+                <div><strong>Phone</strong><p><a href={`tel:${info.phone.replace(/\s+/g, '')}`}>{info.phone}</a></p></div>
               </div>
-            </div>
-            <div className={styles.infoCard}>
-              <span className={styles.infoIcon}>🐾</span>
-              <div>
-                <strong>Pets Accepted</strong>
-                <p>Dogs, cats, birds, rabbits & more</p>
+            )}
+            {info.email && (
+              <div className={styles.infoCard}>
+                <span className={styles.infoIcon}>✉️</span>
+                <div><strong>Email</strong><p><a href={`mailto:${info.email}`}>{info.email}</a></p></div>
               </div>
-            </div>
+            )}
+            {info.responseTime && (
+              <div className={styles.infoCard}>
+                <span className={styles.infoIcon}>⏰</span>
+                <div><strong>Response Time</strong><p>{info.responseTime}</p></div>
+              </div>
+            )}
+            {info.petsAccepted && (
+              <div className={styles.infoCard}>
+                <span className={styles.infoIcon}>🐾</span>
+                <div><strong>Pets Accepted</strong><p>{info.petsAccepted}</p></div>
+              </div>
+            )}
+            {(info.instagram || info.facebook || info.whatsapp) && (
+              <div className={styles.infoCard}>
+                <span className={styles.infoIcon}>🔗</span>
+                <div>
+                  <strong>Find me</strong>
+                  <p style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                    {info.instagram && <a href={info.instagram} target="_blank" rel="noreferrer" style={{ color: 'var(--coral)', fontWeight: 700 }}>Instagram</a>}
+                    {info.facebook && <a href={info.facebook} target="_blank" rel="noreferrer" style={{ color: 'var(--coral)', fontWeight: 700 }}>Facebook</a>}
+                    {info.whatsapp && <a href={info.whatsapp} target="_blank" rel="noreferrer" style={{ color: 'var(--coral)', fontWeight: 700 }}>WhatsApp</a>}
+                  </p>
+                </div>
+              </div>
+            )}
             <div className={styles.promise}>
-              <h3>My Promise 💛</h3>
-              <p>Your pet will be treated like family. I'll send regular updates and photos so you can relax knowing they're in great hands.</p>
+              <h3>{t.promiseTitle}</h3>
+              <p>{t.promiseText}</p>
             </div>
           </aside>
         </div>

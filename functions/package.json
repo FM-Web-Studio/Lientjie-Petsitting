@@ -1,0 +1,19 @@
+{
+  "name": "lientjie-functions",
+  "description": "Contact-form email notifications for the Lientjie portfolio + petsitting sites",
+  "type": "commonjs",
+  "main": "index.js",
+  "engines": {
+    "node": "20"
+  },
+  "scripts": {
+    "serve": "firebase emulators:start --only functions",
+    "logs": "firebase functions:log",
+    "deploy": "firebase deploy --only functions"
+  },
+  "dependencies": {
+    "firebase-functions": "^5.1.1",
+    "nodemailer": "^6.9.14"
+  },
+  "private": true
+}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getBio } from '../../firebase/bio.js';
+import { useContent } from '../../context/ContentContext.jsx';
 import Skeleton from '../../components/Skeleton/Skeleton.jsx';
 import styles from './Bio.module.css';
 
@@ -36,6 +37,9 @@ function BioSkeleton() {
 }
 
 export default function Bio() {
+  const { copy } = useContent();
+  const t = copy('about');
+  const info = copy('contact');
   const [bio, setBio] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -44,13 +48,20 @@ export default function Bio() {
   }, []);
 
   const qualifications = bio?.qualifications || [];
+  const location = info.location || bio?.location;
+  const whyCards = [
+    { icon: t.why1Icon, title: t.why1Title, desc: t.why1Desc },
+    { icon: t.why2Icon, title: t.why2Title, desc: t.why2Desc },
+    { icon: t.why3Icon, title: t.why3Title, desc: t.why3Desc },
+    { icon: t.why4Icon, title: t.why4Title, desc: t.why4Desc },
+  ];
 
   return (
     <div>
       <section className={styles.hero}>
         <div className="container">
-          <h1>Meet Lientjie 🐾</h1>
-          <p>The person who will love your pet like her own</p>
+          <h1>{t.heroTitle}</h1>
+          <p>{t.heroSubtitle}</p>
         </div>
       </section>
 
@@ -68,22 +79,22 @@ export default function Bio() {
                   {bio?.experience && (
                     <div className={styles.stat}>
                       <strong>{bio.experience}</strong>
-                      <span>Experience</span>
+                      <span>{t.expLabel}</span>
                     </div>
                   )}
                   <div className={styles.stat}>
-                    <strong>100%</strong>
-                    <span>Love Given</span>
+                    <strong>{t.stat2Value}</strong>
+                    <span>{t.stat2Label}</span>
                   </div>
                   <div className={styles.stat}>
-                    <strong>∞</strong>
-                    <span>Happy Pets</span>
+                    <strong>{t.stat3Value}</strong>
+                    <span>{t.stat3Label}</span>
                   </div>
                 </div>
               </div>
 
               <div className={styles.content}>
-                <span className={styles.tag}>Your trusted petsitter</span>
+                <span className={styles.tag}>{t.tag}</span>
                 <h2>{bio?.name || 'Lientjie'}</h2>
                 {bio?.tagline && <p className={styles.tagline}>{bio.tagline}</p>}
 
@@ -95,7 +106,7 @@ export default function Bio() {
 
                 {qualifications.length > 0 && (
                   <div className={styles.quals}>
-                    <h3>Qualifications & Certifications</h3>
+                    <h3>{t.qualsTitle}</h3>
                     <ul>
                       {qualifications.map((q, i) => (
                         <li key={i}>🏆 {q}</li>
@@ -104,16 +115,16 @@ export default function Bio() {
                   </div>
                 )}
 
-                {bio?.location && (
+                {location && (
                   <div className={styles.detail}>
                     <span>📍</span>
-                    <span>{bio.location}</span>
+                    <span>{location}</span>
                   </div>
                 )}
 
                 <div className={styles.actions}>
-                  <Link to="/contact" className="btn btn-primary">Book a Session</Link>
-                  <Link to="/services" className="btn btn-secondary">View Services</Link>
+                  <Link to="/contact" className="btn btn-primary">{t.ctaPrimary}</Link>
+                  <Link to="/services" className="btn btn-secondary">{t.ctaSecondary}</Link>
                 </div>
               </div>
             </div>
@@ -123,15 +134,10 @@ export default function Bio() {
 
       <section className={styles.whySection}>
         <div className="container">
-          <h2 className="section-title">Why Choose Me? 💛</h2>
+          <h2 className="section-title">{t.whyTitle}</h2>
           <div className={styles.whyGrid}>
-            {[
-              { icon: '❤️', title: 'Genuine Love for Animals', desc: 'Every pet in my care gets love, attention and cuddles – just like at home.' },
-              { icon: '📱', title: 'Regular Updates', desc: 'Photos and videos sent regularly so you can relax wherever you are.' },
-              { icon: '🏡', title: 'Home Away From Home', desc: 'A safe, comfortable and stimulating environment for your furry friend.' },
-              { icon: '🤝', title: 'Trustworthy & Reliable', desc: "Punctual, professional and always putting your pet's needs first." },
-            ].map(({ icon, title, desc }) => (
-              <div key={title} className={styles.whyCard}>
+            {whyCards.map(({ icon, title, desc }, i) => (
+              <div key={i} className={styles.whyCard}>
                 <span className={styles.whyIcon}>{icon}</span>
                 <h3>{title}</h3>
                 <p>{desc}</p>

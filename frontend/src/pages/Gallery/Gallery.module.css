@@ -83,7 +83,7 @@
 
 .item:hover .media img { transform: scale(1.06); }
 
-/* Instagram-style caption — always visible beneath the photo */
+/* Instagram-style caption - always visible beneath the photo */
 .caption {
   padding: 0.7rem 0.85rem 0.85rem;
 }

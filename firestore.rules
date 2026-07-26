@@ -1,59 +1,64 @@
 rules_version = '2';
+
+// =============================================================================
+// CANONICAL RULESET for the shared `lientjie-project` Firebase project.
+// Covers BOTH the portfolio and the petsitting site. Keep this file identical
+// to Lientjie-Petsitting/firestore.rules - either repo may run
+// `firebase deploy --only firestore:rules`, and last-write-wins on the project.
+// =============================================================================
+
 service cloud.firestore {
   match /databases/{database}/documents {
+
     function isAdmin() {
       return request.auth != null &&
         request.auth.token.email in
           get(/databases/$(database)/documents/settings/admins).data.emails;
     }
 
-    // ── Shared settings (admin list) ────────────────────────────────────────
+    // Shared settings collection - admin allow-list, gallery categories, and the
+    // editable site-content docs (portfolio_content, petsitting_content). Public
+    // read so the sites can render; admin-only write.
     match /settings/{docId} {
       allow read: if true;
       allow write: if isAdmin();
     }
 
-    // ── Lientjie Online Portfolio ────────────────────────────────────────────
-    match /projects/{projectId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-    match /bio/{docId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-    match /messages/{msgId} {
+    // ── Portfolio (new app-prefixed names) ──────────────────────────────────────
+    match /portfolio_projects/{id} { allow read: if true; allow write: if isAdmin(); }
+    match /portfolio_bio/{id}      { allow read: if true; allow write: if isAdmin(); }
+    match /portfolio_memories/{id} { allow read: if true; allow write: if isAdmin(); }
+    match /portfolio_messages/{id} {
       allow create: if true;
       allow read, update, delete: if isAdmin();
     }
-    match /memories/{memId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
 
-    // ── Lientjie Petsitting ──────────────────────────────────────────────────
-    match /petsitting_services/{id} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-    match /petsitting_gallery/{id} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-    match /petsitting_albums/{id} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-    match /petsitting_messages/{id} {
-      allow create: if request.resource.data.keys().hasAll(['name','email','message','createdAt'])
-                    && request.resource.data.name is string
-                    && request.resource.data.email is string
-                    && request.resource.data.message is string;
+    // ── Portfolio (OLD names - transitional) ───────────────────────────────────
+    // Kept so the currently-live site keeps working until the data is migrated and
+    // the new frontend is deployed. Safe to REMOVE this block after migration.
+    match /projects/{id} { allow read: if true; allow write: if isAdmin(); }
+    match /bio/{id}      { allow read: if true; allow write: if isAdmin(); }
+    match /memories/{id} { allow read: if true; allow write: if isAdmin(); }
+    match /messages/{id} {
+      allow create: if true;
       allow read, update, delete: if isAdmin();
     }
-    match /petsitting_bio/{id} {
-      allow read: if true;
-      allow write: if isAdmin();
+
+    // ── Petsitting ──────────────────────────────────────────────────────────
+    match /petsitting_services/{id} { allow read: if true; allow write: if isAdmin(); }
+    match /petsitting_gallery/{id}  { allow read: if true; allow write: if isAdmin(); }
+    match /petsitting_albums/{id}   { allow read: if true; allow write: if isAdmin(); }
+    match /petsitting_bio/{id}      { allow read: if true; allow write: if isAdmin(); }
+    match /petsitting_messages/{id} {
+      allow create: if
+        request.resource.data.keys().hasAll(['name', 'email', 'message', 'createdAt']) &&
+        request.resource.data.name is string && request.resource.data.name.size() > 0 &&
+        request.resource.data.email is string && request.resource.data.email.size() > 0 &&
+        request.resource.data.message is string && request.resource.data.message.size() > 0;
+      allow read, update, delete: if isAdmin();
     }
+
+    // Everything else denied by default.
+    match /{document=**} { allow read, write: if false; }
   }
 }

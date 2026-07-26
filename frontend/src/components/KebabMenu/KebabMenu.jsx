@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import styles from './KebabMenu.module.css';
 
 /**
- * A tap-triggered "⋯" action menu — the mobile-friendly way to tuck row
+ * A tap-triggered "⋯" action menu - the mobile-friendly way to tuck row
  * actions away without a hidden long-press gesture. Closes on outside
  * click or Escape.
  *
