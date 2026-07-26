@@ -3,7 +3,7 @@ rules_version = '2';
 // =============================================================================
 // CANONICAL RULESET for the shared `lientjie-project` Firebase project.
 // Covers BOTH the portfolio and the petsitting site. Keep this file identical
-// to Lientjie-Petsitting/firestore.rules - either repo may run
+// to Lientjie-Online-Portfolio/frontend/firestore.rules - either repo may run
 // `firebase deploy --only firestore:rules`, and last-write-wins on the project.
 // =============================================================================
 
@@ -24,7 +24,7 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // ── Portfolio (new app-prefixed names) ──────────────────────────────────────
+    // ── Portfolio ─────────────────────────────────────────────────────────────
     match /portfolio_projects/{id} { allow read: if true; allow write: if isAdmin(); }
     match /portfolio_bio/{id}      { allow read: if true; allow write: if isAdmin(); }
     match /portfolio_memories/{id} { allow read: if true; allow write: if isAdmin(); }
@@ -33,20 +33,8 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin();
     }
 
-    // ── Portfolio (OLD names - transitional) ───────────────────────────────────
-    // Kept so the currently-live site keeps working until the data is migrated and
-    // the new frontend is deployed. Safe to REMOVE this block after migration.
-    match /projects/{id} { allow read: if true; allow write: if isAdmin(); }
-    match /bio/{id}      { allow read: if true; allow write: if isAdmin(); }
-    match /memories/{id} { allow read: if true; allow write: if isAdmin(); }
-    match /messages/{id} {
-      allow create: if true;
-      allow read, update, delete: if isAdmin();
-    }
-
     // ── Petsitting ──────────────────────────────────────────────────────────
     match /petsitting_services/{id} { allow read: if true; allow write: if isAdmin(); }
-    match /petsitting_gallery/{id}  { allow read: if true; allow write: if isAdmin(); }
     match /petsitting_albums/{id}   { allow read: if true; allow write: if isAdmin(); }
     match /petsitting_bio/{id}      { allow read: if true; allow write: if isAdmin(); }
     match /petsitting_messages/{id} {

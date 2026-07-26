@@ -8,9 +8,8 @@ project. Replying to the notification replies to the visitor.
 
 | Trigger | Collection | Site |
 |---|---|---|
-| `onPortfolioMessage`       | `portfolio_messages`  | Portfolio |
-| `onPortfolioMessageLegacy` | `messages`            | Portfolio (old, pre-restructure) |
-| `onPetsittingMessage`      | `petsitting_messages` | Petsitting |
+| `onPortfolioMessage`  | `portfolio_messages`  | Portfolio |
+| `onPetsittingMessage` | `petsitting_messages` | Petsitting |
 
 ## One-time setup (no new signups)
 

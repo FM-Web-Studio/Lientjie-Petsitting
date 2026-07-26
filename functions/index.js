@@ -10,7 +10,6 @@
  *
  * Collections watched:
  *   portfolio_messages/{id}   -> portfolio contact form
- *   messages/{id}             -> portfolio contact form (legacy, pre-restructure)
  *   petsitting_messages/{id}  -> petsitting contact form
  *
  * Setup (see functions/README.md):
@@ -157,8 +156,4 @@ const makeHandler = (configKey) => async (event) => {
 const opts = (document) => ({ document, region: REGION, secrets: [SMTP_PASSWORD], maxInstances: 5 });
 
 exports.onPortfolioMessage = onDocumentCreated(opts('portfolio_messages/{id}'), makeHandler('portfolio_messages'));
-// Legacy: the old portfolio (pre-restructure) writes to `messages`. Kept so no
-// notification is missed until the new portfolio frontend is deployed. Safe to
-// remove once the portfolio is redeployed onto portfolio_messages.
-exports.onPortfolioMessageLegacy = onDocumentCreated(opts('messages/{id}'), makeHandler('portfolio_messages'));
 exports.onPetsittingMessage = onDocumentCreated(opts('petsitting_messages/{id}'), makeHandler('petsitting_messages'));
