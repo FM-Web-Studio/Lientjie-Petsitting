@@ -38,7 +38,8 @@
  * gets the full width and the title has room to breathe.
  *
  * Titles and captions are never truncated - `align-items: start` lets each card
- * be exactly as tall as its own text instead of stretching to the row.
+ * be exactly as tall as its own text instead of stretching to the row. The post
+ * card itself is a shared component; see components/GalleryTile.
  */
 .grid {
   display: grid;
@@ -47,104 +48,7 @@
   gap: 1.75rem 1.25rem;
 }
 
-.item {
-  position: relative;
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  cursor: pointer;
-  padding: 0;
-  border: 1px solid var(--border);
-  background: var(--white);
-  display: flex;
-  flex-direction: column;
-  text-align: left;
-  transition: transform var(--transition), box-shadow var(--transition);
-}
-
-.item:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
-
-.media {
-  position: relative;
-  aspect-ratio: 1;
-  overflow: hidden;
-  background: var(--grey-light);
-}
-
-.media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform var(--transition-slow);
-}
-
-.item:hover .media img { transform: scale(1.04); }
-
-/* Caption block beneath the photo - title bold, caption below it, IG-style. */
-.caption {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-  padding: 0.85rem 0.95rem 1rem;
-}
-
-.captionTitle,
-.captionText {
-  /* No line clamping - long titles wrap in full. `anywhere` keeps a single
-     unbroken word (a URL, a very long pet name) from overflowing the card. */
-  overflow-wrap: anywhere;
-}
-
-.captionTitle {
-  color: var(--dark);
-  font-size: 0.95rem;
-  font-weight: 800;
-  line-height: 1.35;
-}
-
-.captionText {
-  color: var(--grey);
-  font-size: 0.9rem;
-  font-weight: 500;
-  line-height: 1.5;
-}
-
-/* When a post has no title, the caption carries the card - give it the weight. */
-.captionText.solo {
-  color: var(--dark);
-  font-weight: 700;
-  font-size: 0.95rem;
-}
-
-.categoryChip {
-  position: absolute;
-  top: 0.6rem;
-  left: 0.6rem;
-  background: rgba(0,0,0,0.55);
-  color: var(--on-dark);
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 0.2rem 0.6rem;
-  border-radius: var(--radius-full);
-  backdrop-filter: blur(4px);
-}
-
-.multiBadge {
-  position: absolute;
-  top: 0.6rem;
-  right: 0.6rem;
-  background: rgba(0,0,0,0.55);
-  color: var(--on-dark);
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 0.2rem 0.55rem;
-  border-radius: var(--radius-full);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  gap: 0.2rem;
-}
-
-.loading, .empty {
+.empty {
   text-align: center;
   padding: 5rem 0;
   font-size: 1.2rem;
@@ -159,7 +63,4 @@
     max-width: 460px;
     margin: 0 auto;
   }
-  .item { border-radius: var(--radius-md); }
-  .captionTitle { font-size: 1rem; }
-  .captionText  { font-size: 0.95rem; }
 }

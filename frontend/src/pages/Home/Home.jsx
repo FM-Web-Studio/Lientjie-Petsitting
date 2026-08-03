@@ -1,92 +1,41 @@
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { getServices } from '../../firebase/services.js';
-import { getAlbums, albumCover } from '../../firebase/gallery.js';
-import { getBio } from '../../firebase/bio.js';
+import { useData } from '../../context/DataContext.jsx';
 import { useContent } from '../../context/ContentContext.jsx';
-import Skeleton from '../../components/Skeleton/Skeleton.jsx';
+import { ratingSummary } from '../../firebase/reviews.js';
+import ServiceCard, { ServiceCardSkeleton, serviceColor } from '../../components/ServiceCard/ServiceCard.jsx';
+import BioBlock, { BioBlockSkeleton } from '../../components/BioBlock/BioBlock.jsx';
+import GalleryTile, { GalleryTileSkeleton } from '../../components/GalleryTile/GalleryTile.jsx';
+import ReviewCard, { ReviewCardSkeleton } from '../../components/ReviewCard/ReviewCard.jsx';
+import StarRating from '../../components/StarRating/StarRating.jsx';
 import styles from './Home.module.css';
 
-const serviceColors = ['coral', 'teal', 'purple', 'yellow', 'pink', 'orange'];
-
-function ServicesSkeleton() {
-  return (
-    <div className={styles.servicesGrid}>
-      {[...Array(3)].map((_, i) => (
-        <div key={i} className={styles.serviceCard} data-color={serviceColors[i]}>
-          <Skeleton circle style={{ width: '2.5rem', height: '2.5rem', marginBottom: '1rem' }} />
-          <Skeleton style={{ width: '65%', height: '1.25rem', marginBottom: '0.5rem' }} />
-          <Skeleton style={{ width: '100%', height: '3rem', marginBottom: '1rem' }} />
-          <Skeleton style={{ width: '45%', height: '1.4rem' }} />
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function BioSnippetSkeleton() {
-  return (
-    <div className={styles.bioInner}>
-      <div className={styles.bioImageWrap}>
-        <Skeleton style={{ width: '100%', height: '400px', borderRadius: 'var(--radius-xl)' }} />
-      </div>
-      <div className={styles.bioText}>
-        <Skeleton style={{ width: '160px', height: '1.5rem', marginBottom: '0.75rem', borderRadius: 'var(--radius-full)' }} />
-        <Skeleton style={{ width: '50%', height: '2.5rem', marginBottom: '0.5rem' }} />
-        <Skeleton style={{ width: '80%', height: '1.15rem', marginBottom: '1rem' }} />
-        <Skeleton style={{ width: '100%', height: '1rem', marginBottom: '0.4rem' }} />
-        <Skeleton style={{ width: '100%', height: '1rem', marginBottom: '0.4rem' }} />
-        <Skeleton style={{ width: '70%', height: '1rem', marginBottom: '1.5rem' }} />
-        <Skeleton style={{ width: '140px', height: '48px', borderRadius: 'var(--radius-full)' }} />
-      </div>
-    </div>
-  );
-}
-
-function GalleryPreviewSkeleton() {
-  return (
-    <div className={styles.galleryGrid}>
-      {[...Array(6)].map((_, i) => (
-        <div key={i} className={styles.galleryItem} style={{ pointerEvents: 'none' }}>
-          <Skeleton style={{ width: '100%', height: '100%', borderRadius: 0 }} />
-        </div>
-      ))}
-    </div>
-  );
-}
+const PREVIEW_SERVICES = 3;
+const PREVIEW_PHOTOS = 6;
+const PREVIEW_REVIEWS = 3;
 
 export default function Home() {
+  const { services, albums, bio, reviews, loading } = useData();
   const { copy } = useContent();
   const t = copy('home');
   const badges = [t.badge1, t.badge2, t.badge3, t.badge4].filter(Boolean);
-  const [services, setServices] = useState([]);
-  const [gallery, setGallery] = useState([]);
-  const [bio, setBio] = useState(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    Promise.all([
-      getServices(true),
-      getAlbums(true),
-      getBio(),
-    ]).then(([s, albums, b]) => {
-      setServices(s.slice(0, 3));
-      // Show each post's cover photo in the home preview grid.
-      const covers = albums
-        .filter((a) => a.images?.length)
-        .slice(0, 6)
-        .map((a) => ({ id: a.id, url: albumCover(a)?.url, caption: a.caption }));
-      setGallery(covers);
-      setBio(b);
-    }).finally(() => setLoading(false));
-  }, []);
+  const topServices = services.slice(0, PREVIEW_SERVICES);
+  const topPhotos = albums.slice(0, PREVIEW_PHOTOS);
+
+  const summary = useMemo(() => ratingSummary(reviews), [reviews]);
+  // Lead with the reviews people found most useful, not just the newest.
+  const topReviews = useMemo(
+    () => [...reviews].sort((a, b) => (b.likes || 0) - (a.likes || 0) || b.rating - a.rating).slice(0, PREVIEW_REVIEWS),
+    [reviews],
+  );
 
   return (
     <div>
       {/* ── Hero ──────────────────────────────────────────────────────── */}
       <section className={styles.hero}>
         <div className={styles.heroPaws}>
-          {['🐾','🐾','🐾','🐾','🐾'].map((p, i) => (
+          {['🐾', '🐾', '🐾', '🐾', '🐾'].map((p, i) => (
             <span key={i} className={styles.floatingPaw} style={{ '--i': i }}>{p}</span>
           ))}
         </div>
@@ -109,74 +58,92 @@ export default function Home() {
         <div className="container">
           <h2 className="section-title">{t.servicesTitle}</h2>
           <p className="section-subtitle">{t.servicesSubtitle}</p>
-          {loading ? <ServicesSkeleton /> : (
-            <>
-              <div className={styles.servicesGrid}>
-                {services.map((svc, i) => (
-                  <div key={svc.id} className={styles.serviceCard} data-color={serviceColors[i % serviceColors.length]}>
-                    <div className={styles.serviceIcon}>{svc.icon || '🐾'}</div>
-                    <h3>{svc.name}</h3>
-                    <p>{svc.description}</p>
-                    <div className={styles.servicePrice}>
-                      <strong>R{svc.price}</strong>
-                      <span> / {svc.priceUnit || 'session'}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className={styles.centred}>
-                <Link to="/services" className="btn btn-primary">{t.servicesCta}</Link>
-              </div>
-            </>
+
+          <div className={styles.servicesGrid}>
+            {loading
+              ? [...Array(PREVIEW_SERVICES)].map((_, i) => (
+                <ServiceCardSkeleton key={i} color={serviceColor(i)} variant="compact" />
+              ))
+              : topServices.map((svc, i) => (
+                <ServiceCard key={svc.id} service={svc} color={serviceColor(i)} variant="compact" />
+              ))}
+          </div>
+
+          {!loading && topServices.length > 0 && (
+            <div className={styles.centred}>
+              <Link to="/services" className="btn btn-primary">{t.servicesCta}</Link>
+            </div>
           )}
         </div>
       </section>
 
       {/* ── Bio Snippet ───────────────────────────────────────────────── */}
-      <section className={`section ${styles.bioSection}`}>
-        <div className="container">
-          {loading ? <BioSnippetSkeleton /> : bio && (
-            <div className={styles.bioInner}>
-              <div className={styles.bioImageWrap}>
-                {bio.profileImageUrl
-                  ? <img src={bio.profileImageUrl} alt={bio.name} className={styles.bioImage} />
-                  : <div className={styles.bioPlaceholder}>🐾</div>
-                }
-              </div>
-              <div className={styles.bioText}>
-                <span className={styles.bioTag}>{t.bioTag}</span>
-                <h2>{bio.name || 'Lientjie'}</h2>
-                <p className={styles.bioTagline}>{bio.tagline}</p>
-                <p>{bio.story?.slice(0, 300)}{bio.story?.length > 300 ? '…' : ''}</p>
-                <Link to="/about" className="btn btn-teal" style={{ marginTop: '1.5rem' }}>{t.bioCta}</Link>
-              </div>
-            </div>
-          )}
-        </div>
-      </section>
+      {(loading || bio) && (
+        <section className={`section ${styles.bioSection}`}>
+          <div className="container">
+            {loading ? <BioBlockSkeleton variant="compact" /> : (
+              <BioBlock
+                bio={bio}
+                variant="compact"
+                tag={t.bioTag}
+                actions={<Link to="/about" className="btn btn-teal">{t.bioCta}</Link>}
+              />
+            )}
+          </div>
+        </section>
+      )}
 
       {/* ── Gallery Preview ───────────────────────────────────────────── */}
       <section className={`section ${styles.gallerySection}`}>
         <div className="container">
           <h2 className="section-title">{t.galleryTitle}</h2>
           <p className="section-subtitle">{t.gallerySubtitle}</p>
-          {loading ? <GalleryPreviewSkeleton /> : (
-            <>
-              <div className={styles.galleryGrid}>
-                {gallery.map((img) => (
-                  <Link key={img.id} to="/gallery" className={styles.galleryItem}>
-                    <img src={img.url} alt={img.caption || 'Pet photo'} />
-                    {img.caption && <div className={styles.galleryOverlay}><span>{img.caption}</span></div>}
-                  </Link>
-                ))}
-              </div>
-              <div className={styles.centred}>
-                <Link to="/gallery" className="btn btn-secondary">{t.galleryCta}</Link>
-              </div>
-            </>
+
+          <div className={styles.galleryGrid}>
+            {loading
+              ? [...Array(PREVIEW_PHOTOS)].map((_, i) => <GalleryTileSkeleton key={i} variant="preview" />)
+              : topPhotos.map((album) => (
+                <GalleryTile key={album.id} album={album} variant="preview" to="/gallery" />
+              ))}
+          </div>
+
+          {!loading && topPhotos.length > 0 && (
+            <div className={styles.centred}>
+              <Link to="/gallery" className="btn btn-secondary">{t.galleryCta}</Link>
+            </div>
           )}
         </div>
       </section>
+
+      {/* ── Reviews Preview ───────────────────────────────────────────── */}
+      {(loading || summary.total > 0) && (
+        <section className={`section ${styles.reviewsSection}`}>
+          <div className="container">
+            <h2 className="section-title">{t.reviewsTitle}</h2>
+            <p className="section-subtitle">{t.reviewsSubtitle}</p>
+
+            {!loading && summary.total > 0 && (
+              <p className={styles.reviewsScore}>
+                <StarRating value={summary.average} size="md" />
+                <strong>{summary.average.toFixed(1)}</strong>
+                <span>from {summary.total} review{summary.total === 1 ? '' : 's'}</span>
+              </p>
+            )}
+
+            <div className={styles.reviewsGrid}>
+              {loading
+                ? [...Array(PREVIEW_REVIEWS)].map((_, i) => <ReviewCardSkeleton key={i} variant="compact" />)
+                : topReviews.map((r) => <ReviewCard key={r.id} review={r} variant="compact" />)}
+            </div>
+
+            {!loading && (
+              <div className={styles.centred}>
+                <Link to="/reviews" className="btn btn-yellow">{t.reviewsCta}</Link>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* ── CTA Banner ────────────────────────────────────────────────── */}
       <section className={styles.ctaBanner}>

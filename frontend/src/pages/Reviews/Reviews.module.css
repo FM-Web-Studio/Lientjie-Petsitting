@@ -1,0 +1,243 @@
+/* Accent for the shared .page-header rule (see styles/globals.css). */
+.pageHeader {
+  --accent-from: var(--yellow-dark);
+  --accent-to: var(--orange);
+}
+
+/* ── Summary panel ────────────────────────────────────────────────────────── */
+.summary {
+  display: grid;
+  grid-template-columns: auto minmax(200px, 1fr) minmax(220px, auto);
+  gap: 2.5rem;
+  align-items: center;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem 2rem;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 1.75rem;
+}
+
+.score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  text-align: center;
+}
+
+.average {
+  font-size: 3.25rem;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--dark);
+}
+
+.count { color: var(--grey); font-size: 0.85rem; font-weight: 700; }
+
+.breakdown { display: flex; flex-direction: column; gap: 0.35rem; }
+
+.barRow {
+  display: grid;
+  grid-template-columns: 2.6rem 1fr 1.75rem;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.15rem 0.3rem;
+  border-radius: var(--radius-sm);
+  background: none;
+  border: none;
+  font-family: var(--font);
+  text-align: left;
+  transition: background var(--transition);
+}
+
+.barRow:not(:disabled):hover { background: var(--grey-light); }
+.barRow:disabled { cursor: default; opacity: 0.55; }
+.barActive { background: var(--yellow-light); }
+
+.barLabel { font-size: 0.8rem; font-weight: 800; color: var(--grey); white-space: nowrap; }
+
+.barTrack {
+  height: 0.55rem;
+  border-radius: var(--radius-full);
+  background: var(--grey-light);
+  overflow: hidden;
+}
+
+.barFill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-full);
+  /* Same gold as the stars the bar is counting, so it tracks the theme too. */
+  background: linear-gradient(90deg, var(--star-on), var(--orange));
+  transition: width var(--transition-slow);
+}
+
+.barCount { font-size: 0.8rem; font-weight: 700; color: var(--grey); text-align: right; }
+
+.writeCta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding-left: 2rem;
+  border-left: 1px solid var(--border);
+}
+
+.writeBlurb { font-size: 0.95rem; font-weight: 700; color: var(--dark); }
+.moderationNote { font-size: 0.78rem; color: var(--grey); line-height: 1.5; }
+
+/* ── Toolbar ──────────────────────────────────────────────────────────────── */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.sorts { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+.sortBtn {
+  padding: 0.45rem 1.1rem;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--border);
+  background: var(--white);
+  color: var(--grey);
+  font-family: var(--font);
+  font-weight: 700;
+  font-size: 0.88rem;
+  transition: all var(--transition);
+}
+
+.sortBtn:hover { border-color: var(--orange); color: var(--orange); }
+
+.sortActive {
+  background: var(--orange);
+  border-color: var(--orange);
+  color: var(--btn-text-light);
+}
+
+.clearFilter {
+  font-family: var(--font);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--coral);
+  background: var(--coral-light);
+  border-radius: var(--radius-full);
+  padding: 0.4rem 0.9rem;
+}
+
+/* ── List ─────────────────────────────────────────────────────────────────── */
+.list { display: flex; flex-direction: column; gap: 1.25rem; }
+
+.empty {
+  color: var(--grey);
+  font-size: 1.05rem;
+  text-align: center;
+  padding: 4rem 1.5rem;
+  background: var(--white);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+}
+
+/* ── Write-a-review form ──────────────────────────────────────────────────── */
+/* Kept tight so the whole form clears a laptop viewport without scrolling. */
+.form { display: flex; flex-direction: column; gap: 0.9rem; }
+
+/*
+ * Minimal: no fill, just a gold rule matching the stars themselves. The filled
+ * yellow panel this replaced washed the empty stars out - they sat at almost the
+ * same lightness as the background, so the control read as decoration rather
+ * than something you were meant to click.
+ */
+.ratingField {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1rem;
+  background: transparent;
+  border: 2px solid var(--star-on);
+  border-radius: var(--radius-md);
+}
+
+.ratingField label {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--dark);
+}
+
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+.field { display: flex; flex-direction: column; gap: 0.35rem; position: relative; }
+
+.field label { font-size: 0.85rem; font-weight: 700; color: var(--dark); }
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  font-family: var(--font);
+  font-size: 0.95rem;
+  padding: 0.7rem 0.9rem;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--white);
+  color: var(--dark);
+  transition: border-color var(--transition);
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus { outline: none; border-color: var(--coral); }
+
+.field textarea { resize: vertical; }
+
+.counter { align-self: flex-end; font-size: 0.75rem; color: var(--grey); font-weight: 600; }
+
+/* The privacy note is a self-collapsing warning - see components/InfoNote. */
+
+/*
+ * Pinned to the bottom of the modal's scroll area. The form is taller than the
+ * dialog on shorter screens, and with the buttons in normal flow they sat below
+ * the fold - which reads as "the submit button is cut off" rather than "scroll
+ * down". Sticky keeps them reachable at any height.
+ */
+.formActions {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  /* Note pinned left, buttons right. */
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 0.25rem calc(-1 * var(--spacing-lg)) calc(-1 * var(--spacing-lg));
+  padding: 0.9rem var(--spacing-lg);
+  background: var(--background-1);
+  border-top: 1px solid var(--border);
+}
+
+.actionBtns { display: flex; gap: 0.75rem; }
+
+@media (max-width: 900px) {
+  .summary { grid-template-columns: 1fr; gap: 1.5rem; padding: 1.5rem; }
+  .writeCta {
+    padding-left: 0;
+    border-left: none;
+    border-top: 1px solid var(--border);
+    padding-top: 1.25rem;
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 640px) {
+  .row { grid-template-columns: 1fr; }
+  .average { font-size: 2.75rem; }
+  /* Buttons share the row and the note keeps its corner - stacking them would
+     push the note onto a line of its own, which is what it was moved out of. */
+  .actionBtns { flex: 1; }
+  .actionBtns button { flex: 1; justify-content: center; padding-inline: 0.9rem; }
+}

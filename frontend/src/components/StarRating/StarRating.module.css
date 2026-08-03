@@ -1,0 +1,131 @@
+.stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.12em;
+  line-height: 1;
+  color: var(--star-on);
+}
+
+/* Read-only sizes: 1em drives the icon, so these set the star's actual size. */
+.sm { font-size: 0.95rem; }
+.md { font-size: 1.25rem; }
+.lg { font-size: 2.2rem; }
+
+/*
+ * Read-only star: a grey star with a clipped gold one laid over it, so a 4.3
+ * average can show a partly-filled fifth star instead of rounding.
+ */
+.star {
+  position: relative;
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+}
+
+.icon {
+  display: block;
+  width: 1em;
+  height: 1em;
+  /* The clipping overlay narrows its container, and without this the SVG would
+     squash to fit instead of being cut off. */
+  min-width: 1em;
+}
+
+.empty { color: var(--star-off); }
+
+.filled {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  color: var(--star-on);
+}
+
+.value {
+  margin-left: 0.4em;
+  font-size: 0.8em;
+  font-weight: 800;
+  color: var(--grey);
+}
+
+/* ── Editable ─────────────────────────────────────────────────────────────── */
+/*
+ * The row takes the width it is given and the five stars split it, rather than
+ * each being a fixed size. That way they are always as large as the container
+ * allows - big on a desktop modal, still big on a phone - without a breakpoint
+ * having to guess, and without ever overflowing and wrapping to two lines.
+ *
+ * touch-action: pan-y lets a vertical swipe still scroll the modal while
+ * horizontal movement is claimed for dragging the rating.
+ */
+.editable {
+  display: flex;
+  width: 100%;
+  max-width: 26rem;
+  margin: 0 auto;
+  gap: 0.2rem;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: pointer;
+}
+
+.clickable {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* Equal shares of the row, kept square. Each box lands well above the ~44px
+     minimum at any width the modal can be. */
+  flex: 1 1 0;
+  width: auto;
+  height: auto;
+  min-width: 0;
+  aspect-ratio: 1;
+  cursor: pointer;
+  color: var(--star-off);
+  transition: transform var(--transition), color var(--transition);
+  /* Skip the 300ms double-tap-zoom wait, and drop the grey flash on tap. */
+  touch-action: pan-y;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Fill the tap target rather than floating in the middle of it. */
+.clickable .icon {
+  width: 88%;
+  height: 88%;
+  min-width: 0;
+}
+
+.clickable:hover { transform: scale(1.08); }
+.clickable.on { color: var(--star-on); }
+
+/*
+ * Ring the whole tap target, not the glyph. Outlining just the star drew a box
+ * that no longer matched what you were actually clicking once the target grew.
+ */
+.clickable:focus-within {
+  outline: 3px solid var(--coral);
+  outline-offset: -3px;
+  border-radius: var(--radius-md);
+}
+
+/* The radio itself stays in the DOM for keyboard and form semantics. */
+.input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .clickable { transition: color var(--transition); }
+  .clickable:hover { transform: none; }
+}

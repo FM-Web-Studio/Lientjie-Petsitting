@@ -1,61 +1,27 @@
-import { useState, useEffect } from 'react';
-import { getAlbums, albumCover } from '../../firebase/gallery.js';
-import { getGalleryCategories } from '../../firebase/categories.js';
-import { GALLERY_ALL } from '../../firebase/config.js';
+import { useMemo, useState } from 'react';
+import { useData } from '../../context/DataContext.jsx';
 import { useContent } from '../../context/ContentContext.jsx';
+import { GALLERY_ALL } from '../../firebase/config.js';
+import GalleryTile, { GalleryTileSkeleton } from '../../components/GalleryTile/GalleryTile.jsx';
 import Lightbox from '../../components/Lightbox/Lightbox.jsx';
-import Skeleton from '../../components/Skeleton/Skeleton.jsx';
 import styles from './Gallery.module.css';
 
-function GallerySkeleton() {
-  return (
-    <div className={styles.grid}>
-      {[...Array(6)].map((_, i) => (
-        <div key={i} className={styles.item} style={{ pointerEvents: 'none' }}>
-          <div className={styles.media}>
-            <Skeleton style={{ width: '100%', height: '100%', borderRadius: 0 }} />
-          </div>
-          <div className={styles.caption}>
-            <Skeleton style={{ width: '70%', height: '0.95rem' }} />
-            <Skeleton style={{ width: '90%', height: '0.9rem' }} />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 export default function Gallery() {
+  const { albums, galleryCategories, loading, errors } = useData();
   const { copy } = useContent();
   const t = copy('gallery');
-  const [albums, setAlbums] = useState([]);
-  const [filtered, setFiltered] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const error = errors.albums;
+
   const [activeCategory, setActiveCategory] = useState(GALLERY_ALL);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   // Which post is open, and which image within it.
   const [openPost, setOpenPost] = useState(null);
   const [imgIndex, setImgIndex] = useState(0);
 
-  useEffect(() => {
-    getAlbums(true)
-      .then((data) => {
-        // Only show posts that actually contain images.
-        const withImages = data.filter((a) => a.images?.length);
-        setAlbums(withImages);
-        setFiltered(withImages);
-      })
-      .catch((err) => { console.error('Gallery load failed:', err); setError(err.message); })
-      .finally(() => setLoading(false));
-
-    getGalleryCategories().then(setCategories).catch(() => setCategories([]));
-  }, []);
-
-  useEffect(() => {
-    setFiltered(activeCategory === 'All' ? albums : albums.filter((a) => a.category === activeCategory));
-  }, [activeCategory, albums]);
+  const filtered = useMemo(
+    () => (activeCategory === GALLERY_ALL ? albums : albums.filter((a) => a.category === activeCategory)),
+    [albums, activeCategory],
+  );
 
   const openLightbox = (post) => { setOpenPost(post); setImgIndex(0); };
   const closeLightbox = () => setOpenPost(null);
@@ -82,7 +48,7 @@ export default function Gallery() {
       <section className="section">
         <div className="container">
           <div className={styles.filters}>
-            {[GALLERY_ALL, ...categories].map((cat) => (
+            {[GALLERY_ALL, ...galleryCategories].map((cat) => (
               <button
                 key={cat}
                 className={`${styles.filterBtn} ${activeCategory === cat ? styles.active : ''}`}
@@ -93,11 +59,15 @@ export default function Gallery() {
             ))}
           </div>
 
-          {loading && <GallerySkeleton />}
+          {loading && (
+            <div className={styles.grid}>
+              {[...Array(6)].map((_, i) => <GalleryTileSkeleton key={i} />)}
+            </div>
+          )}
 
           {!loading && error && (
             <div className={styles.empty}>
-              <p>⚠️ Could not load gallery: {error}</p>
+              <p>⚠️ {error}</p>
             </div>
           )}
 
@@ -109,37 +79,9 @@ export default function Gallery() {
 
           {!loading && !error && filtered.length > 0 && (
             <div className={styles.grid}>
-              {filtered.map((post) => {
-                const cover = albumCover(post);
-                return (
-                  <button
-                    key={post.id}
-                    className={styles.item}
-                    onClick={() => openLightbox(post)}
-                    aria-label={post.caption || post.title || 'View post'}
-                  >
-                    <div className={styles.media}>
-                      <img src={cover?.url} alt={post.caption || 'Pet photo'} loading="lazy" />
-                      {post.images.length > 1 && (
-                        <span className={styles.multiBadge} aria-label={`${post.images.length} photos`}>
-                          ▦ {post.images.length}
-                        </span>
-                      )}
-                      {post.category && (
-                        <span className={styles.categoryChip}>{post.category}</span>
-                      )}
-                    </div>
-                    <div className={styles.caption}>
-                      {post.title && <span className={styles.captionTitle}>{post.title}</span>}
-                      {(post.caption || !post.title) && (
-                        <span className={`${styles.captionText} ${post.title ? '' : styles.solo}`}>
-                          {post.caption || 'A little moment of care 🐾'}
-                        </span>
-                      )}
-                    </div>
-                  </button>
-                );
-              })}
+              {filtered.map((post) => (
+                <GalleryTile key={post.id} album={post} onClick={() => openLightbox(post)} />
+              ))}
             </div>
           )}
         </div>

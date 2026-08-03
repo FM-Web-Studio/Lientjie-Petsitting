@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
+import { getLenis } from '../../hooks/useMomentumScroll.js';
 import styles from './Modal.module.css';
 
 const FOCUSABLE = [
@@ -11,6 +12,13 @@ const FOCUSABLE = [
  * Glass modal dialog. Traps focus, locks scroll, restores focus on close.
  * The dialog carries a global `admin-modal` class so the admin form styles
  * (which live in styles/admin.css) reach content rendered through this portal.
+ *
+ * Locking scroll takes two steps, not one. `body { overflow: hidden }` handles
+ * native scrolling, but the public site drives scrolling through Lenis, which
+ * listens for wheel events and moves the window itself - so it sails straight
+ * past the overflow lock and the page slides around behind the dialog. Lenis has
+ * to be told to stop as well. On /admin there is no Lenis instance and
+ * getLenis() returns null, so this is a no-op there.
  */
 export default function Modal({ open, onClose, children, title, size = 'md' }) {
   const dialogRef = useRef(null);
@@ -23,12 +31,14 @@ export default function Modal({ open, onClose, children, title, size = 'md' }) {
     const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
     document.body.style.overflow = 'hidden';
     document.body.style.paddingRight = `${scrollbarWidth}px`;
+    getLenis()?.stop();
 
     const raf = requestAnimationFrame(() => dialogRef.current?.focus());
     return () => {
       cancelAnimationFrame(raf);
       document.body.style.overflow = '';
       document.body.style.paddingRight = '';
+      getLenis()?.start();
       prevFocusRef.current?.focus?.();
     };
   }, [open]);
@@ -69,7 +79,13 @@ export default function Modal({ open, onClose, children, title, size = 'md' }) {
             <h2 id="admin-modal-title" className={styles.title}>{title}</h2>
           </header>
         )}
-        <div className={styles.body}>{children}</div>
+        {/*
+          data-lenis-prevent tells Lenis to keep its hands off wheel events that
+          start in here. Without it Lenis swallows every wheel event on the page
+          - including ones over this box - so the dialog's own overflow:auto
+          never receives them and the modal simply refuses to scroll.
+        */}
+        <div className={styles.body} data-lenis-prevent>{children}</div>
       </div>
     </div>,
     document.body,

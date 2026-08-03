@@ -1,0 +1,141 @@
+/*
+ * Shared gallery tile. Merged from Gallery.module.css (.item / .media / .caption)
+ * and the Home page's .galleryItem / .galleryOverlay.
+ *
+ * `.preview` is the Home variant: a bare square with a hover caption, no card
+ * chrome. Everything else is the full Instagram-style feed card.
+ */
+
+.tile {
+  position: relative;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  padding: 0;
+  border: 1px solid var(--border);
+  background: var(--white);
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.tile:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+
+/* Skeletons must not react to the pointer. */
+.static { pointer-events: none; }
+
+.media {
+  position: relative;
+  display: block;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: var(--grey-light);
+}
+
+.media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-slow);
+}
+
+.tile:hover .media img { transform: scale(1.04); }
+
+/* ── Caption block (full variant) ─────────────────────────────────────────── */
+.caption {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.85rem 0.95rem 1rem;
+}
+
+.captionTitle,
+.captionText {
+  /* No line clamping - long titles wrap in full. `anywhere` keeps a single
+     unbroken word (a URL, a very long pet name) from overflowing the card. */
+  overflow-wrap: anywhere;
+}
+
+.captionTitle {
+  color: var(--dark);
+  font-size: 0.95rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.captionText {
+  color: var(--grey);
+  font-size: 0.9rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+/* When a post has no title, the caption carries the card - give it the weight. */
+.captionText.solo {
+  color: var(--dark);
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+/* ── Badges (full variant) ────────────────────────────────────────────────── */
+.categoryChip,
+.multiBadge {
+  position: absolute;
+  top: 0.6rem;
+  background: rgba(0, 0, 0, 0.55);
+  color: var(--on-dark);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-full);
+  backdrop-filter: blur(4px);
+}
+
+.categoryChip { left: 0.6rem; }
+
+.multiBadge {
+  right: 0.6rem;
+  padding: 0.2rem 0.55rem;
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+/* ── Preview variant (Home) ───────────────────────────────────────────────── */
+.preview {
+  border: none;
+  background: none;
+  aspect-ratio: 1;
+}
+
+.preview:hover { transform: none; box-shadow: none; }
+.preview:hover .media img { transform: scale(1.08); }
+
+.preview .media { height: 100%; }
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, transparent 60%);
+  display: flex;
+  align-items: flex-end;
+  padding: 0.75rem;
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+.preview:hover .overlay,
+.preview:focus-visible .overlay { opacity: 1; }
+
+.overlay span {
+  color: var(--on-dark);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+/* Phones give the feed one post per row, so the caption can carry more weight. */
+@media (max-width: 640px) {
+  .captionTitle { font-size: 1rem; }
+  .captionText  { font-size: 0.95rem; }
+}

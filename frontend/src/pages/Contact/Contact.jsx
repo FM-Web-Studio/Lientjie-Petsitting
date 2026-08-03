@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { sendMessage } from '../../firebase/contact.js';
-import { getServices } from '../../firebase/services.js';
 import { useToast } from '../../context/ToastContext.jsx';
 import { useContent } from '../../context/ContentContext.jsx';
+import { useData } from '../../context/DataContext.jsx';
 import { PET_TYPES } from '../../firebase/config.js';
 import styles from './Contact.module.css';
 
@@ -11,19 +11,15 @@ const INITIAL = { name: '', email: '', phone: '', petName: '', petType: '', serv
 export default function Contact() {
   const { addToast } = useToast();
   const { copy } = useContent();
+  const { services } = useData();
   const t = copy('contactPage');
   const info = copy('contact');
   const [form, setForm] = useState(INITIAL);
   const [sending, setSending] = useState(false);
-  const [serviceNames, setServiceNames] = useState([]);
 
-  // Derive the "service interested in" options from the real services list, so
-  // the dropdown never drifts from what's actually offered.
-  useEffect(() => {
-    getServices(true)
-      .then((list) => setServiceNames(list.map((s) => s.name).filter(Boolean)))
-      .catch(() => setServiceNames([]));
-  }, []);
+  // The "service interested in" options come from the real services list, so the
+  // dropdown never drifts from what's actually offered.
+  const serviceNames = services.map((s) => s.name).filter(Boolean);
 
   const set = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
 

@@ -1,0 +1,139 @@
+/*
+ * Shared bio block. Merged from Bio.module.css (.layout / .imageCol / .content …)
+ * and the Home page's parallel .bioInner / .bioText rules.
+ *
+ * The Home teaser centred its columns and used a teal tag; the About page aligns
+ * to the top and uses a pink one. Those are the only real differences, so they
+ * live on the `.compact` modifier.
+ */
+
+.layout {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 4rem;
+  align-items: start;
+}
+
+.compact {
+  grid-template-columns: 340px 1fr;
+  align-items: center;
+}
+
+.imageCol { display: flex; flex-direction: column; gap: 1.5rem; }
+
+.image {
+  width: 100%;
+  height: 420px;
+  object-fit: cover;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+}
+
+.placeholder {
+  width: 100%;
+  height: 420px;
+  background: linear-gradient(135deg, var(--pink-light), var(--purple-light));
+  border-radius: var(--radius-xl);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8rem;
+}
+
+.compact .image,
+.compact .placeholder { height: 400px; }
+.compact .placeholder {
+  background: linear-gradient(135deg, var(--coral-light), var(--yellow-light));
+  font-size: 6rem;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.stat {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.stat strong { font-size: 1.5rem; font-weight: 900; color: var(--coral); }
+.stat span   { font-size: 0.8rem; color: var(--grey); font-weight: 600; }
+
+.tag {
+  display: inline-block;
+  background: var(--pink-light);
+  color: var(--pink);
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 0.35rem 1rem;
+  border-radius: var(--radius-full);
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.compact .tag {
+  background: var(--teal-light);
+  color: var(--teal-dark);
+  font-size: 0.85rem;
+}
+
+.name { font-size: clamp(2rem, 4vw, 2.75rem); margin-bottom: 0.5rem; }
+.compact .name { font-size: clamp(2rem, 4vw, 3rem); }
+
+.tagline {
+  font-size: 1.15rem;
+  color: var(--purple-dark);
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+
+.compact .tagline { color: var(--coral); margin-bottom: 1rem; }
+
+.story {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.story p { color: var(--grey); line-height: 1.8; }
+
+.compact .story { margin-bottom: 0; }
+
+.quals {
+  background: var(--teal-light);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.quals h3 { font-size: 1.05rem; margin-bottom: 0.75rem; }
+.quals ul { display: flex; flex-direction: column; gap: 0.4rem; }
+.quals li { font-size: 0.95rem; font-weight: 600; color: var(--dark); }
+
+.detail {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--grey);
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+}
+
+.actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+.compact .actions { margin-top: 1.5rem; }
+
+@media (max-width: 900px) {
+  .layout, .compact { grid-template-columns: 1fr; gap: 2rem; }
+  .image, .placeholder { height: 300px; }
+  .compact .image, .compact .placeholder { height: 280px; }
+}

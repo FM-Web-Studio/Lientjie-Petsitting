@@ -401,3 +401,53 @@ p.helpText { margin: -0.5rem 0 1.25rem; }
   .userEmail { display: none; }
   .topbarTitle { font-size: 1.05rem; }
 }
+
+/* ── Review moderation ────────────────────────────────────────────────────── */
+.reviewThread {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px dashed var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.reviewComment {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  background: var(--grey-light);
+  border-left: 3px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 0.9rem;
+}
+
+/* Anything still unapproved gets the same coral marker as an unread message. */
+.commentPending { border-left-color: var(--coral); }
+
+.reviewCommentBody { flex: 1; min-width: 220px; }
+.reviewCommentBody p { overflow-wrap: anywhere; }
+
+/* Group headings inside the review moderation queue. */
+.modGroupTitle {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--grey);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 1.5rem 0 0.6rem;
+}
+
+.modGroupTitle:first-of-type { margin-top: 0.5rem; }
+
+.modBulk { display: flex; justify-content: flex-end; margin-bottom: 0.5rem; }
+
+/* "on <review author> — <title>" context line above an orphaned comment. */
+.modParent {
+  font-size: 0.8rem;
+  color: var(--grey);
+  margin-bottom: 0.3rem;
+  overflow-wrap: anywhere;
+}

@@ -97,6 +97,12 @@
   backdrop-filter: blur(4px);
 }
 
+/*
+ * Section shells only. The cards inside them (service card, bio block, gallery
+ * tile, review card) are shared components that carry their own styles - see
+ * components/ServiceCard, BioBlock, GalleryTile and ReviewCard.
+ */
+
 /* ── Services Section ───────────────────────────────────────────────────── */
 .servicesSection { background: var(--cream); }
 
@@ -107,119 +113,8 @@
   margin-bottom: 2.5rem;
 }
 
-.serviceCard {
-  background: var(--white);
-  border-radius: var(--radius-lg);
-  padding: 2rem;
-  box-shadow: var(--shadow-sm);
-  transition: transform var(--transition), box-shadow var(--transition);
-  border-top: 5px solid var(--coral);
-  position: relative;
-  overflow: hidden;
-}
-
-.serviceCard[data-color="coral"]  { border-top-color: var(--coral); }
-.serviceCard[data-color="teal"]   { border-top-color: var(--teal); }
-.serviceCard[data-color="purple"] { border-top-color: var(--purple-dark); }
-.serviceCard[data-color="yellow"] { border-top-color: var(--yellow-dark); }
-.serviceCard[data-color="pink"]   { border-top-color: var(--pink); }
-.serviceCard[data-color="orange"] { border-top-color: var(--orange); }
-
-.serviceCard:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-md);
-}
-
-.serviceIcon {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-  line-height: 1;
-}
-
-.serviceCard h3 {
-  font-size: 1.25rem;
-  margin-bottom: 0.5rem;
-}
-
-.serviceCard p {
-  color: var(--grey);
-  font-size: 0.95rem;
-  margin-bottom: 1rem;
-  line-height: 1.6;
-}
-
-.servicePrice strong {
-  font-size: 1.4rem;
-  color: var(--coral);
-}
-
-.servicePrice span {
-  color: var(--grey);
-  font-size: 0.9rem;
-}
-
 /* ── Bio Section ────────────────────────────────────────────────────────── */
 .bioSection { background: var(--cream-medium); }
-
-.bioInner {
-  display: grid;
-  grid-template-columns: 340px 1fr;
-  gap: 4rem;
-  align-items: center;
-}
-
-.bioImageWrap {
-  position: relative;
-}
-
-.bioImage {
-  width: 100%;
-  height: 400px;
-  object-fit: cover;
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-lg);
-}
-
-.bioPlaceholder {
-  width: 100%;
-  height: 400px;
-  background: linear-gradient(135deg, var(--coral-light), var(--yellow-light));
-  border-radius: var(--radius-xl);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 6rem;
-}
-
-.bioTag {
-  display: inline-block;
-  background: var(--teal-light);
-  color: var(--teal-dark);
-  font-weight: 700;
-  font-size: 0.85rem;
-  padding: 0.35rem 1rem;
-  border-radius: var(--radius-full);
-  margin-bottom: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.bioText h2 {
-  font-size: clamp(2rem, 4vw, 3rem);
-  margin-bottom: 0.5rem;
-}
-
-.bioTagline {
-  font-size: 1.15rem;
-  color: var(--coral);
-  font-weight: 700;
-  margin-bottom: 1rem;
-}
-
-.bioText p {
-  color: var(--grey);
-  line-height: 1.8;
-}
 
 /* ── Gallery Section ─────────────────────────────────────────────────────── */
 .gallerySection { background: var(--white); }
@@ -231,40 +126,28 @@
   margin-bottom: 2.5rem;
 }
 
-.galleryItem {
-  position: relative;
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  aspect-ratio: 1;
-  display: block;
-}
+/* ── Reviews Section ─────────────────────────────────────────────────────── */
+.reviewsSection { background: var(--cream-medium); }
 
-.galleryItem img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform var(--transition-slow);
-}
-
-.galleryItem:hover img { transform: scale(1.08); }
-
-.galleryOverlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%);
+.reviewsScore {
   display: flex;
-  align-items: flex-end;
-  padding: 0.75rem;
-  opacity: 0;
-  transition: opacity var(--transition);
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.75rem;
+  color: var(--grey);
+  font-size: 0.95rem;
 }
 
-.galleryItem:hover .galleryOverlay { opacity: 1; }
+.reviewsScore strong { color: var(--dark); font-size: 1.15rem; }
 
-.galleryOverlay span {
-  color: var(--on-dark);
-  font-size: 0.85rem;
-  font-weight: 700;
+.reviewsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+  align-items: start;
+  margin-bottom: 2.5rem;
 }
 
 /* ── CTA Banner ─────────────────────────────────────────────────────────── */
@@ -293,12 +176,8 @@
 
 .centred { display: flex; justify-content: center; margin-top: 1rem; }
 
-@media (max-width: 900px) {
-  .bioInner { grid-template-columns: 1fr; }
-  .bioImage, .bioPlaceholder { height: 280px; }
-}
-
 @media (max-width: 600px) {
   .galleryGrid { grid-template-columns: repeat(2, 1fr); }
   .servicesGrid { grid-template-columns: 1fr; }
+  .reviewsGrid { grid-template-columns: 1fr; }
 }

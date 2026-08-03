@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
+import { useData } from '../../context/DataContext.jsx';
 import { signInWithGoogle, logOut } from '../../firebase/auth.js';
 import AboutSection from './sections/AboutSection.jsx';
 import ContactInfoSection from './sections/ContactInfoSection.jsx';
@@ -9,6 +10,7 @@ import SiteCopySection from './sections/SiteCopySection.jsx';
 import ServicesSection from './sections/ServicesSection.jsx';
 import GallerySection from './sections/GallerySection.jsx';
 import MessagesSection from './sections/MessagesSection.jsx';
+import ReviewsSection from './sections/ReviewsSection.jsx';
 import styles from './Admin.module.css';
 import '../../styles/admin.css';
 
@@ -21,12 +23,21 @@ const SECTIONS = [
   { id: 'services', group: 'Content',  title: 'Services',      icon: '🐾' },
   { id: 'gallery',  group: 'Gallery',  title: 'Gallery Posts', icon: '📸' },
   { id: 'messages', group: 'Inbox',    title: 'Messages',      icon: '💬' },
+  { id: 'reviews',  group: 'Inbox',    title: 'Reviews',       icon: '⭐' },
 ];
 
 export default function Admin() {
   const { user, isAdmin, loading } = useAuth();
   const { addToast } = useToast();
+  const { reload: reloadPublicData } = useData();
   const navigate = useNavigate();
+
+  /*
+   * The public pages read from a shared cache that is loaded once per session,
+   * so an admin who saves a change and clicks straight through to the site would
+   * otherwise be shown the data from before the edit. Refresh it on the way out.
+   */
+  const viewSite = () => { reloadPublicData(); navigate('/'); };
   const [view, setView] = useState('about');
   const [signingIn, setSigningIn] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
@@ -101,6 +112,7 @@ export default function Admin() {
       case 'services': return <ServicesSection />;
       case 'gallery':  return <GallerySection />;
       case 'messages': return <MessagesSection />;
+      case 'reviews':  return <ReviewsSection />;
       default:         return null;
     }
   };
@@ -115,7 +127,7 @@ export default function Admin() {
         </div>
         <div className={styles.topbarRight}>
           <span className={styles.userEmail}>{user.email}</span>
-          <button type="button" className="btn btn-secondary btn-sm" onClick={() => navigate('/')}>View site</button>
+          <button type="button" className="btn btn-secondary btn-sm" onClick={viewSite}>View site</button>
           <button type="button" className="btn btn-primary btn-sm" onClick={handleSignOut}>Sign Out</button>
         </div>
       </div>

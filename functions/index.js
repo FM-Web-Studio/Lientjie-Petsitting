@@ -11,6 +11,11 @@
  * Collections watched:
  *   portfolio_messages/{id}   -> portfolio contact form
  *   petsitting_messages/{id}  -> petsitting contact form
+ *   petsitting_reviews/{id}   -> petsitting review awaiting moderation
+ *
+ * Reviews are held unpublished until an admin approves them, so this mail is
+ * what tells Lientjie there is something in the queue - without it the
+ * moderation gate would silently swallow reviews.
  *
  * Setup (see functions/README.md):
  *   1. Project on the Blaze plan (done).
@@ -47,6 +52,11 @@ const SITES = {
     label: 'Petsitting',
     accent: '#FF6B6B',
     intro: 'Someone reached out through your petsitting site.',
+  },
+  petsitting_reviews: {
+    label: 'Petsitting review',
+    accent: '#e6c200',
+    intro: 'A new review is waiting for your approval before it goes live.',
   },
 };
 
@@ -91,7 +101,10 @@ const buildHtml = ({ site, name, email, phone, message, when, extra }) => {
           <div style="background:#fafafa;border:1px solid #ececed;border-left:3px solid ${site.accent};border-radius:8px;padding:16px 18px;color:#27272a;font-size:15px;line-height:1.7;">${esc(message).replace(/\r?\n/g, '<br>')}</div>
         </td></tr>
         <tr><td style="background:#fafafa;border-top:1px solid #ececed;padding:14px 28px;color:#a1a1aa;font-size:12px;">
-          Just hit Reply to respond to ${esc(name)} directly. Automated notification from your website contact form.
+          ${email
+    ? `Just hit Reply to respond to ${esc(name)} directly.`
+    : 'No contact details were collected for this one, so there is nobody to reply to.'
+} Automated notification from your website.
         </td></tr>
       </table>
     </td></tr>
@@ -108,23 +121,53 @@ const buildText = ({ site, name, email, phone, message, when, extra }) =>
   `Received: ${when}\n\n` +
   `Message:\n${message}\n`;
 
+/*
+ * Pull the common { name, email, phone, message } shape out of a document.
+ * Reviews store their author and text under different field names and carry no
+ * contact details at all (deliberately - the collection is world-readable), so
+ * they get their own mapping.
+ */
+const normalise = (configKey, data) => {
+  if (configKey === 'petsitting_reviews') {
+    const stars = Math.max(0, Math.min(5, Math.round(Number(data.rating) || 0)));
+    const extra = [['Rating', `${'★'.repeat(stars)}${'☆'.repeat(5 - stars)} (${stars}/5)`]];
+    if (data.title) extra.push(['Headline', data.title]);
+    if (data.petName) extra.push(['Pet', data.petName]);
+    if (data.serviceUsed) extra.push(['Service', data.serviceUsed]);
+    extra.push(['Status', 'Not published yet - approve it in the admin panel']);
+    return {
+      name: (data.authorName || '').trim() || 'Anonymous',
+      email: '',
+      phone: '',
+      message: (data.body || '').trim() || '(empty review)',
+      extra,
+      subject: `New review (${stars}/5) from ${(data.authorName || 'Anonymous').trim()} - awaiting approval`,
+    };
+  }
+
+  const extra = [];
+  if (data.petName) extra.push(['Pet', `${data.petName}${data.petType ? ` (${data.petType})` : ''}`]);
+  if (data.serviceInterest) extra.push(['Service', data.serviceInterest]);
+  if (data.subject) extra.push(['Subject', data.subject]);
+
+  return {
+    name: (data.name || '').trim() || 'Anonymous',
+    email: (data.email || '').trim(),
+    phone: (data.phone || '').trim(),
+    message: (data.message || '').trim() || '(empty message)',
+    extra,
+    subject: null,
+  };
+};
+
 // Shared handler for every watched collection.
 const makeHandler = (configKey) => async (event) => {
   const data = event.data?.data();
   if (!data) { logger.warn('Trigger fired with no document data', { configKey, id: event.params.id }); return; }
 
   const site = SITES[configKey];
-  const name = (data.name || '').trim() || 'Anonymous';
-  const email = (data.email || '').trim();
-  const phone = (data.phone || '').trim();
-  const message = (data.message || '').trim() || '(empty message)';
+  const { name, email, phone, message, extra, subject } = normalise(configKey, data);
   const when = formatWhen(data.createdAt);
-
-  // Site-specific extra fields, if present.
-  const extra = [];
-  if (data.petName) extra.push(['Pet', `${data.petName}${data.petType ? ` (${data.petType})` : ''}`]);
-  if (data.serviceInterest) extra.push(['Service', data.serviceInterest]);
-  if (data.subject) extra.push(['Subject', data.subject]);
 
   const payload = { site, name, email, phone, message, when, extra };
 
@@ -141,7 +184,7 @@ const makeHandler = (configKey) => async (event) => {
       from: `"Lientjie Websites" <${SMTP_USER.value()}>`,
       to: NOTIFY_TO.value() || SMTP_USER.value(),
       replyTo: email || undefined,
-      subject: `New ${site.label} message from ${name}`,
+      subject: subject || `New ${site.label} message from ${name}`,
       text: buildText(payload),
       html: buildHtml(payload),
     });
@@ -157,3 +200,4 @@ const opts = (document) => ({ document, region: REGION, secrets: [SMTP_PASSWORD]
 
 exports.onPortfolioMessage = onDocumentCreated(opts('portfolio_messages/{id}'), makeHandler('portfolio_messages'));
 exports.onPetsittingMessage = onDocumentCreated(opts('petsitting_messages/{id}'), makeHandler('petsitting_messages'));
+exports.onPetsittingReview = onDocumentCreated(opts('petsitting_reviews/{id}'), makeHandler('petsitting_reviews'));

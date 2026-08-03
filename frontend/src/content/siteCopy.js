@@ -41,6 +41,10 @@ export const HOME_FIELDS = [
   { key: 'gallerySubtitle',  label: 'Gallery - subtitle',    type: 'text',     default: 'Wholesome moments from my care sessions' },
   { key: 'galleryCta',       label: 'Gallery - button',      type: 'text',     default: 'See All Photos' },
 
+  { key: 'reviewsTitle',     label: 'Reviews - title',       type: 'text',     default: 'Kind Words 💛' },
+  { key: 'reviewsSubtitle',  label: 'Reviews - subtitle',    type: 'text',     default: 'What pet parents say after trusting me with their family' },
+  { key: 'reviewsCta',       label: 'Reviews - button',      type: 'text',     default: 'Read All Reviews' },
+
   { key: 'ctaTitle',         label: 'CTA banner - title',    type: 'text',     default: "Ready to book? Let's chat! 🐾" },
   { key: 'ctaText',          label: 'CTA banner - text',     type: 'text',     default: 'Your pet will be in the safest, most loving hands.' },
   { key: 'ctaBtn',           label: 'CTA banner - button',   type: 'text',     default: 'Get in Touch' },
@@ -59,6 +63,20 @@ export const SERVICES_FIELDS = [
 export const GALLERY_FIELDS = [
   { key: 'heroTitle',    label: 'Hero - title',    type: 'text', default: 'Our Happy Pets 📸' },
   { key: 'heroSubtitle', label: 'Hero - subtitle', type: 'text', default: 'Wholesome moments from every care session' },
+];
+
+// ── Reviews page ────────────────────────────────────────────────────────────
+export const REVIEWS_FIELDS = [
+  { key: 'heroTitle',       label: 'Hero - title',        type: 'text',     default: 'Reviews ⭐' },
+  { key: 'heroSubtitle',    label: 'Hero - subtitle',     type: 'text',     default: 'Honest words from the families whose pets I look after' },
+  { key: 'writeBlurb',      label: 'Write - blurb',       type: 'text',     default: 'Had me look after your pet?' },
+  { key: 'writeBtn',        label: 'Write - button',      type: 'text',     default: 'Write a Review' },
+  { key: 'moderationNote',  label: 'Write - small print', type: 'textarea', default: 'Reviews are read before they go live, so yours may take a little while to appear.' },
+  { key: 'formTitle',       label: 'Form - title',        type: 'text',     default: 'Share your experience' },
+  { key: 'submitBtn',       label: 'Form - submit button', type: 'text',    default: 'Submit Review 🐾' },
+  { key: 'privacyNote',     label: 'Form - privacy note', type: 'textarea', default: 'Your name and review are shown publicly. I never ask for your email or phone number here - if you need to reach me, use the contact page.' },
+  { key: 'emptySummary',    label: 'Empty - summary',     type: 'text',     default: 'No reviews yet' },
+  { key: 'emptyList',       label: 'Empty - list',        type: 'textarea', default: '🐾 No reviews just yet - be the first to share your experience!' },
 ];
 
 // ── About / Bio page ────────────────────────────────────────────────────────
@@ -120,6 +138,7 @@ export const COPY_SCHEMA = [
   { key: 'home',        label: 'Home',           fields: HOME_FIELDS },
   { key: 'services',    label: 'Services',       fields: SERVICES_FIELDS },
   { key: 'gallery',     label: 'Gallery',        fields: GALLERY_FIELDS },
+  { key: 'reviews',     label: 'Reviews',        fields: REVIEWS_FIELDS },
   { key: 'about',       label: 'About',          fields: ABOUT_FIELDS },
   { key: 'contactPage', label: 'Contact page',   fields: CONTACT_PAGE_FIELDS },
 ];
@@ -130,6 +149,7 @@ export const GROUP_FIELDS = {
   home:        HOME_FIELDS,
   services:    SERVICES_FIELDS,
   gallery:     GALLERY_FIELDS,
+  reviews:     REVIEWS_FIELDS,
   about:       ABOUT_FIELDS,
   contactPage: CONTACT_PAGE_FIELDS,
   contact:     CONTACT_INFO_FIELDS,
