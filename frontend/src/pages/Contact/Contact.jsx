@@ -49,12 +49,12 @@ export default function Contact() {
 
   return (
     <div>
-      <section className={styles.hero}>
+      <header className={`page-header ${styles.pageHeader}`}>
         <div className="container">
           <h1>{t.heroTitle}</h1>
           <p>{t.heroSubtitle}</p>
         </div>
-      </section>
+      </header>
 
       <section className="section">
         <div className={`container ${styles.layout}`}>

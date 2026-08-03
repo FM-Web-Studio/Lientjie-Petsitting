@@ -10,13 +10,14 @@ import styles from './Gallery.module.css';
 function GallerySkeleton() {
   return (
     <div className={styles.grid}>
-      {[...Array(9)].map((_, i) => (
+      {[...Array(6)].map((_, i) => (
         <div key={i} className={styles.item} style={{ pointerEvents: 'none' }}>
           <div className={styles.media}>
             <Skeleton style={{ width: '100%', height: '100%', borderRadius: 0 }} />
           </div>
           <div className={styles.caption}>
-            <Skeleton style={{ width: '80%', height: '0.9rem' }} />
+            <Skeleton style={{ width: '70%', height: '0.95rem' }} />
+            <Skeleton style={{ width: '90%', height: '0.9rem' }} />
           </div>
         </div>
       ))}
@@ -59,18 +60,24 @@ export default function Gallery() {
   const openLightbox = (post) => { setOpenPost(post); setImgIndex(0); };
   const closeLightbox = () => setOpenPost(null);
 
+  // Wrap around at both ends, so the arrows are always available - a post always
+  // opens on image 0, and a "previous" that disappears there reads as broken.
+  const total = openPost?.images.length ?? 0;
+  const prevImage = total > 1 ? () => setImgIndex((i) => (i - 1 + total) % total) : null;
+  const nextImage = total > 1 ? () => setImgIndex((i) => (i + 1) % total) : null;
+
   const lightboxImage = openPost
     ? { ...openPost.images[imgIndex], caption: openPost.caption }
     : null;
 
   return (
     <div>
-      <section className={styles.hero}>
+      <header className={`page-header ${styles.pageHeader}`}>
         <div className="container">
           <h1>{t.heroTitle}</h1>
           <p>{t.heroSubtitle}</p>
         </div>
-      </section>
+      </header>
 
       <section className="section">
         <div className="container">
@@ -123,9 +130,12 @@ export default function Gallery() {
                       )}
                     </div>
                     <div className={styles.caption}>
-                      <span className={styles.captionText}>
-                        {post.caption || post.title || 'A little moment of care 🐾'}
-                      </span>
+                      {post.title && <span className={styles.captionTitle}>{post.title}</span>}
+                      {(post.caption || !post.title) && (
+                        <span className={`${styles.captionText} ${post.title ? '' : styles.solo}`}>
+                          {post.caption || 'A little moment of care 🐾'}
+                        </span>
+                      )}
                     </div>
                   </button>
                 );
@@ -142,8 +152,8 @@ export default function Gallery() {
           count={openPost.images.length}
           position={imgIndex + 1}
           onClose={closeLightbox}
-          onPrev={imgIndex > 0 ? () => setImgIndex((i) => i - 1) : null}
-          onNext={imgIndex < openPost.images.length - 1 ? () => setImgIndex((i) => i + 1) : null}
+          onPrev={prevImage}
+          onNext={nextImage}
         />
       )}
     </div>
