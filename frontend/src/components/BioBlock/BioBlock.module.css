@@ -25,6 +25,9 @@
   width: 100%;
   height: 420px;
   object-fit: cover;
+  /* Bias the crop upwards: the subject of a profile photo sits in the top
+     half, so a centred crop is the one that beheads people. */
+  object-position: center 30%;
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
 }
@@ -132,8 +135,23 @@
 .actions { display: flex; gap: 1rem; flex-wrap: wrap; }
 .compact .actions { margin-top: 1.5rem; }
 
+/*
+ * Once the two columns stack, the photo box goes from a 360px-wide portrait to
+ * the full container width. A fixed height then turns it into a wide, shallow
+ * letterbox, and `object-fit: cover` crops a portrait photo down to a horizontal
+ * strip through the middle - which is how heads were getting cut off on phones.
+ *
+ * So on mobile the box keeps a portrait aspect ratio and is capped and centred
+ * instead of being stretched edge to edge.
+ */
 @media (max-width: 900px) {
   .layout, .compact { grid-template-columns: 1fr; gap: 2rem; }
-  .image, .placeholder { height: 300px; }
-  .compact .image, .compact .placeholder { height: 280px; }
+  .image, .placeholder,
+  .compact .image, .compact .placeholder {
+    height: auto;
+    aspect-ratio: 4 / 5;
+    max-width: 400px;
+    margin-inline: auto;
+  }
+  .placeholder, .compact .placeholder { font-size: 6rem; }
 }

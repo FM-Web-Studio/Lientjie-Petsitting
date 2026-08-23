@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { getContent, saveContentGroup } from '../../../firebase/content.js';
 import { COPY_SCHEMA } from '../../../content/siteCopy.js';
+import { saveErrorMessage } from '../../../firebase/errors.js';
 import { useToast } from '../../../context/ToastContext.jsx';
 import styles from '../Admin.module.css';
 
@@ -57,8 +58,9 @@ export default function SiteCopySection() {
       }
       dirtyRef.current = false;
       addToast('Site copy updated!', 'success');
-    } catch {
-      addToast('Failed to save site copy.', 'error');
+    } catch (err) {
+      console.error('Failed to save site copy:', err);
+      addToast(saveErrorMessage(err, 'your site copy'), 'error');
     } finally { setSaving(false); }
   };
 

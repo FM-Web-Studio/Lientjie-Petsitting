@@ -334,7 +334,9 @@ p.helpText { margin: -0.5rem 0 1.25rem; }
 /* ── Bio layout ──────────────────────────────────────────────────────────────*/
 .bioLayout { display: grid; grid-template-columns: 220px 1fr; gap: 2rem; align-items: start; }
 .bioImageCol { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
-.profilePreview { width: 180px; height: 180px; object-fit: cover; border-radius: var(--radius-full); box-shadow: var(--shadow-md); }
+/* Same upward crop bias as the public BioBlock, so the admin preview shows
+   what the site will actually render rather than a differently-cropped face. */
+.profilePreview { width: 180px; height: 180px; object-fit: cover; object-position: center 30%; border-radius: var(--radius-full); box-shadow: var(--shadow-md); }
 .profilePlaceholder { width: 180px; height: 180px; background: var(--cream-medium); border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; font-size: 4rem; }
 .bioFields { display: flex; flex-direction: column; gap: 1.5rem; }
 .qualSection { display: flex; flex-direction: column; gap: 0.5rem; }

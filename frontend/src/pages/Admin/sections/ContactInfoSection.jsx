@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getContent, saveContentGroup } from '../../../firebase/content.js';
 import { CONTACT_INFO_FIELDS, resolveGroup } from '../../../content/siteCopy.js';
+import { saveErrorMessage } from '../../../firebase/errors.js';
 import { useToast } from '../../../context/ToastContext.jsx';
 import styles from '../Admin.module.css';
 
@@ -28,7 +29,10 @@ export default function ContactInfoSection() {
     try {
       await saveContentGroup('contact', overrides);
       addToast('Contact details saved!', 'success');
-    } catch { addToast('Failed to save contact details.', 'error'); }
+    } catch (err) {
+      console.error('Failed to save contact details:', err);
+      addToast(saveErrorMessage(err, 'your contact details'), 'error');
+    }
     finally { setSaving(false); }
   };
 

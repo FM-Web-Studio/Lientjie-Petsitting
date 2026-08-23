@@ -4,6 +4,7 @@ import {
   addImagesToAlbum, removeImageFromAlbum, albumCover,
 } from '../../../firebase/gallery.js';
 import { prepareImages } from '../../../utils/image.js';
+import { saveErrorMessage } from '../../../firebase/errors.js';
 import { useToast } from '../../../context/ToastContext.jsx';
 import { getGalleryCategories, saveGalleryCategories } from '../../../firebase/categories.js';
 import Skeleton from '../../../components/Skeleton/Skeleton.jsx';
@@ -56,7 +57,8 @@ export default function GallerySection() {
       setCategory((prev) => (prev && saved.includes(prev) ? prev : (saved[0] || '')));
       return saved;
     } catch (err) {
-      addToast('Could not save categories. Are you signed in as an admin?', 'error');
+      console.error('Failed to save gallery categories:', err);
+      addToast(saveErrorMessage(err, 'the categories'), 'error');
       return null;
     } finally { setSavingCats(false); }
   };
@@ -118,8 +120,9 @@ export default function GallerySection() {
       setTitle(''); setCaption(''); resetSelection();
       if (fileRef.current) fileRef.current.value = '';
       load();
-    } catch {
-      addToast('Could not create the post. Please try again.', 'error');
+    } catch (err) {
+      console.error('Failed to create post:', err);
+      addToast(saveErrorMessage(err, 'the post'), 'error');
     } finally { setCreating(false); setCreateProgress(0); }
   };
 
@@ -147,8 +150,9 @@ export default function GallerySection() {
       addToast(failed > 0 ? `${uploaded} photo(s) added. ${failed} couldn't upload - try again.` : `${uploaded} photo(s) added.`, failed > 0 ? 'info' : 'success');
       inputEl.value = '';
       load();
-    } catch {
-      addToast('Could not add photos.', 'error');
+    } catch (err) {
+      console.error('Failed to add photos:', err);
+      addToast(saveErrorMessage(err, 'the new photos'), 'error');
     } finally { setBusyId(null); setAddingId(null); setAddProgress(0); }
   };
 
