@@ -1,0 +1,16 @@
+{
+  "name": "Lientjie's Petsitting",
+  "client": "Lientjie's Petsitting (Pretoria)",
+  "tagline": "Booking and enquiry site for a Pretoria pet-sitting service",
+  "description": "Professional, loving care for your furry family members. Services, gallery and reviews are all owner-editable, and enquiries and new reviews trigger Cloud Functions so nothing sits unnoticed in a database.",
+
+  "featured": true,
+  "order": 30,
+
+  "sites": [
+    { "label": "Live site", "url": "https://lientjie-petsitting.web.app" }
+  ],
+
+  "stack": ["React", "Vite", "Firebase", "Firestore", "Cloud Functions", "Lenis"],
+  "tags": ["Local business", "Enquiries", "Reviews"]
+}
