@@ -38,14 +38,17 @@ export const REVIEW_LIMITS = {
   comment: { min: 2, max: 700 },
 };
 
+// Kept in sync with petsitting_messages in firestore.rules.
+export const CONTACT_LIMITS = {
+  name: 100, email: 254, phone: 30, petName: 60, petType: 40, serviceInterest: 100, message: 5000,
+};
+
+// Loose on purpose, and never looser than the pattern firestore.rules checks.
+export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export const REVIEW_SORTS = [
   { key: 'newest', label: 'Newest' },
   { key: 'highest', label: 'Highest rated' },
   { key: 'lowest', label: 'Lowest rated' },
   { key: 'liked', label: 'Most liked' },
 ];
-
-export const ADMIN_EMAILS = (import.meta.env.ADMIN_EMAILS || '')
-  .split(',')
-  .map((e) => e.trim())
-  .filter(Boolean);

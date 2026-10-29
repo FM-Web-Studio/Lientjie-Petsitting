@@ -36,6 +36,11 @@ export default function Footer() {
           <Link to="/contact">Contact</Link>
         </nav>
 
+        <nav className={styles.legal} aria-label="Legal">
+          <Link to="/privacy">Privacy policy</Link>
+          <Link to="/terms">Terms of use</Link>
+        </nav>
+
         <p className={styles.copy}>© {new Date().getFullYear()} {brand.brandName}. {brand.footerNote}</p>
       </div>
     </footer>

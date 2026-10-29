@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { sendMessage } from '../../firebase/contact.js';
 import { useToast } from '../../context/ToastContext.jsx';
 import { useContent } from '../../context/ContentContext.jsx';
 import { useData } from '../../context/DataContext.jsx';
-import { PET_TYPES } from '../../firebase/config.js';
+import { PET_TYPES, CONTACT_LIMITS, EMAIL_PATTERN } from '../../firebase/config.js';
+import Honeypot, { caughtBot } from '../../components/Honeypot/Honeypot.jsx';
 import styles from './Contact.module.css';
 
 const INITIAL = { name: '', email: '', phone: '', petName: '', petType: '', serviceInterest: '', message: '' };
@@ -16,6 +18,7 @@ export default function Contact() {
   const info = copy('contact');
   const [form, setForm] = useState(INITIAL);
   const [sending, setSending] = useState(false);
+  const trap = useRef(null);
 
   // The "service interested in" options come from the real services list, so the
   // dropdown never drifts from what's actually offered.
@@ -25,13 +28,17 @@ export default function Contact() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name || !form.email || !form.message) {
+    if (!form.name.trim() || !form.email.trim() || !form.message.trim()) {
       addToast('Please fill in your name, email and message.', 'warning');
+      return;
+    }
+    if (!EMAIL_PATTERN.test(form.email.trim())) {
+      addToast('Please check your email address.', 'warning');
       return;
     }
     setSending(true);
     try {
-      await sendMessage(form);
+      if (!caughtBot(trap)) await sendMessage(form);
       addToast("Message sent! I'll be in touch soon 🐾", 'success');
       setForm(INITIAL);
     } catch {
@@ -60,18 +67,18 @@ export default function Contact() {
             <div className={styles.row}>
               <div className={styles.field}>
                 <label>Your Name *</label>
-                <input type="text" value={form.name} onChange={set('name')} placeholder="Jane Smith" required />
+                <input type="text" value={form.name} onChange={set('name')} placeholder="Jane Smith" autoComplete="name" maxLength={CONTACT_LIMITS.name} required />
               </div>
               <div className={styles.field}>
                 <label>Email Address *</label>
-                <input type="email" value={form.email} onChange={set('email')} placeholder="jane@example.com" required />
+                <input type="email" value={form.email} onChange={set('email')} placeholder="jane@example.com" autoComplete="email" maxLength={CONTACT_LIMITS.email} required />
               </div>
             </div>
 
             <div className={styles.row}>
               <div className={styles.field}>
                 <label>Phone Number</label>
-                <input type="tel" value={form.phone} onChange={set('phone')} placeholder="+27 82 000 0000" />
+                <input type="tel" value={form.phone} onChange={set('phone')} placeholder="+27 82 000 0000" autoComplete="tel" maxLength={CONTACT_LIMITS.phone} />
               </div>
               <div className={styles.field}>
                 <label>Service Interested In</label>
@@ -85,7 +92,7 @@ export default function Contact() {
             <div className={styles.row}>
               <div className={styles.field}>
                 <label>Pet's Name</label>
-                <input type="text" value={form.petName} onChange={set('petName')} placeholder="Buddy" />
+                <input type="text" value={form.petName} onChange={set('petName')} placeholder="Buddy" maxLength={CONTACT_LIMITS.petName} />
               </div>
               <div className={styles.field}>
                 <label>Pet Type</label>
@@ -98,8 +105,14 @@ export default function Contact() {
 
             <div className={styles.field}>
               <label>Message *</label>
-              <textarea value={form.message} onChange={set('message')} rows={5} placeholder="Tell me about your pet and what you need…" required />
+              <textarea value={form.message} onChange={set('message')} rows={5} placeholder="Tell me about your pet and what you need…" maxLength={CONTACT_LIMITS.message} required />
             </div>
+
+            <Honeypot ref={trap} />
+
+            <p className={styles.privacy}>
+              I use these details only to reply to you and arrange care for your pet. Messages are deleted after 12 months. See the <Link to="/privacy">privacy policy</Link>.
+            </p>
 
             <button type="submit" className="btn btn-primary" disabled={sending} style={{ width: '100%', justifyContent: 'center' }}>
               {sending ? 'Sending…' : t.sendBtn}

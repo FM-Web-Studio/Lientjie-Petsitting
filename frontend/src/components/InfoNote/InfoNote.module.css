@@ -63,3 +63,5 @@
 @media (prefers-reduced-motion: reduce) {
   .badge, .body { transition: none; }
 }
+
+.body a { color: var(--coral); font-weight: 700; }

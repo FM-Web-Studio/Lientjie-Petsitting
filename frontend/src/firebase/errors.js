@@ -1,12 +1,9 @@
 /*
  * Turning Firebase error codes into something an admin can act on.
  *
- * Every admin save shares one non-obvious failure mode: reaching this screen is
- * gated by the ADMIN_EMAILS build variable, but WRITING is gated by
- * firestore.rules, which reads its allow-list from the `settings/admins`
- * document. The two are maintained separately, so an address can log in, see
- * the whole admin UI, and have every save silently refused. A toast that only
- * says "failed to save" sends you looking in the wrong place for that.
+ * The screen and firestore.rules both check the `settings/admins` allow-list,
+ * so a refused save usually means the address was removed from it or the
+ * sign-in expired. Say which, rather than a bare "failed to save".
  */
 export function saveErrorMessage(err, what = 'those changes') {
   switch (err?.code) {

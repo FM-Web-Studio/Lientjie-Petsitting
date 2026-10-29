@@ -188,7 +188,8 @@ const makeHandler = (configKey) => async (event) => {
       text: buildText(payload),
       html: buildHtml(payload),
     });
-    logger.info('Notification sent', { configKey, id: event.params.id, from: email });
+    // Ids only: names and addresses stay out of Cloud Logging.
+    logger.info('Notification sent', { configKey, id: event.params.id });
   } catch (err) {
     // Don't rethrow - a retry storm won't fix bad credentials, and the message
     // is safely stored in Firestore regardless. Surface it loudly in logs.

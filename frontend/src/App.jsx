@@ -8,7 +8,7 @@ import Navigation from './components/Navigation/Navigation.jsx';
 import Footer from './components/Footer/Footer.jsx';
 import Toast from './components/Toast/Toast.jsx';
 import useMomentumScroll from './hooks/useMomentumScroll.js';
-import { Home, Services, Gallery, Reviews, Contact, Bio, Admin, NotFound } from './pages/index.js';
+import { Home, Services, Gallery, Reviews, Contact, Bio, Admin, NotFound, Privacy, Terms } from './pages/index.js';
 import styles from './App.module.css';
 
 // Public site chrome - nav + footer. The admin panel is standalone (no chrome),
@@ -43,6 +43,8 @@ export default function App() {
                     <Route path="/reviews" element={<Reviews />} />
                     <Route path="/contact" element={<Contact />} />
                     <Route path="/about" element={<Bio />} />
+                    <Route path="/privacy" element={<Privacy />} />
+                    <Route path="/terms" element={<Terms />} />
                     <Route path="*" element={<NotFound />} />
                   </Route>
                 </Routes>

@@ -6,3 +6,4 @@ export { default as Reviews }  from './Reviews/Reviews.jsx';
 export { default as Bio }      from './Bio/Bio.jsx';
 export { default as Admin }    from './Admin/Admin.jsx';
 export { default as NotFound } from './NotFound/NotFound.jsx';
+export { Privacy, Terms }       from './Legal/Legal.jsx';

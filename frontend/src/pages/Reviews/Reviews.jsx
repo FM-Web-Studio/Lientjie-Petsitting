@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useData } from '../../context/DataContext.jsx';
 import { useContent } from '../../context/ContentContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
@@ -12,6 +13,7 @@ import ReviewCard, { ReviewCardSkeleton } from '../../components/ReviewCard/Revi
 import StarRating from '../../components/StarRating/StarRating.jsx';
 import Modal from '../../components/Modal/Modal.jsx';
 import InfoNote from '../../components/InfoNote/InfoNote.jsx';
+import Honeypot, { caughtBot } from '../../components/Honeypot/Honeypot.jsx';
 import styles from './Reviews.module.css';
 
 const BLANK = { authorName: '', rating: 0, title: '', body: '', petName: '', serviceUsed: '' };
@@ -34,6 +36,7 @@ export default function Reviews() {
   const [writing, setWriting] = useState(false);
   const [form, setForm] = useState(BLANK);
   const [saving, setSaving] = useState(false);
+  const trap = useRef(null);
 
   useEffect(() => {
     getApprovedCommentsByReview()
@@ -92,13 +95,13 @@ export default function Reviews() {
   const handleLikeComment = (reviewId, commentId) =>
     applyLike(commentId, (delta) => likeComment(reviewId, commentId, delta));
 
-  const handleSubmitComment = async (reviewId, { authorName, body }) => {
+  const handleSubmitComment = async (reviewId, { authorName, body, isBot }) => {
     if (authorName.trim().length < REVIEW_LIMITS.authorName.min || body.trim().length < REVIEW_LIMITS.comment.min) {
       addToast('Please add your name and a comment.', 'warning');
       return false;
     }
     try {
-      await submitComment(reviewId, { authorName, body });
+      if (!isBot) await submitComment(reviewId, { authorName, body });
       addToast('Comment sent! It is being processed. 🐾', 'success');
       return true;
     } catch (err) {
@@ -131,7 +134,7 @@ export default function Reviews() {
 
     setSaving(true);
     try {
-      await submitReview(form);
+      if (!caughtBot(trap)) await submitReview(form);
       markReviewPosted();
       setWriting(false);
       setForm(BLANK);
@@ -333,8 +336,12 @@ export default function Reviews() {
             cannot sit between the visitor and a control, and its panel opens
             upward over space that is already filled.
           */}
+          <Honeypot ref={trap} />
+
           <div className={styles.formActions}>
-            <InfoNote placement="top" label="Privacy note">{t.privacyNote}</InfoNote>
+            <InfoNote placement="top" label="Privacy note">
+              {t.privacyNote} <Link to="/privacy" onClick={() => setWriting(false)}>Privacy policy</Link>
+            </InfoNote>
             <div className={styles.actionBtns}>
               <button type="button" className="btn btn-secondary" onClick={() => setWriting(false)}>Cancel</button>
               <button type="submit" className="btn btn-primary" disabled={saving}>

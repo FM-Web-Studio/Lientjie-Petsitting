@@ -1,22 +1,23 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase/app.js';
-import { ADMIN_EMAILS } from '../firebase/config.js';
+import { isListedAdmin } from '../firebase/auth.js';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // Same test as isAdmin() in firestore.rules: a verified email listed in settings/admins.
   useEffect(() => {
-    return onAuthStateChanged(auth, (u) => {
+    return onAuthStateChanged(auth, async (u) => {
       setUser(u);
+      setIsAdmin(u?.email && u.emailVerified ? await isListedAdmin(u.email) : false);
       setLoading(false);
     });
   }, []);
-
-  const isAdmin = user != null && ADMIN_EMAILS.includes(user.email);
 
   return (
     <AuthContext.Provider value={{ user, isAdmin, loading }}>

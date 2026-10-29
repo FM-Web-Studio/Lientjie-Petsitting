@@ -17,10 +17,7 @@ const RENDERABLE = /^image\/(jpeg|png|webp|gif|avif)$/;
  *                           expired.
  *   permission-denied     - Storage accepted the photo but Firestore refused to
  *                           record it. firestore.rules gates writes on the
- *                           `settings/admins` allow-list, which is separate from
- *                           the ADMIN_EMAILS build var that unlocks this screen -
- *                           so an address can reach the admin UI and still be
- *                           unable to save anything.
+ *                           `settings/admins` allow-list.
  */
 function uploadErrorMessage(err) {
   switch (err?.code) {

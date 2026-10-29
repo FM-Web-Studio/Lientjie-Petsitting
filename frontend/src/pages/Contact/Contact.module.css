@@ -64,6 +64,18 @@
 
 .field textarea { resize: vertical; min-height: 120px; }
 
+.privacy {
+  max-width: none;
+  font-size: 0.85rem;
+  color: var(--grey);
+  line-height: 1.5;
+}
+
+.privacy a {
+  color: var(--coral);
+  font-weight: 700;
+}
+
 /* ── Info sidebar ───────────────────────────────────────────────────────── */
 .info {
   display: flex;
@@ -97,10 +109,13 @@
 .promise p  { color: var(--grey); font-size: 0.9rem; line-height: 1.7; }
 
 @media (max-width: 900px) {
-  .layout { grid-template-columns: 1fr; }
+  .layout { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (max-width: 600px) {
-  .row { grid-template-columns: 1fr; }
+  .row { grid-template-columns: minmax(0, 1fr); }
+  .field input,
+  .field select,
+  .field textarea { min-width: 0; width: 100%; }
   .form { padding: 1.5rem; }
 }

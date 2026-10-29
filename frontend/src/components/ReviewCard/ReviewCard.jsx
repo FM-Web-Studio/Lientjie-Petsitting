@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import StarRating from '../StarRating/StarRating.jsx';
 import Skeleton from '../Skeleton/Skeleton.jsx';
 import { REVIEW_LIMITS } from '../../firebase/config.js';
+import Honeypot, { caughtBot } from '../Honeypot/Honeypot.jsx';
 import styles from './ReviewCard.module.css';
 
 /*
@@ -52,6 +54,7 @@ export default function ReviewCard({
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ authorName: '', body: '' });
   const [sending, setSending] = useState(false);
+  const trap = useRef(null);
 
   const liked = likedIds?.has(review.id);
 
@@ -59,7 +62,7 @@ export default function ReviewCard({
     e.preventDefault();
     setSending(true);
     try {
-      const posted = await onSubmitComment?.(review.id, form);
+      const posted = await onSubmitComment?.(review.id, { ...form, isBot: caughtBot(trap) });
       // Only clear the box if it actually went through - otherwise a failed
       // submit silently eats what the visitor typed.
       if (posted) setForm({ authorName: '', body: '' });
@@ -149,9 +152,13 @@ export default function ReviewCard({
               maxLength={REVIEW_LIMITS.comment.max}
               required
             />
+            <Honeypot ref={trap} />
             <button type="submit" className="btn btn-teal btn-sm" disabled={sending}>
               {sending ? 'Posting…' : 'Post comment'}
             </button>
+            <p className={styles.replyNote}>
+              Comments are checked before they appear, and are shown with the name you give. <Link to="/privacy">Privacy policy</Link>
+            </p>
           </form>
         </div>
       )}
