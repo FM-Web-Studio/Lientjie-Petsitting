@@ -1,0 +1,201 @@
+[debug] [2026-10-29T18:23:34.037Z] ----------------------------------------------------------------------
+[debug] [2026-10-29T18:23:34.040Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\Franc\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy --only functions --project lientjie-project
+[debug] [2026-10-29T18:23:34.040Z] CLI Version:   15.18.0
+[debug] [2026-10-29T18:23:34.040Z] Platform:      win32
+[debug] [2026-10-29T18:23:34.040Z] Node Version:  v24.13.1
+[debug] [2026-10-29T18:23:34.040Z] Time:          Thu Oct 29 2026 20:23:34 GMT+0200 (South Africa Standard Time)
+[debug] [2026-10-29T18:23:34.040Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-10-29T18:23:35.175Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-10-29T18:23:35.175Z] > authorizing via signed-in user (francoismeiring0203@gmail.com)
+[debug] [2026-10-29T18:23:35.175Z] [iam] checking project lientjie-project for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]
+[debug] [2026-10-29T18:23:35.176Z] Checked if tokens are valid: true, expires at: 1793300832451
+[debug] [2026-10-29T18:23:35.176Z] Checked if tokens are valid: true, expires at: 1793300832451
+[debug] [2026-10-29T18:23:35.177Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/lientjie-project:testIamPermissions [none]
+[debug] [2026-10-29T18:23:35.177Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/lientjie-project:testIamPermissions  x-goog-user-project=lientjie-project
+[debug] [2026-10-29T18:23:35.177Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/lientjie-project:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2026-10-29T18:23:36.814Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/lientjie-project:testIamPermissions 200
+[debug] [2026-10-29T18:23:36.814Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/lientjie-project:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2026-10-29T18:23:36.815Z] Checked if tokens are valid: true, expires at: 1793300832451
+[debug] [2026-10-29T18:23:36.815Z] Checked if tokens are valid: true, expires at: 1793300832451
+[debug] [2026-10-29T18:23:36.815Z] >>> [apiv2][query] POST https://iam.googleapis.com/v1/projects/lientjie-project/serviceAccounts/lientjie-project@appspot.gserviceaccount.com:testIamPermissions [none]
+[debug] [2026-10-29T18:23:36.815Z] >>> [apiv2][body] POST https://iam.googleapis.com/v1/projects/lientjie-project/serviceAccounts/lientjie-project@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[debug] [2026-10-29T18:23:38.630Z] <<< [apiv2][status] POST https://iam.googleapis.com/v1/projects/lientjie-project/serviceAccounts/lientjie-project@appspot.gserviceaccount.com:testIamPermissions 200
+[debug] [2026-10-29T18:23:38.631Z] <<< [apiv2][body] POST https://iam.googleapis.com/v1/projects/lientjie-project/serviceAccounts/lientjie-project@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[info] 
+[info] === Deploying to 'lientjie-project'...
+[info] 
+[info] i  deploying functions 
+[debug] [2026-10-29T18:23:38.637Z] Checked if tokens are valid: true, expires at: 1793300832451
+[debug] [2026-10-29T18:23:38.637Z] Checked if tokens are valid: true, expires at: 1793300832451
+[debug] [2026-10-29T18:23:38.637Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/projects/lientjie-project [none]
+[debug] [2026-10-29T18:23:38.960Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/projects/lientjie-project 200
+[debug] [2026-10-29T18:23:38.960Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/projects/lientjie-project {"projectNumber":"1000980071727","projectId":"lientjie-project","lifecycleState":"ACTIVE","name":"Lientjie-Project","labels":{"firebase":"enabled","firebase-core":"disabled"},"createTime":"2026-06-04T16:11:05.916Z"}
+[info] i  functions: preparing codebase default for deployment 
+[info] i  functions: ensuring required API cloudfunctions.googleapis.com is enabled... 
+[info] i  functions: ensuring required API cloudbuild.googleapis.com is enabled... 
+[info] i  artifactregistry: ensuring required API artifactregistry.googleapis.com is enabled... 
+[debug] [2026-10-29T18:23:38.966Z] Checked if tokens are valid: true, expires at: 1793300832451
+[debug] [2026-10-29T18:23:38.967Z] Checked if tokens are valid: true, expires at: 1793300832451
+[debug] [2026-10-29T18:23:38.967Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/lientjie-project/adminSdkConfig [none]
+[debug] [2026-10-29T18:23:39.796Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/lientjie-project/adminSdkConfig 200
+[debug] [2026-10-29T18:23:39.796Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/lientjie-project/adminSdkConfig {"projectId":"lientjie-project","storageBucket":"lientjie-project.firebasestorage.app"}
+[debug] [2026-10-29T18:23:39.797Z] Checked if tokens are valid: true, expires at: 1793300832451
+[debug] [2026-10-29T18:23:39.797Z] Checked if tokens are valid: true, expires at: 1793300832451
+[debug] [2026-10-29T18:23:39.797Z] >>> [apiv2][query] GET https://runtimeconfig.googleapis.com/v1beta1/projects/lientjie-project/configs [none]
+[debug] [2026-10-29T18:23:40.983Z] <<< [apiv2][status] GET https://runtimeconfig.googleapis.com/v1beta1/projects/lientjie-project/configs 200
+[debug] [2026-10-29T18:23:40.983Z] <<< [apiv2][body] GET https://runtimeconfig.googleapis.com/v1beta1/projects/lientjie-project/configs {}
+[debug] [2026-10-29T18:23:40.985Z] Validating nodejs source
+[warn] !  functions: Runtime Node.js 20 was deprecated on 2026-04-30 and will be decommissioned on 2026-10-30, after which you will not be able to deploy without upgrading. Consider upgrading now to avoid disruption. See https://cloud.google.com/functions/docs/runtime-support for full details on the lifecycle policy 
+[warn] !  functions: Couldn't find firebase-functions package in your source code. Have you run 'npm install'? 
+[debug] [2026-10-29T18:23:40.988Z] getFunctionsSDKVersion encountered error: Cannot find module 'firebase-functions'
+Require stack:
+- C:\Users\Franc\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\functions\runtimes\node\versioning.js
+- C:\Users\Franc\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\functions\runtimes\node\index.js
+- C:\Users\Franc\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\functions\runtimes\index.js
+- C:\Users\Franc\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\functions\prepare.js
+- C:\Users\Franc\AppData\Roaming\npm\node_modules\firebase-tools\lib\emulator\functionsEmulatorShared.js
+- C:\Users\Franc\AppData\Roaming\npm\node_modules\firebase-tools\lib\frameworks\index.js
+- C:\Users\Franc\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\hosting\prepare.js
+- C:\Users\Franc\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\hosting\index.js
+- C:\Users\Franc\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\index.js
+- C:\Users\Franc\AppData\Roaming\npm\node_modules\firebase-tools\lib\commands\deploy.js
+- C:\Users\Franc\AppData\Roaming\npm\node_modules\firebase-tools\lib\commands\index.js
+- C:\Users\Franc\AppData\Roaming\npm\node_modules\firebase-tools\lib\index.js
+- C:\Users\Franc\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\cli.js
+- C:\Users\Franc\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js {"code":"MODULE_NOT_FOUND","requireStack":["C:\\Users\\Franc\\AppData\\Roaming\\npm\\node_modules\\firebase-tools\\lib\\deploy\\functions\\runtimes\\node\\versioning.js","C:\\Users\\Franc\\AppData\\Roaming\\npm\\node_modules\\firebase-tools\\lib\\deploy\\functions\\runtimes\\node\\index.js","C:\\Users\\Franc\\AppData\\Roaming\\npm\\node_modules\\firebase-tools\\lib\\deploy\\functions\\runtimes\\index.js","C:\\Users\\Franc\\AppData\\Roaming\\npm\\node_modules\\firebase-tools\\lib\\deploy\\functions\\prepare.js","C:\\Users\\Franc\\AppData\\Roaming\\npm\\node_modules\\firebase-tools\\lib\\emulator\\functionsEmulatorShared.js","C:\\Users\\Franc\\AppData\\Roaming\\npm\\node_modules\\firebase-tools\\lib\\frameworks\\index.js","C:\\Users\\Franc\\AppData\\Roaming\\npm\\node_modules\\firebase-tools\\lib\\deploy\\hosting\\prepare.js","C:\\Users\\Franc\\AppData\\Roaming\\npm\\node_modules\\firebase-tools\\lib\\deploy\\hosting\\index.js","C:\\Users\\Franc\\AppData\\Roaming\\npm\\node_modules\\firebase-tools\\lib\\deploy\\index.js","C:\\Users\\Franc\\AppData\\Roaming\\npm\\node_modules\\firebase-tools\\lib\\commands\\deploy.js","C:\\Users\\Franc\\AppData\\Roaming\\npm\\node_modules\\firebase-tools\\lib\\commands\\index.js","C:\\Users\\Franc\\AppData\\Roaming\\npm\\node_modules\\firebase-tools\\lib\\index.js","C:\\Users\\Franc\\AppData\\Roaming\\npm\\node_modules\\firebase-tools\\lib\\bin\\cli.js","C:\\Users\\Franc\\AppData\\Roaming\\npm\\node_modules\\firebase-tools\\lib\\bin\\firebase.js"]}
+[debug] [2026-10-29T18:23:40.989Z] checkFunctionsSDKVersion encountered error: Invalid Version:  {}
+[debug] [2026-10-29T18:23:40.990Z] > [functions] package.json contents: {
+  "name": "lientjie-functions",
+  "description": "Contact-form email notifications for the Lientjie portfolio + petsitting sites",
+  "type": "commonjs",
+  "main": "index.js",
+  "engines": {
+    "node": "20"
+  },
+  "scripts": {
+    "serve": "firebase emulators:start --only functions",
+    "logs": "firebase functions:log",
+    "deploy": "firebase deploy --only functions"
+  },
+  "dependencies": {
+    "firebase-functions": "^5.1.1",
+    "nodemailer": "^6.9.14"
+  },
+  "private": true
+}
+[debug] [2026-10-29T18:23:40.990Z] Building nodejs source
+[info] i  functions: Loading and analyzing source code for codebase default to determine what to deploy 
+[debug] [2026-10-29T18:23:40.992Z] Could not parse firebase-functions version '' into semver.
+[debug] [2026-10-29T18:23:40.993Z] Could not find functions.yaml. Must use http discovery
+[debug] [2026-10-29T18:23:41.396Z] Error: Cannot find module 'firebase-functions'
+Require stack:
+- C:\Users\Franc\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\functions\runtimes\node\index.js
+- C:\Users\Franc\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\functions\runtimes\index.js
+- C:\Users\Franc\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\functions\prepare.js
+- C:\Users\Franc\AppData\Roaming\npm\node_modules\firebase-tools\lib\emulator\functionsEmulatorShared.js
+- C:\Users\Franc\AppData\Roaming\npm\node_modules\firebase-tools\lib\frameworks\index.js
+- C:\Users\Franc\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\hosting\prepare.js
+- C:\Users\Franc\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\hosting\index.js
+- C:\Users\Franc\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\index.js
+- C:\Users\Franc\AppData\Roaming\npm\node_modules\firebase-tools\lib\commands\deploy.js
+- C:\Users\Franc\AppData\Roaming\npm\node_modules\firebase-tools\lib\commands\index.js
+- C:\Users\Franc\AppData\Roaming\npm\node_modules\firebase-tools\lib\index.js
+- C:\Users\Franc\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\cli.js
+- C:\Users\Franc\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1448:15)
+    at require.resolve (node:internal/modules/helpers:163:19)
+    at Delegate.findFunctionsBinary (C:\Users\Franc\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\functions\runtimes\node\index.js:101:33)
+    at Delegate.spawnFunctionsProcess (C:\Users\Franc\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\functions\runtimes\node\index.js:131:30)
+    at Delegate.serveAdmin (C:\Users\Franc\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\functions\runtimes\node\index.js:152:35)
+    at Delegate.discoverBuild (C:\Users\Franc\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\functions\runtimes\node\index.js:192:41)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async loadCodebases (C:\Users\Franc\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\functions\prepare.js:491:33)
+    at async prepare (C:\Users\Franc\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\functions\prepare.js:80:24)
+    at async chain (C:\Users\Franc\AppData\Roaming\npm\node_modules\firebase-tools\lib\deploy\index.js:45:9)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2026-10-29T18:25:28.959Z] ----------------------------------------------------------------------
+[debug] [2026-10-29T18:25:28.961Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\Franc\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy --only functions --project lientjie-project
+[debug] [2026-10-29T18:25:28.961Z] CLI Version:   15.18.0
+[debug] [2026-10-29T18:25:28.961Z] Platform:      win32
+[debug] [2026-10-29T18:25:28.961Z] Node Version:  v24.13.1
+[debug] [2026-10-29T18:25:28.961Z] Time:          Thu Oct 29 2026 20:25:28 GMT+0200 (South Africa Standard Time)
+[debug] [2026-10-29T18:25:28.962Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-10-29T18:25:30.228Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-10-29T18:25:30.228Z] > authorizing via signed-in user (francoismeiring0203@gmail.com)
+[debug] [2026-10-29T18:25:30.229Z] [iam] checking project lientjie-project for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]
+[debug] [2026-10-29T18:25:30.229Z] Checked if tokens are valid: true, expires at: 1793300832451
+[debug] [2026-10-29T18:25:30.230Z] Checked if tokens are valid: true, expires at: 1793300832451
+[debug] [2026-10-29T18:25:30.230Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/lientjie-project:testIamPermissions [none]
+[debug] [2026-10-29T18:25:30.230Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/lientjie-project:testIamPermissions  x-goog-user-project=lientjie-project
+[debug] [2026-10-29T18:25:30.231Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/lientjie-project:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2026-10-29T18:25:31.889Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/lientjie-project:testIamPermissions 200
+[debug] [2026-10-29T18:25:31.889Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/lientjie-project:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2026-10-29T18:25:31.889Z] Checked if tokens are valid: true, expires at: 1793300832451
+[debug] [2026-10-29T18:25:31.889Z] Checked if tokens are valid: true, expires at: 1793300832451
+[debug] [2026-10-29T18:25:31.889Z] >>> [apiv2][query] POST https://iam.googleapis.com/v1/projects/lientjie-project/serviceAccounts/lientjie-project@appspot.gserviceaccount.com:testIamPermissions [none]
+[debug] [2026-10-29T18:25:31.889Z] >>> [apiv2][body] POST https://iam.googleapis.com/v1/projects/lientjie-project/serviceAccounts/lientjie-project@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[debug] [2026-10-29T18:25:33.496Z] <<< [apiv2][status] POST https://iam.googleapis.com/v1/projects/lientjie-project/serviceAccounts/lientjie-project@appspot.gserviceaccount.com:testIamPermissions 200
+[debug] [2026-10-29T18:25:33.496Z] <<< [apiv2][body] POST https://iam.googleapis.com/v1/projects/lientjie-project/serviceAccounts/lientjie-project@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[info] 
+[info] === Deploying to 'lientjie-project'...
+[info] 
+[info] i  deploying functions 
+[debug] [2026-10-29T18:25:33.500Z] Checked if tokens are valid: true, expires at: 1793300832451
+[debug] [2026-10-29T18:25:33.500Z] Checked if tokens are valid: true, expires at: 1793300832451
+[debug] [2026-10-29T18:25:33.500Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/projects/lientjie-project [none]
+[debug] [2026-10-29T18:25:33.823Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/projects/lientjie-project 200
+[debug] [2026-10-29T18:25:33.823Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/projects/lientjie-project {"projectNumber":"1000980071727","projectId":"lientjie-project","lifecycleState":"ACTIVE","name":"Lientjie-Project","labels":{"firebase":"enabled","firebase-core":"disabled"},"createTime":"2026-06-04T16:11:05.916Z"}
+[info] i  functions: preparing codebase default for deployment 
+[info] i  functions: ensuring required API cloudfunctions.googleapis.com is enabled... 
+[info] i  functions: ensuring required API cloudbuild.googleapis.com is enabled... 
+[info] i  artifactregistry: ensuring required API artifactregistry.googleapis.com is enabled... 
+[debug] [2026-10-29T18:25:33.826Z] Checked if tokens are valid: true, expires at: 1793300832451
+[debug] [2026-10-29T18:25:33.826Z] Checked if tokens are valid: true, expires at: 1793300832451
+[debug] [2026-10-29T18:25:33.826Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/lientjie-project/adminSdkConfig [none]
+[debug] [2026-10-29T18:25:34.732Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/lientjie-project/adminSdkConfig 200
+[debug] [2026-10-29T18:25:34.732Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/lientjie-project/adminSdkConfig {"projectId":"lientjie-project","storageBucket":"lientjie-project.firebasestorage.app"}
+[debug] [2026-10-29T18:25:34.733Z] Checked if tokens are valid: true, expires at: 1793300832451
+[debug] [2026-10-29T18:25:34.733Z] Checked if tokens are valid: true, expires at: 1793300832451
+[debug] [2026-10-29T18:25:34.734Z] >>> [apiv2][query] GET https://runtimeconfig.googleapis.com/v1beta1/projects/lientjie-project/configs [none]
+[debug] [2026-10-29T18:25:35.629Z] <<< [apiv2][status] GET https://runtimeconfig.googleapis.com/v1beta1/projects/lientjie-project/configs 200
+[debug] [2026-10-29T18:25:35.629Z] <<< [apiv2][body] GET https://runtimeconfig.googleapis.com/v1beta1/projects/lientjie-project/configs {}
+[debug] [2026-10-29T18:25:35.631Z] Validating nodejs source
+[warn] !  functions: package.json indicates an outdated version of firebase-functions. Please upgrade using npm install --save firebase-functions@latest in your functions directory. 
+[warn] !  functions: Please note that there will be breaking changes when you upgrade. 
+[debug] [2026-10-29T18:25:36.367Z] > [functions] package.json contents: {
+  "name": "lientjie-functions",
+  "description": "Contact-form email notifications for the Lientjie portfolio + petsitting sites",
+  "type": "commonjs",
+  "main": "index.js",
+  "engines": {
+    "node": "22"
+  },
+  "scripts": {
+    "serve": "firebase emulators:start --only functions",
+    "logs": "firebase functions:log",
+    "deploy": "firebase deploy --only functions"
+  },
+  "dependencies": {
+    "firebase-functions": "^6.1.0",
+    "nodemailer": "^6.9.14"
+  },
+  "private": true
+}
+[debug] [2026-10-29T18:25:36.367Z] Building nodejs source
+[info] i  functions: Loading and analyzing source code for codebase default to determine what to deploy 
+[debug] [2026-10-29T18:25:36.368Z] Could not find functions.yaml. Must use http discovery
+[debug] [2026-10-29T18:25:36.378Z] Found firebase-functions binary at 'C:\Projects\Lientjie-Petsitting\functions\node_modules\.bin\firebase-functions'
+[info] Serving at port 8870
+
+[debug] [2026-10-29T18:25:36.746Z] Got response from /__/functions.yaml {"endpoints":{"onPortfolioMessage":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":5,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["europe-west1"],"secretEnvironmentVariables":[{"key":"SMTP_PASSWORD"}],"labels":{},"eventTrigger":{"eventType":"google.cloud.firestore.document.v1.created","eventFilters":{"database":"(default)","namespace":"(default)"},"eventFilterPathPatterns":{"document":"portfolio_messages/{id}"},"retry":false},"entryPoint":"onPortfolioMessage"},"onPetsittingMessage":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":5,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["europe-west1"],"secretEnvironmentVariables":[{"key":"SMTP_PASSWORD"}],"labels":{},"eventTrigger":{"eventType":"google.cloud.firestore.document.v1.created","eventFilters":{"database":"(default)","namespace":"(default)"},"eventFilterPathPatterns":{"document":"petsitting_messages/{id}"},"retry":false},"entryPoint":"onPetsittingMessage"},"onPetsittingReview":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":5,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["europe-west1"],"secretEnvironmentVariables":[{"key":"SMTP_PASSWORD"}],"labels":{},"eventTrigger":{"eventType":"google.cloud.firestore.document.v1.created","eventFilters":{"database":"(default)","namespace":"(default)"},"eventFilterPathPatterns":{"document":"petsitting_reviews/{id}"},"retry":false},"entryPoint":"onPetsittingReview"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{},"params":[{"name":"SMTP_HOST","type":"string","default":"smtp.gmail.com"},{"name":"SMTP_PORT","type":"string","default":"465"},{"name":"SMTP_USER","type":"string"},{"name":"NOTIFY_TO","type":"string"},{"type":"secret","name":"SMTP_PASSWORD"}]}
+[debug] [2026-10-29T18:25:40.791Z] Checked if tokens are valid: true, expires at: 1793300832451
+[debug] [2026-10-29T18:25:40.791Z] Checked if tokens are valid: true, expires at: 1793300832451
+[debug] [2026-10-29T18:25:40.791Z] >>> [apiv2][query] GET https://cloudfunctions.googleapis.com/v1/projects/lientjie-project/locations/-/functions [none]
+[debug] [2026-10-29T18:25:42.060Z] <<< [apiv2][status] GET https://cloudfunctions.googleapis.com/v1/projects/lientjie-project/locations/-/functions 200
+[debug] [2026-10-29T18:25:42.060Z] <<< [apiv2][body] GET https://cloudfunctions.googleapis.com/v1/projects/lientjie-project/locations/-/functions {}
+[debug] [2026-10-29T18:25:42.061Z] Checked if tokens are valid: true, expires at: 1793300832451
+[debug] [2026-10-29T18:25:42.061Z] Checked if tokens are valid: true, expires at: 1793300832451
+[debug] [2026-10-29T18:25:42.061Z] >>> [apiv2][query] GET https://cloudfunctions.googleapis.com/v2/projects/lientjie-project/locations/-/functions filter=environment%3D%22GEN_2%22
