@@ -2,3 +2,9 @@ node_modules/
 service-account.json
 frontend/.env
 frontend/dist/
+
+# Firebase CLI
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
