@@ -64,7 +64,7 @@
 }
 .topbarLeft  { display: flex; align-items: center; gap: 0.6rem; }
 .topbarIcon  { font-size: 1.3rem; }
-.topbarTitle { font-size: 1.2rem; font-weight: 800; color: var(--coral); }
+.topbarTitle { font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; }
 .topbarRight { display: flex; align-items: center; gap: 0.6rem; }
 .userEmail   { font-size: 0.9rem; color: var(--grey); }
 
@@ -107,8 +107,8 @@
   border-radius: var(--radius-md);
   transition: background var(--transition);
 }
-.navItem:hover { background: rgba(255, 107, 107, 0.08); }
-.navItemActive, .navItemActive:hover { background: rgba(255, 107, 107, 0.15); }
+.navItem:hover { background: rgba(var(--accent-1-rgb), 0.08); }
+.navItemActive, .navItemActive:hover { background: rgba(var(--accent-1-rgb), 0.15); }
 .navItemBtn {
   all: unset;
   box-sizing: border-box;
@@ -160,7 +160,7 @@
   font-size: 1.5rem;
   flex-shrink: 0;
 }
-.menuBtn:hover { background: rgba(255, 107, 107, 0.1); color: var(--coral); }
+.menuBtn:hover { background: rgba(var(--accent-1-rgb), 0.1); color: var(--coral); }
 .navBackdrop { display: none; }
 
 /* ── Section header ──────────────────────────────────────────────────────────*/
@@ -196,7 +196,7 @@
   transition: all var(--transition);
 }
 .subTab:hover { border-color: var(--grey); color: var(--dark); }
-.subTabActive, .subTabActive:hover { background: var(--coral); border-color: var(--coral); color: #fff; }
+.subTabActive, .subTabActive:hover { background: var(--coral-fill); border-color: var(--coral-press); color: #2B2235; }
 
 .resetBtn {
   all: unset;
@@ -452,4 +452,33 @@ p.helpText { margin: -0.5rem 0 1.25rem; }
   color: var(--grey);
   margin-bottom: 0.3rem;
   overflow-wrap: anywhere;
+}
+
+/* Count of items waiting, on the Messages and Reviews entries */
+.navBadge {
+  margin-left: auto;
+  display: grid;
+  place-items: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding: 0 0.4rem;
+  border-radius: var(--radius-full);
+  background: var(--coral-fill);
+  color: #2B2235;
+  font-size: 0.78rem;
+  font-weight: 900;
+  animation: pop-in 0.35s var(--bounce);
+}
+
+/* An editor whose saved data could not be loaded: say so, never show an empty form. */
+.loadError {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--radius-lg);
+  background: var(--coral-light);
+  border: 2px solid var(--coral);
+  font-weight: 700;
 }

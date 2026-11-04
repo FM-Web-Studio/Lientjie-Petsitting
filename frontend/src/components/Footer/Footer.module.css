@@ -1,76 +1,82 @@
 .footer {
+  position: relative;
+  margin-top: 3rem;
+  padding: 3.5rem 0 calc(1.5rem + var(--tabbar-height));
   background: var(--surface-dark);
   color: var(--on-dark-muted);
-  padding: 3rem 0 2rem;
-  transition: background 0.3s ease;
+}
+
+.wave {
+  position: absolute;
+  top: -44px;
+  left: 0;
+  width: 100%;
+  height: 46px;
+  fill: var(--surface-dark);
 }
 
 .inner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
-  text-align: center;
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1.2fr;
+  gap: 2.5rem;
 }
 
-.logoImg {
-  height: 56px;
-  width: auto;
-  display: block;
-  margin: 0 auto 0.75rem;
-  border-radius: var(--radius-sm);
-}
-
+.logoRow { display: inline-flex; align-items: center; gap: 0.7rem; }
+.logoImg { width: 52px; height: 52px; object-fit: contain; }
 .logo {
-  display: block;
-  font-size: 1.25rem;
-  font-weight: 800;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.35rem;
   color: var(--on-dark);
-  margin-bottom: 0.5rem;
 }
+.tagline { margin-top: 0.9rem; max-width: 22rem; }
 
-.brand p {
-  font-size: 0.95rem;
-}
-
-.links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1.5rem;
-  justify-content: center;
-}
-
-.links a {
-  color: var(--on-dark-muted);
-  font-weight: 600;
+.socials { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.1rem; }
+.social {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: var(--radius-full);
+  background: var(--on-dark-faint);
+  color: var(--on-dark);
+  font-weight: 700;
   font-size: 0.9rem;
-  transition: color var(--transition);
+  transition: background var(--transition), transform 0.2s var(--bounce);
 }
+.social:hover { background: rgba(255, 255, 255, 0.18); transform: translateY(-2px); }
 
-.links a:hover { color: var(--coral); }
+.col { display: flex; flex-direction: column; align-items: flex-start; gap: 0.55rem; }
+.col a { color: var(--on-dark-muted); font-weight: 600; transition: color var(--transition); }
+.col a:hover { color: var(--yellow); }
+.colTitle {
+  font-size: 1.05rem;
+  color: var(--on-dark);
+  margin-bottom: 0.35rem;
+}
+.col .cta { color: #2B2235; margin-top: 0.5rem; }
+.col .cta:hover { color: #2B2235; }
 
-.legal {
+.bottom {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem 1.25rem;
-  justify-content: center;
-}
-
-.legal a {
-  color: var(--on-dark-muted);
-  font-size: 0.8rem;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  transition: color var(--transition);
-}
-
-.legal a:hover { color: var(--coral); }
-
-.copy {
-  font-size: 0.85rem;
-  color: var(--on-dark-faint);
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 2.5rem;
+  padding-top: 1.25rem;
   border-top: 1px solid var(--on-dark-faint);
-  padding-top: 1.5rem;
-  width: 100%;
-  text-align: center;
+  font-size: 0.88rem;
 }
+.legal { display: flex; gap: 1.25rem; }
+.legal a:hover { color: var(--yellow); }
+
+@media (max-width: 860px) {
+  .inner { grid-template-columns: 1fr 1fr; }
+  .brand { grid-column: 1 / -1; }
+}
+@media (max-width: 480px) {
+  .inner { grid-template-columns: 1fr; gap: 2rem; }
+}
+
+/* Also the hidden admin entrance (see Footer.jsx): no pointer cursor, nothing to give it away. */
+.copyright { user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }

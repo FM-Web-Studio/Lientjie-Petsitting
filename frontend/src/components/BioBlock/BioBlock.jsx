@@ -1,4 +1,6 @@
 import Skeleton from '../Skeleton';
+import SmartImage from '../SmartImage';
+import CountUp from '../CountUp';
 import styles from './BioBlock.module.css';
 
 /*
@@ -32,14 +34,14 @@ export default function BioBlock({
     <div className={`${styles.layout} ${compact ? styles.compact : ''}`}>
       <div className={styles.imageCol}>
         {bio?.profileImageUrl
-          ? <img src={bio.profileImageUrl} alt={name} className={styles.image} />
+          ? <SmartImage src={bio.profileImageUrl} alt={name} className={styles.image} />
           : <div className={styles.placeholder}>🐾</div>}
 
         {!compact && stats.length > 0 && (
           <div className={styles.stats}>
             {stats.map(({ value, label }, i) => (
               <div key={i} className={styles.stat}>
-                <strong>{value}</strong>
+                <strong><CountUp value={value} /></strong>
                 <span>{label}</span>
               </div>
             ))}

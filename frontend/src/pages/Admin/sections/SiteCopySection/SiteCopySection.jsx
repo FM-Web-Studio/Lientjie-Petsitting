@@ -3,7 +3,10 @@ import { getContent, saveContentGroup } from '../../../../firebase/content.js';
 import { COPY_SCHEMA } from '../../../../content/siteCopy.js';
 import { saveErrorMessage } from '../../../../firebase/errors.js';
 import { useToast } from '../../../../context/ToastContext.jsx';
+import { FormSkeleton } from '../../../../components/PageSkeleton';
 import styles from '../../Admin.module.css';
+
+const FIELDS = 7;
 
 // Working draft: show the saved override if present, else the in-code default,
 // so the editor always mirrors what's live on the site.
@@ -37,9 +40,14 @@ export default function SiteCopySection() {
   const [saving, setSaving] = useState(false);
   const dirtyRef = useRef(false);
 
-  useEffect(() => {
-    getContent().then((data) => { if (!dirtyRef.current) setDraft(buildDraft(data)); });
-  }, []);
+  const [status, setStatus] = useState('loading');
+  const load = () => {
+    setStatus('loading');
+    getContent({ strict: true })
+      .then((data) => { if (!dirtyRef.current) setDraft(buildDraft(data)); setStatus('ready'); })
+      .catch(() => setStatus('error'));
+  };
+  useEffect(load, []);
 
   const set = (groupKey, fieldKey, value) => {
     dirtyRef.current = true;
@@ -65,6 +73,16 @@ export default function SiteCopySection() {
   };
 
   const group = COPY_SCHEMA.find((g) => g.key === activeGroup) ?? COPY_SCHEMA[0];
+
+  if (status === 'loading') return <FormSkeleton fields={FIELDS} />;
+  if (status === 'error') {
+    return (
+      <div className={styles.loadError}>
+        <p>Could not load this. Nothing has been changed.</p>
+        <button type="button" className="btn btn-secondary btn-sm" onClick={load}>Try again</button>
+      </div>
+    );
+  }
 
   return (
     <div>

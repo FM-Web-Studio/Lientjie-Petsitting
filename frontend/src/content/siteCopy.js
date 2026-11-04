@@ -34,6 +34,14 @@ const HOME_FIELDS = [
   { key: 'servicesSubtitle', label: 'Services - subtitle',   type: 'text',     default: 'Tailored care for every kind of pet' },
   { key: 'servicesCta',      label: 'Services - button',     type: 'text',     default: 'See All Services' },
 
+  { key: 'stepsTitle',       label: 'How it works - title',  type: 'text',     default: 'How it works' },
+  { key: 'step1Title',       label: 'Step 1 - title',        type: 'text',     default: 'Say hello' },
+  { key: 'step1Text',        label: 'Step 1 - text',         type: 'textarea', default: 'Send me a message with your dates and a little about your pet.' },
+  { key: 'step2Title',       label: 'Step 2 - title',        type: 'text',     default: 'Meet & greet' },
+  { key: 'step2Text',        label: 'Step 2 - text',         type: 'textarea', default: "We meet so your pet gets to know me, and I learn their routine, quirks and favourite treats." },
+  { key: 'step3Title',       label: 'Step 3 - title',        type: 'text',     default: 'Relax, they’re in good paws' },
+  { key: 'step3Text',        label: 'Step 3 - text',         type: 'textarea', default: 'You get photos and updates while you are away, and a happy pet when you get home.' },
+
   { key: 'bioTag',           label: 'Bio - tag',             type: 'text',     default: 'Meet your petsitter' },
   { key: 'bioCta',           label: 'Bio - button',          type: 'text',     default: 'Read My Story' },
 
@@ -57,6 +65,15 @@ const SERVICES_FIELDS = [
   { key: 'bookBtn',      label: 'Card - book button', type: 'text',     default: 'Book Now' },
   { key: 'customTitle',  label: 'Custom - title',     type: 'text',     default: 'Need something custom?' },
   { key: 'customText',   label: 'Custom - text',      type: 'textarea', default: "Every pet is unique! Get in touch to discuss your specific needs and we'll find the perfect solution." },
+  { key: 'faqTitle',     label: 'FAQ - title',        type: 'text',     default: 'Good questions 🤔' },
+  { key: 'faq1Q', label: 'FAQ 1 - question', type: 'text',     default: 'Do we meet before the first booking?' },
+  { key: 'faq1A', label: 'FAQ 1 - answer',   type: 'textarea', default: 'Yes. A meet & greet lets your pet get to know me, and lets me learn their routine before you go away.' },
+  { key: 'faq2Q', label: 'FAQ 2 - question', type: 'text',     default: 'Will I get updates while I am away?' },
+  { key: 'faq2A', label: 'FAQ 2 - answer',   type: 'textarea', default: 'Always. I send photos and messages during every visit so you can see how they are doing.' },
+  { key: 'faq3Q', label: 'FAQ 3 - question', type: 'text',     default: 'What should I leave for my pet?' },
+  { key: 'faq3A', label: 'FAQ 3 - answer',   type: 'textarea', default: "Their food, treats, lead and bedding, any medication with written instructions, and your vet's details. We go through it all together beforehand." },
+  { key: 'faq4Q', label: 'FAQ 4 - question', type: 'text',     default: 'Which areas do you cover?' },
+  { key: 'faq4A', label: 'FAQ 4 - answer',   type: 'textarea', default: 'I work across Pretoria. If you are a little further out, send me a message and we can work something out.' },
 ];
 
 // ── Gallery page ────────────────────────────────────────────────────────────

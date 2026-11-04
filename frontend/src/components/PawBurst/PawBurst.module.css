@@ -1,0 +1,24 @@
+.layer {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.paw {
+  position: absolute;
+  font-size: 1rem;
+  line-height: 1;
+  transform: translate(-50%, -50%);
+  animation: pawFly 0.75s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+}
+
+@keyframes pawFly {
+  0%   { opacity: 1; transform: translate(-50%, -50%) scale(0.4) rotate(0deg); }
+  60%  { opacity: 1; }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.1) rotate(var(--rot));
+  }
+}

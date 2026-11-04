@@ -226,14 +226,43 @@ const CALLABLE = {
   region: REGION,
   maxInstances: 5,
   cors: [/^https:\/\/lientjie-(portfolio|petsitting)\.(web\.app|firebaseapp\.com)$/, /^https?:\/\/localhost(:\d+)?$/],
+  // Every call must carry a valid App Check (reCAPTCHA v3) token, so a script hitting
+  // the endpoint directly is refused before any code here runs. Both sites set up
+  // App Check from FIREBASE_APPCHECK_SITE_KEY; without that key their forms stop working.
+  enforceAppCheck: true,
 };
+// The petsitting-only functions also spend each token once, so a captured token cannot be
+// replayed in a loop. The petsitting client asks for limited-use tokens (firebase/functions.js).
+// sendMessage does not, because the portfolio sends ordinary tokens.
+const CALLABLE_ONCE = { ...CALLABLE, consumeAppCheckToken: true };
 
 // A one-way scramble, so no address or IP is ever stored as it is.
 const scramble = (value) => crypto.createHash('sha256').update(`lientjie:${value}`).digest('hex').slice(0, 40);
-const clientIp = (req) => String(req?.headers?.['x-forwarded-for'] ?? req?.ip ?? 'unknown').split(',')[0].trim();
+/*
+ * The caller's address. Google's front end APPENDS the real address to X-Forwarded-For,
+ * after anything the caller sent in that header themselves, so the first entry can be
+ * made up and only the last one can be trusted. Taking the first entry would let a
+ * spammer pick a new "address" per request and walk straight past the per-sender limits.
+ */
+const clientIp = (req) => {
+  const hops = String(req?.headers?.['x-forwarded-for'] ?? '').split(',').map((h) => h.trim()).filter(Boolean);
+  return hops[hops.length - 1] || req?.ip || 'unknown';
+};
 const text = (v, max) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
 // Bots fill the hidden field or post instantly.
 const looksLikeBot = (d) => !!text(d.website, 200) || !(Number(d.elapsed) >= MIN_FILL_MS);
+
+// Link spam: a pet owner asking about a walk has no reason to paste several links, and
+// nothing on the site needs HTML or BBCode. Treated like a bot - a quiet success, nothing saved.
+const LINK = /(https?:\/\/|www\.|\[url|<a\s|\b[a-z0-9-]+\.(ru|cn|xyz|top|click|link|shop|online|site|info|biz)\b)/gi;
+const looksLikeLinkSpam = (...values) => {
+  const all = values.join(' ');
+  // Only real tags count, so "<R500 per night>" or "<3" from a person still gets through.
+  return (all.match(LINK) || []).length > 2
+    || /<\/?(a|p|div|span|img|script|iframe|b|i|u|strong|em|br|font|center)\b[^>]*>|\[\/?url/i.test(all);
+};
+// Names and short fields should never hold a link at all.
+const hasLink = (value) => /(https?:\/\/|www\.)/i.test(value);
 
 // Deletes a few spent rate records each time, so the collection never grows.
 const sweepLimits = async () => {
@@ -318,6 +347,10 @@ exports.sendMessage = onCall(CALLABLE, async (request) => {
   }
   const { collection, optional } = MESSAGE_FIELDS[site];
   const extra = Object.fromEntries(Object.entries(optional).map(([k, max]) => [k, text(d[k], max)]));
+  if (hasLink(name) || looksLikeLinkSpam(message, ...Object.values(extra))) {
+    logger.info('Contact form: dropped link spam', { site });
+    return { ok: true };
+  }
 
   const lower = email.toLowerCase();
   const keys = {
@@ -341,7 +374,7 @@ const POST_LIMITS = { short: { count: 3, ms: 10 * 60 * 1000 }, day: 10, everyone
 // Petsitting reviews and comments post here. Both arrive unapproved and wait for the admin.
 //   { kind: 'review', authorName, rating, title, body, petName, serviceUsed, website, elapsed }
 //   { kind: 'comment', reviewId, authorName, body, website, elapsed }
-exports.postReview = onCall(CALLABLE, async (request) => {
+exports.postReview = onCall(CALLABLE_ONCE, async (request) => {
   const d = request.data ?? {};
   const kind = d.kind === 'review' || d.kind === 'comment' ? d.kind : null;
   if (looksLikeBot(d)) {
@@ -377,9 +410,60 @@ exports.postReview = onCall(CALLABLE, async (request) => {
     });
   }
 
+  // Reviews are moderated, so spam never goes live - but it would still fill the queue.
+  if (hasLink(authorName) || looksLikeLinkSpam(body, text(d.title, 100))) {
+    logger.info('Review form: dropped link spam', { kind });
+    return { ok: true };
+  }
+
   const keys = {
     sender: scramble(clientIp(request.rawRequest)),
     repeat: scramble(`${kind}|${body.toLowerCase()}`),
   };
   return finish(await limited('post', POST_LIMITS, keys, save), 'post');
+});
+
+// ── Likes ───────────────────────────────────────────────────────────────────
+// Likes used to be a direct Firestore write, which a script could repeat forever.
+// Now one address gets one like per review or comment: the like is remembered as a
+// scrambled record, liking again does nothing, and changes per address are capped.
+const LIKE_LIMIT = { count: 60, ms: 60 * 60 * 1000 };
+const ID = /^[A-Za-z0-9_-]{1,128}$/;
+
+//   { reviewId, commentId?, like: true | false }  ->  { liked, likes }
+exports.likePost = onCall(CALLABLE_ONCE, async (request) => {
+  const d = request.data ?? {};
+  const reviewId = String(d.reviewId ?? '');
+  const commentId = d.commentId == null ? null : String(d.commentId);
+  if (!ID.test(reviewId) || (commentId !== null && !ID.test(commentId)) || typeof d.like !== 'boolean') {
+    throw new HttpsError('invalid-argument', 'Not a valid like.');
+  }
+
+  const target = commentId
+    ? db.doc(`petsitting_reviews/${reviewId}/petsitting_review_comments/${commentId}`)
+    : db.doc(`petsitting_reviews/${reviewId}`);
+  const sender = scramble(clientIp(request.rawRequest));
+  const record = db.doc(`postLikes/${scramble(`${sender}|${target.path}`)}`);
+  const limit = db.doc(`rateLimits/like-s-${sender}`);
+  const now = Date.now();
+
+  return db.runTransaction(async (tx) => {
+    const [post, mine, lim] = await Promise.all([tx.get(target), tx.get(record), tx.get(limit)]);
+    // Only published posts can be liked, the same rule the site shows.
+    if (!post.exists || post.get('approved') !== true) throw new HttpsError('not-found', 'That post is not available.');
+
+    const likes = Math.max(0, Number(post.get('likes')) || 0);
+    // Already in the state asked for: nothing to change, and it does not count against the limit.
+    if (mine.exists === d.like) return { liked: mine.exists, likes };
+
+    const recent = (lim.get('times') ?? []).filter((t) => now - t < LIKE_LIMIT.ms);
+    if (recent.length >= LIKE_LIMIT.count) throw new HttpsError('resource-exhausted', 'sender');
+    tx.set(limit, { times: [...recent, now], expireAt: Timestamp.fromMillis(now + DAY) });
+
+    const next = d.like ? likes + 1 : Math.max(0, likes - 1);
+    if (d.like) tx.create(record, { expireAt: Timestamp.fromMillis(now + KEEP_DAYS * DAY) });
+    else tx.delete(record);
+    tx.update(target, { likes: next });
+    return { liked: d.like, likes: next };
+  });
 });

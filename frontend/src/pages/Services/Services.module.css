@@ -1,37 +1,104 @@
-/* Accent for the shared .page-header rule (see styles/globals.css). */
-.pageHeader {
-  --accent-from: var(--teal);
-  --accent-to: var(--teal-dark);
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
 }
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 44px;
+  padding: 0.45rem 1.05rem;
+  border-radius: var(--radius-full);
+  background: var(--white);
+  border: 2px solid var(--border);
+  font-weight: 800;
+  font-size: 0.95rem;
+  transition: transform 0.2s var(--bounce), background var(--transition), border-color var(--transition);
+}
+.chip:hover { transform: translateY(-2px); border-color: var(--teal); }
+.chipOn, .chipOn:hover { background: var(--teal); border-color: var(--teal); color: #2B2235; }
 
-/* The card itself is a shared component - see components/ServiceCard. */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 2rem;
-  margin-bottom: 3rem;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 1.75rem;
 }
-
-.note {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  background: var(--yellow-light);
-  border: 2px solid var(--yellow-dark);
-  border-radius: var(--radius-md);
-  padding: 1.5rem;
-  font-size: 0.95rem;
-}
-
-.note span { font-size: 2rem; flex-shrink: 0; }
-
-.note strong { display: block; margin-bottom: 0.25rem; font-size: 1.05rem; }
-
-.note a { color: var(--coral); font-weight: 700; }
+.cell { display: flex; }
+.cell > * { flex: 1; }
 
 .empty {
   text-align: center;
-  padding: 5rem 0;
-  font-size: 1.2rem;
+  padding: 3rem 1rem;
   color: var(--grey);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.custom {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: 3rem;
+  padding: 1.75rem 2rem;
+  border-radius: var(--radius-lg);
+  background: var(--teal-light);
+  border: 2px dashed var(--teal);
+}
+.customIcon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  background: var(--white);
+  font-size: 1.6rem;
+}
+.customCopy { flex: 1; }
+.customCopy h2 { font-size: 1.35rem; margin-bottom: 0.2rem; }
+.customCopy p { color: var(--grey); }
+
+/* FAQ */
+.faqWrap { max-width: 760px; }
+.faqs { display: grid; gap: 0.75rem; }
+.faq {
+  border-radius: var(--radius-md);
+  background: var(--white);
+  border: 2px solid var(--border);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.faq[open] { border-color: var(--yellow); box-shadow: 0 4px 0 var(--yellow-light); }
+.faq summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  font-weight: 800;
+  font-size: 1.05rem;
+  cursor: pointer;
+  list-style: none;
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faqIcon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--yellow-light);
+  font-size: 1.3rem;
+  font-weight: 900;
+  transition: transform 0.3s var(--bounce), background var(--transition);
+}
+.faq[open] .faqIcon { transform: rotate(45deg); background: var(--yellow); color: #2B2235; }
+.faq p { padding: 0 1.25rem 1.15rem; color: var(--grey); }
+
+@media (max-width: 640px) {
+  .custom { flex-direction: column; text-align: center; padding: 1.5rem; }
+  .grid { grid-template-columns: 1fr; }
 }

@@ -10,13 +10,35 @@ project. Replying to the notification replies to the visitor.
 |---|---|
 | `sendMessage` | Both contact forms post here (`site: 'portfolio'` or `'petsitting'`). Drops bots (hidden field filled, or sent within 3 seconds of opening the form), limits each sender to 2 messages per 10 minutes and 5 a day, each email address to 5 a day, and all messages to 40 a day, ignores exact repeats, then saves the message. |
 | `postReview` | Petsitting reviews and comments post here (`kind: 'review'` or `'comment'`). Same bot check; 3 posts per 10 minutes and 10 a day per sender, 60 a day in all. Saves them unapproved for the admin to publish. |
+| `likePost` | Likes on petsitting reviews and comments. One like per visitor per post (kept as a scrambled record in `postLikes`, deleted after a year), at most 60 like changes an hour per visitor, published posts only. |
 | `onPortfolioMessage` | Emails Lientjie when a `portfolio_messages` document is created |
 | `onPetsittingMessage` | Emails Lientjie when a `petsitting_messages` document is created |
 | `onPetsittingReview` | Emails Lientjie when a review is waiting for approval |
 
 Senders and email addresses are kept only as one-way hashes in `rateLimits`, deleted after a day.
 
+### Spam protection, in order
+
+1. **App Check (reCAPTCHA v3)** - every callable has `enforceAppCheck: true`, so a call without a valid
+   token from one of the two sites is refused before any code runs. `postReview` and `likePost` also
+   *consume* each token (`consumeAppCheckToken`), so a token copied out of a browser cannot be replayed.
+   `sendMessage` does not, because the portfolio sends ordinary tokens.
+2. **Honeypot + fill time** - a hidden field bots fill in, and posts sent within 3 seconds of opening the form.
+3. **Link spam** - more than two links, any HTML tag or BBCode, or a link in a name is dropped quietly.
+4. **Rate limits** - per sender (the caller's real address, the *last* `X-Forwarded-For` entry, which the
+   caller cannot fake), per email address, per day for everyone, and exact repeats.
+5. **Moderation** - reviews and comments are saved unapproved; nothing appears until an admin approves it.
+
+Steps 2-4 answer bots with a quiet success, so they learn nothing about what tripped them.
+
 ## One-time setup (no new signups)
+
+0. **App Check** - in the Firebase console, App Check -> register both web apps with the reCAPTCHA v3
+   provider, and put the site key in each repo's `FIREBASE_APPCHECK_SITE_KEY` GitHub secret (and local
+   `.env`). The reCAPTCHA key must list `lientjie-petsitting.web.app`, `lientjie-petsitting.firebaseapp.com`,
+   both portfolio domains and `localhost`. **Without this the contact forms, reviews and likes all fail.**
+   For local development, register a debug token and set `FIREBASE_APPCHECK_DEBUG_TOKEN` in `.env`.
+
 
 1. **Blaze plan** - already done.
 
@@ -60,10 +82,11 @@ Senders and email addresses are kept only as one-way hashes in `rateLimits`, del
 
 ## Notes
 
-- The Firestore rules deny every direct create on messages, reviews and comments,
-  so the forms only work through `sendMessage` and `postReview`. Deploy functions
-  BEFORE the rules, or the forms break. Both sites' deploy workflows check that the
-  functions answer before deploying hosting.
+- The Firestore rules deny every direct visitor write on messages, reviews, comments
+  and likes, so the forms and like buttons only work through `sendMessage`,
+  `postReview` and `likePost`. Deploy in this order: functions, then rules and
+  indexes, then hosting. Both sites' deploy workflows check that the functions
+  answer before deploying hosting.
 - This repo owns `firestore.rules`, `storage.rules` and these functions for both
   sites. The portfolio repo deploys hosting only.
 - The function never rethrows on send failure (a bad password won't cause a retry

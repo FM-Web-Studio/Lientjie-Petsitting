@@ -66,10 +66,10 @@ export const PAGE_META = [
   },
 ];
 
-// Pages that must never be indexed. They still get their own file so the noindex is in the HTML.
-export const PRIVATE_META = [
-  { path: '/admin', file: 'admin.html', title: titleFor('Admin'), noindex: true },
-];
+// Pages that get their own noindex HTML file. The admin panel is deliberately NOT one of them:
+// hosting answers /admin with the ordinary 404 page (which still boots the app), so nothing
+// in the HTML, the response or robots.txt hints that an admin area exists.
+export const PRIVATE_META = [];
 
 export const NOT_FOUND_META = { file: '404.html', title: titleFor('Page not found'), noindex: true };
 

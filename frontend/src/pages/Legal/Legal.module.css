@@ -1,18 +1,14 @@
-/* Accent for the shared .page-header rule (see styles/globals.css).
-   max-width: none below undoes the bare p rule in NotFound.module.css, which applies sitewide. */
-.pageHeader {
-  --accent-from: var(--teal);
-  --accent-to: var(--purple);
-}
-
 .sheet {
   max-width: 46rem;
   margin: 0 auto;
   background: var(--white);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
+  border: 2px solid var(--border);
   padding: 2.5rem;
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 8px 0 var(--teal-light);
 }
+.sheet a { color: var(--coral-ink); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 560px) { .sheet { padding: 1.5rem 1.15rem; border-radius: var(--radius-lg); } }
 
 .intro {
   max-width: none;

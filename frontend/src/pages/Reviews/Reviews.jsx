@@ -5,22 +5,25 @@ import { useContent } from '../../context/ContentContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 import {
   getApprovedCommentsByReview, submitReview, submitComment,
-  likeReview, likeComment, ratingSummary,
+  setReviewLiked, setCommentLiked, ratingSummary,
 } from '../../firebase/reviews.js';
 import { REVIEW_LIMITS, REVIEW_SORTS } from '../../firebase/config.js';
-import { likedIds as readLikedIds, toggleLiked, reviewCooldownRemaining, markReviewPosted } from '../../utils/localFlags.js';
+import { likedIds as readLikedIds, setLikedFlag, reviewCooldownRemaining, markReviewPosted } from '../../utils/localFlags.js';
 import ReviewCard, { ReviewCardSkeleton } from '../../components/ReviewCard';
 import StarRating from '../../components/StarRating';
 import Modal from '../../components/Modal';
 import InfoNote from '../../components/InfoNote';
+import PageHero from '../../components/PageHero';
+import Reveal from '../../components/Reveal';
+import CountUp from '../../components/CountUp';
 import Honeypot, { caughtBot, trapFields } from '../../components/Honeypot';
 import { LIMIT_TEXT } from '../../firebase/functions.js';
 import styles from './Reviews.module.css';
 import usePageMeta from '../../hooks/usePageMeta.js';
 
 const BLANK = { authorName: '', rating: 0, title: '', body: '', petName: '', serviceUsed: '' };
-
 const STARS_DESC = [5, 4, 3, 2, 1];
+const RATING_WORDS = ['', 'Not great', 'Okay', 'Good', 'Great', 'Amazing!'];
 
 export default function Reviews() {
   usePageMeta({ title: 'Reviews' });
@@ -31,9 +34,9 @@ export default function Reviews() {
 
   const [commentsByReview, setCommentsByReview] = useState({});
   const [liked, setLiked] = useState(() => readLikedIds());
-  // Local +1/-1 overlay on the stored like counts, so a like shows up instantly
-  // without refetching every review on the page.
-  const [likeDeltas, setLikeDeltas] = useState({});
+  // Like counts as the server last reported them, laid over the loaded data.
+  const [likeCounts, setLikeCounts] = useState({});
+  const pendingLikes = useRef(new Set());
   const [sort, setSort] = useState('newest');
   const [filterRating, setFilterRating] = useState(0); // 0 = show all
   const [writing, setWriting] = useState(false);
@@ -49,63 +52,74 @@ export default function Reviews() {
 
   const summary = useMemo(() => ratingSummary(reviews), [reviews]);
 
+  const withLikes = (record) => ({
+    ...record,
+    likes: Math.max(0, likeCounts[record.id] ?? record.likes ?? 0),
+  });
+
   const shown = useMemo(() => {
     const list = filterRating
       ? reviews.filter((r) => Math.round(r.rating) === filterRating)
       : [...reviews];
     const byNewest = (a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0);
+    const likesOf = (r) => likeCounts[r.id] ?? r.likes ?? 0;
     // Ties fall back to newest, so equal ratings still read in a sensible order.
     const comparators = {
       newest: byNewest,
       highest: (a, b) => (b.rating - a.rating) || byNewest(a, b),
       lowest: (a, b) => (a.rating - b.rating) || byNewest(a, b),
-      liked: (a, b) => ((b.likes || 0) - (a.likes || 0)) || byNewest(a, b),
+      liked: (a, b) => (likesOf(b) - likesOf(a)) || byNewest(a, b),
     };
     return list.sort(comparators[sort] || comparators.newest);
-  }, [reviews, sort, filterRating]);
+  }, [reviews, sort, filterRating, likeCounts]);
 
   /*
-   * Likes are optimistic: the counter moves immediately and the write goes out
-   * behind it. A like is a low-stakes, high-frequency action - waiting on a
-   * round trip makes the button feel broken, and refetching the whole review
-   * list to learn one new number is worse. On failure both the flag and the
-   * count go back.
+   * Likes are optimistic: the heart and counter move immediately, then settle on
+   * whatever the server says (it allows one like per visitor, so the true count
+   * can differ from the guess). A second tap while one is in flight is ignored.
    */
-  const applyLike = async (id, write) => {
-    const nowLiked = toggleLiked(id);
-    const delta = nowLiked ? 1 : -1;
-    setLiked(readLikedIds());
-    setLikeDeltas((d) => ({ ...d, [id]: (d[id] || 0) + delta }));
+  const applyLike = async (record, write) => {
+    const { id } = record;
+    if (pendingLikes.current.has(id)) return;
+    pendingLikes.current.add(id);
+
+    const wasLiked = liked.has(id);
+    const before = Math.max(0, likeCounts[id] ?? record.likes ?? 0);
+    const want = !wasLiked;
+    const updateLiked = (value) => {
+      setLikedFlag(id, value);
+      setLiked(readLikedIds());
+    };
+
+    updateLiked(want);
+    setLikeCounts((c) => ({ ...c, [id]: Math.max(0, before + (want ? 1 : -1)) }));
 
     try {
-      await write(delta);
+      const res = await write(want);
+      updateLiked(!!res?.liked);
+      if (typeof res?.likes === 'number') setLikeCounts((c) => ({ ...c, [id]: res.likes }));
     } catch (err) {
       console.error('Like failed:', err);
-      toggleLiked(id);
-      setLiked(readLikedIds());
-      setLikeDeltas((d) => ({ ...d, [id]: (d[id] || 0) - delta }));
-      addToast('Could not save that like. Please try again.', 'error');
+      updateLiked(wasLiked);
+      setLikeCounts((c) => ({ ...c, [id]: before }));
+      addToast(err.limit ? 'That is a lot of love! Please try again a bit later.' : 'Could not save that like. Please try again.', 'error');
+    } finally {
+      pendingLikes.current.delete(id);
     }
   };
 
-  /** A record's stored like count plus anything this visitor has just added. */
-  const withLikes = (record) => ({
-    ...record,
-    likes: Math.max(0, (record.likes || 0) + (likeDeltas[record.id] || 0)),
-  });
+  const handleLikeReview = (review) => applyLike(review, (like) => setReviewLiked(review.id, like));
+  const handleLikeComment = (reviewId, comment) =>
+    applyLike(comment, (like) => setCommentLiked(reviewId, comment.id, like));
 
-  const handleLikeReview = (id) => applyLike(id, (delta) => likeReview(id, delta));
-  const handleLikeComment = (reviewId, commentId) =>
-    applyLike(commentId, (delta) => likeComment(reviewId, commentId, delta));
-
-  const handleSubmitComment = async (reviewId, { authorName, body, isBot, trap }) => {
+  const handleSubmitComment = async (reviewId, { authorName, body, isBot, trap: trapData }) => {
     if (authorName.trim().length < REVIEW_LIMITS.authorName.min || body.trim().length < REVIEW_LIMITS.comment.min) {
       addToast('Please add your name and a comment.', 'warning');
       return false;
     }
     try {
-      if (!isBot) await submitComment(reviewId, { authorName, body }, trap);
-      addToast('Comment sent! It is being processed. 🐾', 'success');
+      if (!isBot) await submitComment(reviewId, { authorName, body }, trapData);
+      addToast('Comment sent! It will appear once it has been checked. 🐾', 'success');
       return true;
     } catch (err) {
       console.error('Comment failed:', err);
@@ -128,7 +142,7 @@ export default function Reviews() {
 
   const handleSubmitReview = async (e) => {
     e.preventDefault();
-    if (!form.rating) { addToast('Please pick a star rating.', 'warning'); return; }
+    if (!form.rating) { addToast('Please tap a star rating.', 'warning'); return; }
     if (form.authorName.trim().length < REVIEW_LIMITS.authorName.min) { addToast('Please enter your name.', 'warning'); return; }
     if (form.body.trim().length < REVIEW_LIMITS.body.min) {
       addToast(`Please write at least ${REVIEW_LIMITS.body.min} characters.`, 'warning');
@@ -141,7 +155,7 @@ export default function Reviews() {
       markReviewPosted();
       setWriting(false);
       setForm(BLANK);
-      addToast('Thank you! Your review has been sent and is being processed. 💛', 'success', 6000);
+      addToast('Thank you! Your review has been sent and will appear once it is approved. 💛', 'success', 6000);
     } catch (err) {
       console.error('Review failed:', err);
       addToast(LIMIT_TEXT[err.limit] ?? 'Could not send your review. Please try again.', 'error');
@@ -151,28 +165,22 @@ export default function Reviews() {
   };
 
   const hasAny = summary.total > 0;
+  const bodyLeft = REVIEW_LIMITS.body.min - form.body.trim().length;
 
   return (
     <div>
-      <header className={`page-header ${styles.pageHeader}`}>
-        <div className="container">
-          <h1>{t.heroTitle}</h1>
-          <p>{t.heroSubtitle}</p>
-        </div>
-      </header>
+      <PageHero title={t.heroTitle} subtitle={t.heroSubtitle} emoji="⭐" tone="yellow" />
 
-      <section className="section">
+      <section className="section-tight">
         <div className="container">
 
           {/* ── Rating summary ─────────────────────────────────────────── */}
-          <div className={styles.summary}>
+          <Reveal className={styles.summary}>
             <div className={styles.score}>
-              <strong className={styles.average}>{hasAny ? summary.average.toFixed(1) : '—'}</strong>
+              <strong className={styles.average}>{hasAny ? <CountUp value={summary.average.toFixed(1)} /> : '—'}</strong>
               <StarRating value={summary.average} size="lg" />
               <span className={styles.count}>
-                {hasAny
-                  ? `${summary.total} review${summary.total === 1 ? '' : 's'}`
-                  : t.emptySummary}
+                {hasAny ? `${summary.total} review${summary.total === 1 ? '' : 's'}` : t.emptySummary}
               </span>
             </div>
 
@@ -188,7 +196,7 @@ export default function Reviews() {
                     className={`${styles.barRow} ${active ? styles.barActive : ''}`}
                     onClick={() => setFilterRating(active ? 0 : star)}
                     aria-pressed={active}
-                    aria-label={`${n} ${star}-star review${n === 1 ? '' : 's'}. ${active ? 'Clear filter' : 'Filter by this rating'}`}
+                    aria-label={`${n} ${star}-star review${n === 1 ? '' : 's'}. ${active ? 'Clear filter' : 'Show only these'}`}
                     disabled={!n}
                   >
                     <span className={styles.barLabel}>{star} ★</span>
@@ -202,16 +210,18 @@ export default function Reviews() {
             </div>
 
             <div className={styles.writeCta}>
+              <span className={styles.writeIcon} aria-hidden="true">✍️</span>
               <p className={styles.writeBlurb}>{t.writeBlurb}</p>
               <button type="button" className="btn btn-primary" onClick={openWriter}>{t.writeBtn}</button>
               <p className={styles.moderationNote}>{t.moderationNote}</p>
             </div>
-          </div>
+          </Reveal>
 
           {/* ── Toolbar ────────────────────────────────────────────────── */}
           {hasAny && (
             <div className={styles.toolbar}>
-              <div className={styles.sorts}>
+              <div className={styles.sorts} role="group" aria-label="Sort reviews">
+                <span className={styles.sortLabel}>Sort:</span>
                 {REVIEW_SORTS.map((s) => (
                   <button
                     key={s.key}
@@ -226,7 +236,7 @@ export default function Reviews() {
               </div>
               {filterRating > 0 && (
                 <button type="button" className={styles.clearFilter} onClick={() => setFilterRating(0)}>
-                  Showing {filterRating}★ only — clear ✕
+                  Showing {filterRating}★ only <span aria-hidden="true">✕</span><span className="sr-only">- show all</span>
                 </button>
               )}
             </div>
@@ -235,32 +245,35 @@ export default function Reviews() {
           {/* ── List ───────────────────────────────────────────────────── */}
           {loading && (
             <div className={styles.list}>
-              {[...Array(3)].map((_, i) => <ReviewCardSkeleton key={i} />)}
+              {[...Array(4)].map((_, i) => <ReviewCardSkeleton key={i} />)}
             </div>
           )}
 
-          {!loading && errors.reviews && (
-            <p className={styles.empty}>⚠️ {errors.reviews}</p>
-          )}
+          {!loading && errors.reviews && <p className={styles.empty}>⚠️ {errors.reviews}</p>}
 
           {!loading && !errors.reviews && shown.length === 0 && (
-            <p className={styles.empty}>
-              {hasAny ? 'No reviews with that rating yet.' : t.emptyList}
-            </p>
+            <div className={styles.empty}>
+              <p>{hasAny ? 'No reviews with that rating yet.' : t.emptyList}</p>
+              {!hasAny && <button type="button" className="btn btn-yellow" onClick={openWriter}>{t.writeBtn}</button>}
+            </div>
           )}
 
           {!loading && !errors.reviews && shown.length > 0 && (
             <div className={styles.list}>
-              {shown.map((review) => (
-                <ReviewCard
-                  key={review.id}
-                  review={withLikes(review)}
-                  comments={(commentsByReview[review.id] || []).map(withLikes)}
-                  likedIds={liked}
-                  onLikeReview={handleLikeReview}
-                  onLikeComment={handleLikeComment}
-                  onSubmitComment={handleSubmitComment}
-                />
+              {shown.map((review, i) => (
+                <Reveal key={review.id} delay={(i % 2) * 90} className={styles.cell}>
+                  <ReviewCard
+                    review={withLikes(review)}
+                    comments={(commentsByReview[review.id] || []).map(withLikes)}
+                    likedIds={liked}
+                    onLikeReview={() => handleLikeReview(review)}
+                    onLikeComment={(reviewId, commentId) => {
+                      const c = (commentsByReview[reviewId] || []).find((x) => x.id === commentId);
+                      if (c) handleLikeComment(reviewId, c);
+                    }}
+                    onSubmitComment={handleSubmitComment}
+                  />
+                </Reveal>
               ))}
             </div>
           )}
@@ -271,46 +284,28 @@ export default function Reviews() {
       <Modal open={writing} onClose={() => setWriting(false)} title={t.formTitle} size="lg">
         <form onSubmit={handleSubmitReview} className={styles.form} noValidate>
           <div className={styles.ratingField}>
-            <label id="rating-label">How was it? *</label>
-            <StarRating value={form.rating} onChange={(n) => setForm((f) => ({ ...f, rating: n }))} />
+            <span className="field-label" id="rating-label">How was it? *</span>
+            <StarRating value={form.rating} onChange={(n) => setForm((f) => ({ ...f, rating: n }))} size="lg" />
+            <span className={styles.ratingWord} aria-live="polite">{RATING_WORDS[form.rating] || 'Tap a star'}</span>
           </div>
 
           <div className={styles.row}>
-            <div className={styles.field}>
+            <div className="field">
               <label htmlFor="rv-name">Your name *</label>
-              <input
-                id="rv-name"
-                value={form.authorName}
-                onChange={set('authorName')}
-                placeholder="Jane S."
-                maxLength={REVIEW_LIMITS.authorName.max}
-                required
-              />
+              <input id="rv-name" value={form.authorName} onChange={set('authorName')} placeholder="Jane S." maxLength={REVIEW_LIMITS.authorName.max} autoComplete="given-name" required />
             </div>
-            <div className={styles.field}>
-              <label htmlFor="rv-pet">Your pet's name</label>
-              <input
-                id="rv-pet"
-                value={form.petName}
-                onChange={set('petName')}
-                placeholder="Buddy"
-                maxLength={REVIEW_LIMITS.petName.max}
-              />
+            <div className="field">
+              <label htmlFor="rv-pet">Your pet&apos;s name</label>
+              <input id="rv-pet" value={form.petName} onChange={set('petName')} placeholder="Buddy" maxLength={REVIEW_LIMITS.petName.max} />
             </div>
           </div>
 
           <div className={styles.row}>
-            <div className={styles.field}>
+            <div className="field">
               <label htmlFor="rv-title">Headline</label>
-              <input
-                id="rv-title"
-                value={form.title}
-                onChange={set('title')}
-                placeholder="Absolutely wonderful with our dog"
-                maxLength={REVIEW_LIMITS.title.max}
-              />
+              <input id="rv-title" value={form.title} onChange={set('title')} placeholder="Absolutely wonderful with our dog" maxLength={REVIEW_LIMITS.title.max} />
             </div>
-            <div className={styles.field}>
+            <div className="field">
               <label htmlFor="rv-service">Service used</label>
               <select id="rv-service" value={form.serviceUsed} onChange={set('serviceUsed')}>
                 <option value="">Select a service…</option>
@@ -319,26 +314,15 @@ export default function Reviews() {
             </div>
           </div>
 
-          <div className={styles.field}>
+          <div className="field">
             <label htmlFor="rv-body">Your review *</label>
-            <textarea
-              id="rv-body"
-              value={form.body}
-              onChange={set('body')}
-              rows={5}
-              placeholder="Tell others what the experience was like…"
-              maxLength={REVIEW_LIMITS.body.max}
-              required
-            />
-            <span className={styles.counter}>{form.body.length} / {REVIEW_LIMITS.body.max}</span>
+            <textarea id="rv-body" value={form.body} onChange={set('body')} rows={5} placeholder="Tell others what the experience was like…" maxLength={REVIEW_LIMITS.body.max} required />
+            <span className={styles.counter}>
+              {bodyLeft > 0 ? `${bodyLeft} more character${bodyLeft === 1 ? '' : 's'} to go` : '✓ Looks good'}
+              {' · '}{form.body.length} / {REVIEW_LIMITS.body.max}
+            </span>
           </div>
 
-          {/*
-            The privacy note lives with the buttons rather than among the fields.
-            It is the one strip of the form nothing is ever aimed at, so the badge
-            cannot sit between the visitor and a control, and its panel opens
-            upward over space that is already filled.
-          */}
           <Honeypot ref={trap} />
 
           <div className={styles.formActions}>

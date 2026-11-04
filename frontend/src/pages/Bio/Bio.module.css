@@ -1,36 +1,35 @@
-/* Accent for the shared .page-header rule (see styles/globals.css). */
-.pageHeader {
-  --accent-from: #e75f8d;
-  --accent-to: var(--purple-dark);
-}
-
-/*
- * The profile block (photo, stats, story, qualifications) is a shared component
- * - see components/BioBlock. What's left here is the "Why choose me" section,
- * which only this page has.
- */
-
-/* ── Why section ─────────────────────────────────────────────────────────── */
-.whySection { background: var(--cream-medium); padding: 5rem 0; }
-
 .whyGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
-
+.whyCell { display: flex; }
+.whyCell > * { flex: 1; }
+.whyCell:nth-child(2) .whyCard { --tone: var(--teal-light); }
+.whyCell:nth-child(3) .whyCard { --tone: var(--yellow-light); }
+.whyCell:nth-child(4) .whyCard { --tone: var(--purple-light); }
 .whyCard {
-  background: var(--white);
+  --tone: var(--coral-light);
+  height: 100%;
+  padding: 1.75rem 1.5rem;
   border-radius: var(--radius-lg);
-  padding: 2rem;
+  background: var(--white);
+  border: 2px solid var(--border);
   text-align: center;
-  box-shadow: var(--shadow-sm);
-  transition: transform var(--transition);
+  transition: transform 0.3s var(--bounce), box-shadow var(--transition);
 }
+.whyCard:hover { box-shadow: 0 8px 0 var(--tone), var(--shadow-md); }
 
-.whyCard:hover { transform: translateY(-4px); }
-
-.whyIcon { font-size: 2.75rem; display: block; margin-bottom: 1rem; }
-.whyCard h3 { font-size: 1.1rem; margin-bottom: 0.5rem; }
-.whyCard p  { color: var(--grey); font-size: 0.9rem; line-height: 1.7; }
-
+.whyIcon {
+  display: inline-grid;
+  place-items: center;
+  width: 4rem;
+  height: 4rem;
+  margin-bottom: 0.9rem;
+  border-radius: 50%;
+  background: var(--tone);
+  font-size: 2rem;
+}
+.whyCard:hover .whyIcon { animation: wiggle 0.5s ease; }
+.whyCard h3 { font-size: 1.2rem; margin-bottom: 0.4rem; }
+.whyCard p { color: var(--grey); }

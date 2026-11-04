@@ -2,6 +2,9 @@ import { Link } from 'react-router-dom';
 import { useData } from '../../context/DataContext.jsx';
 import { useContent } from '../../context/ContentContext.jsx';
 import BioBlock, { BioBlockSkeleton } from '../../components/BioBlock';
+import PageHero from '../../components/PageHero';
+import Reveal from '../../components/Reveal';
+import Tilt from '../../components/Tilt';
 import styles from './Bio.module.css';
 import usePageMeta from '../../hooks/usePageMeta.js';
 
@@ -31,43 +34,47 @@ export default function Bio() {
 
   return (
     <div>
-      <header className={`page-header ${styles.pageHeader}`}>
-        <div className="container">
-          <h1>{t.heroTitle}</h1>
-          <p>{t.heroSubtitle}</p>
-        </div>
-      </header>
+      <PageHero title={t.heroTitle} subtitle={t.heroSubtitle} emoji="👋" tone="pink" />
 
-      <section className="section">
+      <section className="section-tight">
         <div className="container">
           {loading ? <BioBlockSkeleton /> : (
-            <BioBlock
-              bio={bio}
-              tag={t.tag}
-              stats={stats}
-              qualsTitle={t.qualsTitle}
-              location={location}
-              actions={(
-                <>
-                  <Link to="/contact" className="btn btn-primary">{t.ctaPrimary}</Link>
-                  <Link to="/services" className="btn btn-secondary">{t.ctaSecondary}</Link>
-                </>
-              )}
-            />
+            <Reveal>
+              <BioBlock
+                bio={bio}
+                tag={t.tag}
+                stats={stats}
+                qualsTitle={t.qualsTitle}
+                location={location}
+                actions={(
+                  <>
+                    <Link to="/contact" className="btn btn-primary">{t.ctaPrimary} 🐾</Link>
+                    <Link to="/services" className="btn btn-secondary">{t.ctaSecondary}</Link>
+                  </>
+                )}
+              />
+            </Reveal>
           )}
         </div>
       </section>
 
-      <section className={styles.whySection}>
+      <section className="section">
         <div className="container">
-          <h2 className="section-title">{t.whyTitle}</h2>
+          <Reveal className="section-head">
+            <span className="eyebrow">Why me?</span>
+            <h2 className="section-title">{t.whyTitle}</h2>
+          </Reveal>
           <div className={styles.whyGrid}>
             {whyCards.map(({ icon, title, desc }, i) => (
-              <div key={i} className={styles.whyCard}>
-                <span className={styles.whyIcon}>{icon}</span>
-                <h3>{title}</h3>
-                <p>{desc}</p>
-              </div>
+              <Reveal key={i} delay={i * 90} className={styles.whyCell}>
+                <Tilt>
+                  <div className={styles.whyCard}>
+                    <span className={styles.whyIcon} aria-hidden="true">{icon}</span>
+                    <h3>{title}</h3>
+                    <p>{desc}</p>
+                  </div>
+                </Tilt>
+              </Reveal>
             ))}
           </div>
         </div>

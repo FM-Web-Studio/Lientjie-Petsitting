@@ -1,243 +1,163 @@
-/* Accent for the shared .page-header rule (see styles/globals.css). */
-.pageHeader {
-  --accent-from: var(--yellow-dark);
-  --accent-to: var(--orange);
-}
-
-/* ── Summary panel ────────────────────────────────────────────────────────── */
+/* ── Summary card ───────────────────────────────────────────────────────── */
 .summary {
   display: grid;
-  grid-template-columns: auto minmax(200px, 1fr) minmax(220px, auto);
-  gap: 2.5rem;
+  grid-template-columns: 200px 1fr 260px;
   align-items: center;
+  gap: 2rem;
+  padding: 2rem;
+  border-radius: var(--radius-xl);
   background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 1.75rem 2rem;
-  box-shadow: var(--shadow-sm);
-  margin-bottom: 1.75rem;
+  border: 2px solid var(--border);
+  box-shadow: 0 8px 0 var(--yellow-light), var(--shadow-sm);
 }
 
-.score {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.35rem;
-  text-align: center;
-}
-
+.score { display: flex; flex-direction: column; align-items: center; gap: 0.35rem; text-align: center; }
 .average {
-  font-size: 3.25rem;
-  font-weight: 900;
+  font-family: var(--font-display);
+  font-size: 4rem;
+  font-weight: 700;
   line-height: 1;
-  color: var(--dark);
 }
-
-.count { color: var(--grey); font-size: 0.85rem; font-weight: 700; }
+.count { color: var(--grey); font-weight: 700; font-size: 0.92rem; }
 
 .breakdown { display: flex; flex-direction: column; gap: 0.35rem; }
-
 .barRow {
   display: grid;
-  grid-template-columns: 2.6rem 1fr 1.75rem;
+  grid-template-columns: 2.6rem 1fr 2rem;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.15rem 0.3rem;
+  gap: 0.75rem;
+  min-height: 34px;
+  padding: 0.2rem 0.5rem;
   border-radius: var(--radius-sm);
-  background: none;
-  border: none;
-  font-family: var(--font);
-  text-align: left;
+  font-weight: 800;
+  font-size: 0.9rem;
   transition: background var(--transition);
 }
-
-.barRow:not(:disabled):hover { background: var(--grey-light); }
-.barRow:disabled { cursor: default; opacity: 0.55; }
-.barActive { background: var(--yellow-light); }
-
-.barLabel { font-size: 0.8rem; font-weight: 800; color: var(--grey); white-space: nowrap; }
-
+.barRow:not(:disabled):hover { background: var(--yellow-light); }
+.barRow:disabled { opacity: 0.45; cursor: default; }
+.barActive, .barActive:not(:disabled):hover { background: var(--yellow); color: #2B2235; }
+.barLabel { white-space: nowrap; }
 .barTrack {
-  height: 0.55rem;
+  height: 12px;
   border-radius: var(--radius-full);
   background: var(--grey-light);
   overflow: hidden;
 }
-
 .barFill {
   display: block;
   height: 100%;
-  border-radius: var(--radius-full);
-  /* Same gold as the stars the bar is counting, so it tracks the theme too. */
-  background: linear-gradient(90deg, var(--star-on), var(--orange));
-  transition: width var(--transition-slow);
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--yellow), var(--orange));
+  transition: width 0.8s var(--bounce);
 }
-
-.barCount { font-size: 0.8rem; font-weight: 700; color: var(--grey); text-align: right; }
+.barCount { text-align: right; color: var(--grey); }
+.barActive .barCount { color: inherit; }
 
 .writeCta {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   gap: 0.6rem;
-  padding-left: 2rem;
-  border-left: 1px solid var(--border);
+  padding: 1.25rem;
+  border-radius: var(--radius-lg);
+  background: var(--coral-light);
+  text-align: center;
 }
+.writeIcon { font-size: 1.8rem; }
+.writeBlurb { font-family: var(--font-display); font-size: 1.15rem; font-weight: 600; }
+.moderationNote { font-size: 0.8rem; color: var(--grey); }
 
-.writeBlurb { font-size: 0.95rem; font-weight: 700; color: var(--dark); }
-.moderationNote { font-size: 0.78rem; color: var(--grey); line-height: 1.5; }
-
-/* ── Toolbar ──────────────────────────────────────────────────────────────── */
+/* ── Toolbar ────────────────────────────────────────────────────────────── */
 .toolbar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  margin-bottom: 1.5rem;
+  margin: 2rem 0 1.25rem;
 }
-
-.sorts { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-
+.sorts { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; }
+.sortLabel { font-weight: 800; color: var(--grey); margin-right: 0.2rem; }
 .sortBtn {
-  padding: 0.45rem 1.1rem;
+  min-height: 40px;
+  padding: 0.35rem 0.95rem;
   border-radius: var(--radius-full);
-  border: 2px solid var(--border);
   background: var(--white);
-  color: var(--grey);
-  font-family: var(--font);
-  font-weight: 700;
+  border: 2px solid var(--border);
+  font-weight: 800;
   font-size: 0.88rem;
-  transition: all var(--transition);
+  transition: transform 0.2s var(--bounce), border-color var(--transition);
 }
-
-.sortBtn:hover { border-color: var(--orange); color: var(--orange); }
-
-.sortActive {
-  background: var(--orange);
-  border-color: var(--orange);
-  color: var(--btn-text-light);
-}
-
+.sortBtn:hover { transform: translateY(-2px); border-color: var(--yellow); }
+.sortActive, .sortActive:hover { background: var(--dark); border-color: var(--dark); color: var(--cream); }
 .clearFilter {
-  font-family: var(--font);
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--coral);
-  background: var(--coral-light);
+  padding: 0.4rem 0.95rem;
   border-radius: var(--radius-full);
-  padding: 0.4rem 0.9rem;
+  background: var(--yellow);
+  color: #2B2235;
+  font-weight: 800;
+  font-size: 0.88rem;
 }
 
-/* ── List ─────────────────────────────────────────────────────────────────── */
-.list { display: flex; flex-direction: column; gap: 1.25rem; }
+/* ── List ───────────────────────────────────────────────────────────────── */
+.list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+  align-items: start;
+  margin-top: 1.5rem;
+}
+.toolbar + .list { margin-top: 0; }
+.cell { min-width: 0; }
 
 .empty {
-  color: var(--grey);
-  font-size: 1.05rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 3rem 1rem;
   text-align: center;
-  padding: 4rem 1.5rem;
-  background: var(--white);
-  border: 1px dashed var(--border);
-  border-radius: var(--radius-lg);
+  color: var(--grey);
+  font-weight: 700;
+  font-size: 1.1rem;
 }
 
-/* ── Write-a-review form ──────────────────────────────────────────────────── */
-/* Kept tight so the whole form clears a laptop viewport without scrolling. */
-.form { display: flex; flex-direction: column; gap: 0.9rem; }
-
-/*
- * Minimal: no fill, just a gold rule matching the stars themselves. The filled
- * yellow panel this replaced washed the empty stars out - they sat at almost the
- * same lightness as the background, so the control read as decoration rather
- * than something you were meant to click.
- */
+/* ── Write-a-review form (inside the Modal) ─────────────────────────────── */
+.form { display: flex; flex-direction: column; gap: 1.15rem; }
 .ratingField {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.85rem 1rem;
-  background: transparent;
-  border: 2px solid var(--star-on);
+  gap: 0.4rem;
+  padding: 1rem;
   border-radius: var(--radius-md);
+  background: var(--yellow-light);
 }
-
-.ratingField label {
-  font-weight: 800;
-  font-size: 0.95rem;
-  color: var(--dark);
-}
-
+.ratingWord { font-family: var(--font-display); font-weight: 600; font-size: 1.1rem; min-height: 1.5rem; }
 .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-
-.field { display: flex; flex-direction: column; gap: 0.35rem; position: relative; }
-
-.field label { font-size: 0.85rem; font-weight: 700; color: var(--dark); }
-
-.field input,
-.field select,
-.field textarea {
-  width: 100%;
-  font-family: var(--font);
-  font-size: 0.95rem;
-  padding: 0.7rem 0.9rem;
-  border: 2px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--white);
-  color: var(--dark);
-  transition: border-color var(--transition);
-}
-
-.field input:focus,
-.field select:focus,
-.field textarea:focus { outline: none; border-color: var(--coral); }
-
-.field textarea { resize: vertical; }
-
-.counter { align-self: flex-end; font-size: 0.75rem; color: var(--grey); font-weight: 600; }
-
-/* The privacy note is a self-collapsing warning - see components/InfoNote. */
-
-/*
- * Pinned to the bottom of the modal's scroll area. The form is taller than the
- * dialog on shorter screens, and with the buttons in normal flow they sat below
- * the fold - which reads as "the submit button is cut off" rather than "scroll
- * down". Sticky keeps them reachable at any height.
- */
+.counter { align-self: flex-end; font-size: 0.8rem; color: var(--grey); font-weight: 700; }
 .formActions {
-  position: sticky;
-  bottom: 0;
-  z-index: 1;
   display: flex;
   align-items: center;
-  /* Note pinned left, buttons right. */
   justify-content: space-between;
-  gap: 0.75rem;
-  margin: 0.25rem calc(-1 * var(--spacing-lg)) calc(-1 * var(--spacing-lg));
-  padding: 0.9rem var(--spacing-lg);
-  background: var(--background-1);
-  border-top: 1px solid var(--border);
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding-top: 0.5rem;
 }
+.actionBtns { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-left: auto; }
 
-.actionBtns { display: flex; gap: 0.75rem; }
-
-@media (max-width: 900px) {
-  .summary { grid-template-columns: 1fr; gap: 1.5rem; padding: 1.5rem; }
-  .writeCta {
-    padding-left: 0;
-    border-left: none;
-    border-top: 1px solid var(--border);
-    padding-top: 1.25rem;
-    align-items: stretch;
-  }
+@media (max-width: 1000px) {
+  .summary { grid-template-columns: 1fr 1.4fr; }
+  .writeCta { grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; justify-content: center; }
+  .moderationNote { flex-basis: 100%; }
 }
-
-@media (max-width: 640px) {
+@media (max-width: 760px) {
+  .list { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .summary { grid-template-columns: 1fr; padding: 1.5rem 1.15rem; gap: 1.25rem; }
+  .writeCta { flex-direction: column; }
   .row { grid-template-columns: 1fr; }
-  .average { font-size: 2.75rem; }
-  /* Buttons share the row and the note keeps its corner - stacking them would
-     push the note onto a line of its own, which is what it was moved out of. */
-  .actionBtns { flex: 1; }
-  .actionBtns button { flex: 1; justify-content: center; padding-inline: 0.9rem; }
+  .actionBtns { width: 100%; }
+  .actionBtns .btn { flex: 1; }
 }

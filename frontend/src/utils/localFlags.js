@@ -3,11 +3,10 @@
  * state - which reviews/comments this browser has liked, and when it last
  * posted.
  *
- * This is deliberately NOT a security control. A determined visitor can clear
- * storage and like again; Firestore rules only guarantee that a like moves the
- * counter by exactly ±1. It exists so the UI stays honest for normal people and
- * so a double-click doesn't count twice. Real abuse is caught by moderation -
- * nothing appears on the site until an admin approves it.
+ * This is deliberately NOT a security control. The likePost function is what
+ * allows one like per visitor; this only remembers which hearts to show filled.
+ * Real abuse of reviews is caught by moderation - nothing appears on the site
+ * until an admin approves it.
  */
 
 const read = (key) => {
@@ -31,13 +30,11 @@ export function likedIds() {
   return new Set(Array.isArray(list) ? list : []);
 }
 
-/** Flip an id's liked state and persist. Returns true if it is now liked. */
-export function toggleLiked(id) {
+/** Remember whether this browser likes an id. */
+export function setLikedFlag(id, liked) {
   const set = likedIds();
-  const nowLiked = !set.has(id);
-  if (nowLiked) set.add(id); else set.delete(id);
+  if (liked) set.add(id); else set.delete(id);
   write(LIKES_KEY, [...set]);
-  return nowLiked;
 }
 
 const LAST_POST_KEY = 'petsitting.lastReviewAt';

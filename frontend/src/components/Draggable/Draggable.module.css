@@ -1,0 +1,15 @@
+.drag {
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  /* The springy return home when it is let go. */
+  transition: transform 0.6s cubic-bezier(0.34, 1.8, 0.5, 1);
+}
+.held {
+  cursor: grabbing;
+  transition: none;
+  z-index: 50;
+  filter: drop-shadow(0 14px 18px rgba(43, 34, 53, 0.25));
+  animation-play-state: paused !important;
+}

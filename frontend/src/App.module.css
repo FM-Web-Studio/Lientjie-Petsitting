@@ -2,14 +2,12 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .main {
   flex: 1;
   padding-top: var(--nav-height);
+  outline: none;
 }
 
-/* Holds the page height while a page loads, so the footer does not jump up. */
-.pending {
-  min-height: 100vh;
-}

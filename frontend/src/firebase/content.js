@@ -14,12 +14,19 @@ import { db } from './app.js';
 const CONTENT_DOC_ID = 'petsitting_content';
 const contentRef = () => doc(db, 'settings', CONTENT_DOC_ID);
 
-/** The saved overrides object (only values that differ from code defaults). */
-export async function getContent() {
+/**
+ * The saved overrides object (only values that differ from code defaults).
+ *
+ * The public site falls back to defaults if this fails. The admin editors pass
+ * { strict: true } and get the error instead: an editor that silently showed the
+ * defaults would wipe every saved edit the moment someone pressed Save.
+ */
+export async function getContent({ strict = false } = {}) {
   try {
     const snap = await getDoc(contentRef());
     return snap.exists() ? snap.data() : {};
   } catch (err) {
+    if (strict) throw err;
     console.error('Failed to load site content, using defaults:', err);
     return {};
   }

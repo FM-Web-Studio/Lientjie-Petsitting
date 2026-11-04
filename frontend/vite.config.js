@@ -64,18 +64,19 @@ const seoPages = () => ({
       source: `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`,
     });
 
+    // Never list a private path here: robots.txt is public, so a Disallow line advertises the path.
     const hidden = PRIVATE_META.map((p) => `Disallow: ${p.path}`).join('\n');
     this.emitFile({
       type: 'asset',
       fileName: 'robots.txt',
-      source: `User-agent: *\n${hidden}\n\nSitemap: ${absoluteUrl('/sitemap.xml')}\n`,
+      source: `User-agent: *\n${hidden || 'Allow: /'}\n\nSitemap: ${absoluteUrl('/sitemap.xml')}\n`,
     });
   },
 });
 
 export default defineConfig({
   plugins: [seoPages(), react()],
-  envPrefix: ['FIREBASE_', 'ADMIN_'],
+  envPrefix: ['FIREBASE_'],
   server: {
     port: 3000,
     open: false,

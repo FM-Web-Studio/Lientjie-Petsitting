@@ -1,0 +1,31 @@
+.tilt {
+  --rx: 0deg;
+  --ry: 0deg;
+  --mx: 50%;
+  --my: 50%;
+  display: flex;
+  perspective: 900px;
+}
+.inner {
+  position: relative;
+  flex: 1;
+  display: flex;
+  transform: rotateX(var(--rx)) rotateY(var(--ry));
+  transform-style: preserve-3d;
+  transition: transform 0.5s var(--bounce);
+  will-change: transform;
+}
+.inner > :first-child { flex: 1; }
+.tilt[data-active] .inner { transition: transform 0.08s linear; }
+
+.shine {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-lg);
+  background: radial-gradient(circle at var(--mx) var(--my), rgba(255, 255, 255, 0.35), transparent 55%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  mix-blend-mode: soft-light;
+}
+.tilt[data-active] .shine { opacity: 1; }

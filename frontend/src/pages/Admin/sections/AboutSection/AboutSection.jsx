@@ -3,7 +3,10 @@ import { getBio, saveBio, uploadProfileImage, deleteProfileImage } from '../../.
 import { prepareImage } from '../../../../utils/image.js';
 import { saveErrorMessage } from '../../../../firebase/errors.js';
 import { useToast } from '../../../../context/ToastContext.jsx';
+import { FormSkeleton } from '../../../../components/PageSkeleton';
 import styles from '../../Admin.module.css';
+
+const FIELDS = 6;
 
 // Formats every browser can actually paint in an <img>.
 const RENDERABLE = /^image\/(jpeg|png|webp|gif|avif)$/;
@@ -47,11 +50,15 @@ export default function AboutSection() {
   const [newQual, setNewQual] = useState('');
   const fileRef = useRef();
 
-  useEffect(() => {
+  // The form only appears once the saved bio is in, so Save can never write blanks over it.
+  const [status, setStatus] = useState('loading');
+  const load = () => {
+    setStatus('loading');
     getBio()
-      .then((bio) => { if (bio) setForm({ ...BLANK, ...bio }); })
-      .catch(() => addToast('Could not load the bio. Please refresh.', 'error'));
-  }, [addToast]);
+      .then((bio) => { if (bio) setForm({ ...BLANK, ...bio }); setStatus('ready'); })
+      .catch(() => setStatus('error'));
+  };
+  useEffect(load, []);
 
   const set = (f) => (e) => setForm((prev) => ({ ...prev, [f]: e.target.value }));
 
@@ -124,6 +131,16 @@ export default function AboutSection() {
   const removeQual = (idx) => setForm((f) => ({ ...f, qualifications: f.qualifications.filter((_, i) => i !== idx) }));
 
   const pct = Math.round(progress * 100);
+
+  if (status === 'loading') return <FormSkeleton fields={FIELDS} />;
+  if (status === 'error') {
+    return (
+      <div className={styles.loadError}>
+        <p>Could not load this. Nothing has been changed.</p>
+        <button type="button" className="btn btn-secondary btn-sm" onClick={load}>Try again</button>
+      </div>
+    );
+  }
 
   return (
     <div>

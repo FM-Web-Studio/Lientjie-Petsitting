@@ -21,6 +21,8 @@
 
 .stage {
   position: relative;
+  cursor: grab;
+  touch-action: pan-y;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -33,7 +35,9 @@
   max-height: 80vh;
   object-fit: contain;
   border-radius: var(--radius-md);
-  transition: opacity 0.15s ease;
+  user-select: none;
+  /* Springs back when let go; follows the pointer exactly while dragged. */
+  transition: opacity 0.15s ease, transform 0.45s var(--bounce);
 }
 
 .spinner {
@@ -117,3 +121,6 @@
 .arrow:focus-visible { outline: 2px solid var(--on-dark); outline-offset: 2px; }
 .left  { left: 0.6rem; }
 .right { right: 0.6rem; }
+
+.dragging { cursor: grabbing; }
+.dragging .img { transition: opacity 0.15s ease; }

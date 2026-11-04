@@ -1,6 +1,6 @@
 import {
   collection, collectionGroup, doc, getDocs, updateDoc, deleteDoc,
-  query, where, orderBy, increment, writeBatch,
+  query, where, orderBy, writeBatch,
 } from 'firebase/firestore';
 import { db } from './app.js';
 import { COLLECTIONS, REVIEW_COMMENTS, REVIEW_LIMITS } from './config.js';
@@ -27,10 +27,10 @@ import { callPublic } from './functions.js';
  *    document is public - a contact field would be a PII leak the moment the
  *    page loads. Reviewers give a display name only.
  *
- * 3. LIKES ARE A BARE COUNTER. Anonymous visitors can update `likes` and
- *    nothing else, by exactly ±1, on approved documents only. Without accounts
- *    that is the strongest guarantee available; the browser remembers what it
- *    liked (utils/localFlags.js) so the UI behaves for real people.
+ * 3. ONE LIKE PER VISITOR. Likes go through the likePost function, which keeps
+ *    a scrambled record per visitor and post, so liking again does nothing and
+ *    a script cannot pump the counter. The browser also remembers what it
+ *    liked (utils/localFlags.js) so the heart shows the right state.
  */
 
 const reviewsCol = () => collection(db, COLLECTIONS.reviews);
@@ -135,14 +135,17 @@ export async function submitComment(reviewId, { authorName, body }, trap) {
   });
 }
 
-/** Nudge a review's like counter by ±1. */
-export function likeReview(id, delta) {
-  return updateDoc(reviewDoc(id), { likes: increment(delta > 0 ? 1 : -1) });
+/**
+ * Like or unlike a review. The likePost function remembers one like per visitor,
+ * so liking twice does nothing. Resolves to { liked, likes } as the server sees it.
+ */
+export function setReviewLiked(reviewId, like) {
+  return callPublic('likePost', { reviewId, like: !!like });
 }
 
-/** Nudge a comment's like counter by ±1. */
-export function likeComment(reviewId, commentId, delta) {
-  return updateDoc(commentDoc(reviewId, commentId), { likes: increment(delta > 0 ? 1 : -1) });
+/** Like or unlike a comment. Same rules as setReviewLiked. */
+export function setCommentLiked(reviewId, commentId, like) {
+  return callPublic('likePost', { reviewId, commentId, like: !!like });
 }
 
 // ── Writing (admin) ─────────────────────────────────────────────────────────

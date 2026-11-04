@@ -23,6 +23,17 @@ jobs:
         run: npm ci
         working-directory: frontend
 
+      # The functions refuse calls without App Check, so a build without the key would ship
+      # a site whose forms and like buttons all fail.
+      - name: Check the App Check key is set
+        run: |
+          if [ -z "$FIREBASE_APPCHECK_SITE_KEY" ]; then
+            echo "::error::Secret FIREBASE_APPCHECK_SITE_KEY is empty. Add the reCAPTCHA v3 site key, then run this workflow again."
+            exit 1
+          fi
+        env:
+          FIREBASE_APPCHECK_SITE_KEY: ${{ secrets.FIREBASE_APPCHECK_SITE_KEY }}
+
       - name: Build
         run: npm run build
         working-directory: frontend
@@ -34,18 +45,18 @@ jobs:
           FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
           FIREBASE_APP_ID:              ${{ secrets.FIREBASE_APP_ID }}
           FIREBASE_MEASUREMENT_ID:      ${{ secrets.FIREBASE_MEASUREMENT_ID }}
-          ADMIN_EMAILS:                 ${{ secrets.ADMIN_EMAILS }}
           FIREBASE_APPCHECK_SITE_KEY:   ${{ secrets.FIREBASE_APPCHECK_SITE_KEY }}
 
-      # The forms post to the sendMessage and postReview functions, and the rules stop direct writes,
-      # so the functions must be live first or the forms break.
-      - name: Check the form functions are deployed
+      # The forms and like buttons post to these functions, and the rules stop direct writes,
+      # so the functions must be live first or the site breaks.
+      - name: Check the site's functions are deployed
         run: |
-          # An empty call is treated as a bot and answered with a quiet success, so nothing is saved.
-          for fn in sendMessage postReview; do
+          # This call carries no App Check token, so a live function refuses it with 401 and saves
+          # nothing. 404 means it is not deployed; 5xx means it is broken.
+          for fn in sendMessage postReview likePost; do
             status=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: application/json' \
               -d '{"data":{}}' https://europe-west1-lientjie-project.cloudfunctions.net/$fn)
-            if [ "$status" != "200" ]; then
+            if [ "$status" != "401" ] && [ "$status" != "200" ]; then
               echo "::error::$fn answered $status. Deploy functions first (firebase deploy --only functions), then run this workflow again."
               exit 1
             fi

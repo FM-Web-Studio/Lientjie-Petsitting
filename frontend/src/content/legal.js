@@ -34,7 +34,7 @@ export const privacyPolicy = (who) => ({
           'When you send an enquiry through the Contact page: your name, email address and message, plus anything you choose to add (phone number, your pet\'s name and type, and the service you are interested in), and the time it was sent.',
           'When you write a review: the name you want shown, your star rating, the review text, and anything you choose to add (a headline, your pet\'s name and the service you used), and the time it was sent. No email address or phone number is asked for.',
           'When you comment on a review: the name you want shown, your comment and the time it was sent.',
-          'When you like a review or comment: only a counter goes up. Nothing about you is stored with it.',
+          'When you like a review or comment: the counter goes up, and a one-way code made from your network (IP) address and that review or comment is kept, so the same person cannot like it twice. The code cannot be turned back into your address, and it is deleted after 12 months, or straight away if you unlike.',
           'To stop the forms being used for spam, the site also keeps short one-way codes made from your network (IP) address and, for enquiries, your email address, so it can count how many posts arrive from one place. The codes cannot be turned back into the originals, and they are deleted after 24 hours.',
         ],
         'When you visit any page, the site is served by Google Firebase Hosting, which, like every web host, receives your IP address, browser details and the page requested in order to deliver it. There are no analytics, advertising or tracking scripts, and no profile of you is built.',
@@ -76,7 +76,7 @@ export const privacyPolicy = (who) => ({
     {
       heading: 'How long it is kept',
       blocks: [
-        'Enquiries are deleted automatically 12 months after they arrive, and the email copy is deleted on the same schedule. If you book a service, what is needed for that booking is kept only for as long as the booking, and any legal record-keeping duty, requires. The spam-check codes described above are deleted after 24 hours.',
+        'Enquiries are deleted automatically 12 months after they arrive, and the email copy is deleted on the same schedule. If you book a service, what is needed for that booking is kept only for as long as the booking, and any legal record-keeping duty, requires. The spam-check codes described above are deleted after 24 hours, and the like codes after 12 months.',
         'Published reviews and comments stay on the site until you ask for them to be removed or they are taken down. Ones that are not published are deleted.',
       ],
     },
@@ -151,7 +151,7 @@ export const termsOfUse = (who) => ({
         ],
         'Every review and comment is read before it is published. One that breaks these rules may be declined or removed. What you write is not edited: it is published as you wrote it, or not at all. Publishing a review does not mean the business agrees with it.',
         'You keep ownership of what you write. By posting it you give the business a free, non-exclusive permission to show it, with the name you gave, on this website for as long as it stays published. You can ask for your review or comment to be removed at any time and it will be taken down.',
-        'Likes are a simple counter for showing appreciation. Please do not try to inflate them.',
+        'Likes are a simple way to show appreciation, one per person for each review or comment. Please do not try to inflate them.',
       ],
     },
     {

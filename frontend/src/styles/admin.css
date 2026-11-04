@@ -36,3 +36,6 @@
   scrollbar-width: thin;
   scrollbar-color: rgba(var(--accent-1-rgb), 0.55) transparent;
 }
+
+/* The admin panel has no bottom tab bar, so toasts and floating buttons sit at the edge. */
+body:has(.admin-scope) { --tabbar-height: 0px; }

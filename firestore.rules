@@ -6,9 +6,9 @@ rules_version = '2';
 // repo deploys hosting only. Two copies deployed from two repos race, and the
 // last deploy silently reverts the other site's rules.
 //
-// Visitors never create documents directly. Contact messages, reviews and
-// comments come through the sendMessage and postReview functions (functions/),
-// which check for spam and write with admin rights.
+// Visitors never write documents directly. Contact messages, reviews, comments
+// and likes come through the sendMessage, postReview and likePost functions
+// (functions/), which require App Check, check for spam and write with admin rights.
 // =============================================================================
 
 service cloud.firestore {
@@ -28,7 +28,9 @@ service cloud.firestore {
     // readable only by someone on it, which is all the portfolio's admin gate needs.
     match /settings/{docId} {
       allow read: if docId != 'admins'
-                  || (request.auth != null && request.auth.token.email in resource.data.emails);
+                  || (request.auth != null
+                      && request.auth.token.email_verified == true
+                      && request.auth.token.email in resource.data.emails);
       allow write: if isAdmin();
     }
 
@@ -43,24 +45,10 @@ service cloud.firestore {
     }
 
     // ── Petsitting: reviews ─────────────────────────────────────────────────
-    // Two invariants matter:
-    //   1. Nothing is publicly readable until an admin sets approved = true.
-    //   2. The only field a visitor may change is `likes`, by exactly one, on an
-    //      already-published document.
-    // New reviews and comments arrive through the postReview function, unapproved.
-
-    // A ±1 nudge of `likes` and nothing else, on a published document. Without
-    // accounts this is the strongest guarantee available - it cannot stop a
-    // determined person clicking twice, but it stops `likes` being set to
-    // 999999 or used to smuggle an edit into any other field.
-    function likeDeltaOnly() {
-      return resource.data.approved == true
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes'])
-        && request.resource.data.likes is int
-        && request.resource.data.likes >= 0
-        && (request.resource.data.likes == resource.data.likes + 1
-            || request.resource.data.likes == resource.data.likes - 1);
-    }
+    // Nothing is publicly readable until an admin sets approved = true, and
+    // visitors cannot write here at all: new reviews and comments come through
+    // the postReview function (unapproved), likes through likePost, which allows
+    // one like per visitor and caps how often one address can like.
 
     match /petsitting_reviews/{reviewId} {
       // Rules are evaluated per returned document, so a list query that does not
@@ -68,17 +56,13 @@ service cloud.firestore {
       // as a whole. That is intentional - it is what stops the moderation queue
       // leaking through an unfiltered query.
       allow read: if resource.data.approved == true || isAdmin();
-
       allow create: if false;
-      allow update: if isAdmin() || likeDeltaOnly();
-      allow delete: if isAdmin();
+      allow update, delete: if isAdmin();
 
       match /petsitting_review_comments/{commentId} {
         allow read: if resource.data.approved == true || isAdmin();
-
         allow create: if false;
-        allow update: if isAdmin() || likeDeltaOnly();
-        allow delete: if isAdmin();
+        allow update, delete: if isAdmin();
       }
     }
 
@@ -99,8 +83,9 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin();
     }
 
-    // Spam-check counters, written only by the functions.
+    // Spam-check counters and who-liked-what records, written only by the functions.
     match /rateLimits/{doc} { allow read, write: if false; }
+    match /postLikes/{doc}  { allow read, write: if false; }
 
     // Everything else denied by default.
     match /{document=**} { allow read, write: if false; }

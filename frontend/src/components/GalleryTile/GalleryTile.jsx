@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { albumCover } from '../../firebase/gallery.js';
 import Skeleton from '../Skeleton';
+import SmartImage from '../SmartImage';
 import styles from './GalleryTile.module.css';
 
 /*
@@ -25,7 +26,7 @@ export default function GalleryTile({ album, variant = 'full', to, onClick }) {
   const inner = (
     <>
       <span className={styles.media}>
-        <img src={cover?.url} alt={album.caption || 'Pet photo'} loading="lazy" />
+        <SmartImage src={cover?.url} alt={album.caption || 'Pet photo'} loading="lazy" />
 
         {!preview && album.images.length > 1 && (
           <span className={styles.multiBadge} aria-label={`${album.images.length} photos`}>

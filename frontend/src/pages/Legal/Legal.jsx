@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useContent } from '../../context/ContentContext.jsx';
 import { useData } from '../../context/DataContext.jsx';
 import { LEGAL_UPDATED, privacyPolicy, termsOfUse } from '../../content/legal.js';
+import PageHero from '../../components/PageHero';
 import styles from './Legal.module.css';
 import usePageMeta from '../../hooks/usePageMeta.js';
 
@@ -42,14 +43,9 @@ function Legal({ build, other }) {
 
   return (
     <div>
-      <header className={`page-header ${styles.pageHeader}`}>
-        <div className="container">
-          <h1>{doc.title}</h1>
-          <p>Last updated {LEGAL_UPDATED}</p>
-        </div>
-      </header>
+      <PageHero title={doc.title} subtitle={`Last updated ${LEGAL_UPDATED}`} emoji="📜" tone="teal" />
 
-      <section className="section">
+      <section className="section-tight">
         <div className="container">
           <article className={styles.sheet}>
             <p className={styles.intro}>{doc.intro}</p>
@@ -63,7 +59,7 @@ function Legal({ build, other }) {
               </section>
             ))}
 
-            <p className={styles.other}>See also the <Link to={other.to}>{other.label}</Link>.</p>
+            <p className={styles.other}>See also the <Link to={other.to} className="link">{other.label}</Link>.</p>
           </article>
         </div>
       </section>

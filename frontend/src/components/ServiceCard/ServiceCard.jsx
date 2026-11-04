@@ -5,20 +5,23 @@ import styles from './ServiceCard.module.css';
 /*
  * One service, in the two shapes the site needs:
  *
- *   compact - the Home page preview: icon, name, blurb, price. No booking
- *             button, because the section already ends in "See All Services".
- *   full    - the Services page: price badge, duration, what's included, and a
- *             Book Now button.
+ *   compact - the Home page preview: icon, name, blurb, price, and a small
+ *             "Ask about this" link.
+ *   full    - the Services page: price, duration, what's included, and a Book
+ *             button.
  *
- * These used to be two hand-written copies with different field coverage, so
- * `duration` and `includes` only ever showed up on one of them. One component
- * means adding a field is one edit.
+ * Both book through /contact?service=<name>, which opens the contact form with
+ * that service already picked - one tap from "I want this" to the form.
  */
 
 export const SERVICE_COLORS = ['coral', 'teal', 'purple', 'yellow', 'pink', 'orange'];
 
 /** The accent colour for the card at position `i` in a list. */
 export const serviceColor = (i) => SERVICE_COLORS[i % SERVICE_COLORS.length];
+
+export const bookingLink = (name) => (name ? `/contact?service=${encodeURIComponent(name)}` : '/contact');
+
+const hasPrice = (price) => price !== undefined && price !== null && String(price).trim() !== '';
 
 export default function ServiceCard({ service, color = 'coral', variant = 'full', bookLabel = 'Book Now' }) {
   const compact = variant === 'compact';
@@ -29,34 +32,34 @@ export default function ServiceCard({ service, color = 'coral', variant = 'full'
   return (
     <article className={`${styles.card} ${compact ? styles.compact : ''}`} data-color={color}>
       <div className={styles.top}>
-        <span className={styles.icon}>{icon || '🐾'}</span>
-        {!compact && (
-          <span className={styles.priceBadge}>
-            R{price}
+        <span className={styles.icon} aria-hidden="true">{icon || '🐾'}</span>
+        {hasPrice(price) && (
+          <span className={styles.price}>
+            <strong>R{price}</strong>
             <span>/{priceUnit || 'session'}</span>
           </span>
         )}
       </div>
 
       <h3 className={styles.name}>{name}</h3>
-
-      {duration && <p className={styles.duration}>⏱ {duration}</p>}
-
+      {duration && <p className={styles.duration}><span aria-hidden="true">⏱</span> {duration}</p>}
       <p className={styles.description}>{description}</p>
 
       {!compact && includes?.length > 0 && (
-        <ul className={styles.includes}>
-          {includes.map((item, i) => <li key={i}>✅ {item}</li>)}
+        <ul className={styles.includes} aria-label="Included">
+          {includes.map((item, i) => <li key={i}>{item}</li>)}
         </ul>
       )}
 
       {compact ? (
-        <p className={styles.price}>
-          <strong>R{price}</strong>
-          <span> / {priceUnit || 'session'}</span>
-        </p>
+        <Link to={bookingLink(name)} className={styles.ask}>
+          Ask about this <span aria-hidden="true">→</span>
+          <span className="sr-only"> ({name})</span>
+        </Link>
       ) : (
-        <Link to="/contact" className={`btn btn-primary ${styles.bookBtn}`}>{bookLabel}</Link>
+        <Link to={bookingLink(name)} className={`btn btn-primary btn-block ${styles.bookBtn}`}>
+          {bookLabel} <span className="sr-only">- {name}</span>
+        </Link>
       )}
     </article>
   );
@@ -68,16 +71,15 @@ export function ServiceCardSkeleton({ color = 'coral', variant = 'full' }) {
   return (
     <article className={`${styles.card} ${compact ? styles.compact : ''}`} data-color={color} aria-hidden="true">
       <div className={styles.top}>
-        <Skeleton circle style={{ width: compact ? '2.5rem' : '2.75rem', height: compact ? '2.5rem' : '2.75rem' }} />
-        {!compact && <Skeleton style={{ width: '80px', height: '44px', borderRadius: 'var(--radius-md)' }} />}
+        <Skeleton circle style={{ width: '3.25rem', height: '3.25rem' }} />
+        <Skeleton style={{ width: '80px', height: '2.2rem', borderRadius: 'var(--radius-full)' }} />
       </div>
-      <Skeleton style={{ width: '62%', height: '1.4rem', marginBottom: '0.35rem' }} />
-      {!compact && <Skeleton style={{ width: '38%', height: '0.9rem', marginBottom: '0.75rem' }} />}
+      <Skeleton style={{ width: '62%', height: '1.4rem', marginBottom: '0.5rem' }} />
       <Skeleton style={{ width: '100%', height: compact ? '3rem' : '4.5rem', marginBottom: '1rem' }} />
       <Skeleton style={{
-        width: compact ? '45%' : '110px',
-        height: compact ? '1.4rem' : '42px',
-        borderRadius: compact ? undefined : 'var(--radius-full)',
+        width: compact ? '45%' : '100%',
+        height: compact ? '1.2rem' : '48px',
+        borderRadius: 'var(--radius-full)',
         marginTop: 'auto',
       }}
       />
