@@ -8,3 +8,8 @@
   flex: 1;
   padding-top: var(--nav-height);
 }
+
+/* Holds the page height while a page loads, so the footer does not jump up. */
+.pending {
+  min-height: 100vh;
+}

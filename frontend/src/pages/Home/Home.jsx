@@ -3,18 +3,20 @@ import { Link } from 'react-router-dom';
 import { useData } from '../../context/DataContext.jsx';
 import { useContent } from '../../context/ContentContext.jsx';
 import { ratingSummary } from '../../firebase/reviews.js';
-import ServiceCard, { ServiceCardSkeleton, serviceColor } from '../../components/ServiceCard/ServiceCard.jsx';
-import BioBlock, { BioBlockSkeleton } from '../../components/BioBlock/BioBlock.jsx';
-import GalleryTile, { GalleryTileSkeleton } from '../../components/GalleryTile/GalleryTile.jsx';
-import ReviewCard, { ReviewCardSkeleton } from '../../components/ReviewCard/ReviewCard.jsx';
-import StarRating from '../../components/StarRating/StarRating.jsx';
+import ServiceCard, { ServiceCardSkeleton, serviceColor } from '../../components/ServiceCard';
+import BioBlock, { BioBlockSkeleton } from '../../components/BioBlock';
+import GalleryTile, { GalleryTileSkeleton } from '../../components/GalleryTile';
+import ReviewCard, { ReviewCardSkeleton } from '../../components/ReviewCard';
+import StarRating from '../../components/StarRating';
 import styles from './Home.module.css';
+import usePageMeta from '../../hooks/usePageMeta.js';
 
 const PREVIEW_SERVICES = 3;
 const PREVIEW_PHOTOS = 6;
 const PREVIEW_REVIEWS = 3;
 
 export default function Home() {
+  usePageMeta();
   const { services, albums, bio, reviews, loading } = useData();
   const { copy } = useContent();
   const t = copy('home');

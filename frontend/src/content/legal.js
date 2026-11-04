@@ -2,10 +2,7 @@
 // A block is a paragraph (string) or a bullet list (array). [text](url) becomes a link.
 // Change LEGAL_UPDATED whenever the meaning of either document changes.
 
-export const LEGAL_UPDATED = '29 October 2026';
-
-// How long a contact message is kept. The form writes the matching expiry date.
-export const CONTACT_RETENTION_DAYS = 365;
+export const LEGAL_UPDATED = '4 November 2026';
 
 // reCAPTCHA only loads once App Check has a site key, so the policy only mentions it then.
 const SPAM_CHECK = Boolean(import.meta.env.FIREBASE_APPCHECK_SITE_KEY);
@@ -38,6 +35,7 @@ export const privacyPolicy = (who) => ({
           'When you write a review: the name you want shown, your star rating, the review text, and anything you choose to add (a headline, your pet\'s name and the service you used), and the time it was sent. No email address or phone number is asked for.',
           'When you comment on a review: the name you want shown, your comment and the time it was sent.',
           'When you like a review or comment: only a counter goes up. Nothing about you is stored with it.',
+          'To stop the forms being used for spam, the site also keeps short one-way codes made from your network (IP) address and, for enquiries, your email address, so it can count how many posts arrive from one place. The codes cannot be turned back into the originals, and they are deleted after 24 hours.',
         ],
         'When you visit any page, the site is served by Google Firebase Hosting, which, like every web host, receives your IP address, browser details and the page requested in order to deliver it. There are no analytics, advertising or tracking scripts, and no profile of you is built.',
         'Please do not include special personal information (such as health, religion or political views) or information about children in a message, review or comment, and please do not write about other people in a way that identifies them.',
@@ -65,7 +63,7 @@ export const privacyPolicy = (who) => ({
       heading: 'Where it goes',
       blocks: [
         [
-          'Google (Firebase and Google Cloud) stores enquiries, reviews and comments in a database in Belgium (europe-west1) and hosts the site. See [Google\'s privacy policy](https://policies.google.com/privacy).',
+          'Google (Firebase and Google Cloud) stores enquiries, reviews and comments in a database in Belgium (europe-west1) and hosts the site. A small program in the same region checks each enquiry, review and comment for spam before saving it. See [Google\'s privacy policy](https://policies.google.com/privacy).',
           `Google (Gmail) delivers a copy of each new enquiry, and of each new review waiting to be checked, to ${who.owner}'s inbox so she can reply or publish it.`,
           'Google Fonts supplies the site\'s typeface, so your browser contacts Google\'s servers when a page loads.',
           ...(SPAM_CHECK ? ['Google reCAPTCHA checks that the forms are being used by a person and not a bot. It looks at how the page is used and may set its own cookies. The [Google privacy policy](https://policies.google.com/privacy) and [terms](https://policies.google.com/terms) apply to it.'] : []),
@@ -78,7 +76,7 @@ export const privacyPolicy = (who) => ({
     {
       heading: 'How long it is kept',
       blocks: [
-        'Enquiries are deleted automatically 12 months after they arrive, and the email copy is deleted on the same schedule. If you book a service, what is needed for that booking is kept only for as long as the booking, and any legal record-keeping duty, requires.',
+        'Enquiries are deleted automatically 12 months after they arrive, and the email copy is deleted on the same schedule. If you book a service, what is needed for that booking is kept only for as long as the booking, and any legal record-keeping duty, requires. The spam-check codes described above are deleted after 24 hours.',
         'Published reviews and comments stay on the site until you ask for them to be removed or they are taken down. Ones that are not published are deleted.',
       ],
     },

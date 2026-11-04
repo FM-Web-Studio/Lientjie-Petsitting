@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { getMessages, markMessageRead, deleteMessage } from '../../../firebase/contact.js';
-import { useToast } from '../../../context/ToastContext.jsx';
-import Skeleton from '../../../components/Skeleton/Skeleton.jsx';
-import styles from '../Admin.module.css';
+import { getMessages, markMessageRead, deleteMessage } from '../../../../firebase/contact.js';
+import { useToast } from '../../../../context/ToastContext.jsx';
+import Skeleton from '../../../../components/Skeleton';
+import styles from '../../Admin.module.css';
 
 export default function MessagesSection() {
   const { addToast } = useToast();

@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { getContent, saveContentGroup } from '../../../firebase/content.js';
-import { COPY_SCHEMA } from '../../../content/siteCopy.js';
-import { saveErrorMessage } from '../../../firebase/errors.js';
-import { useToast } from '../../../context/ToastContext.jsx';
-import styles from '../Admin.module.css';
+import { getContent, saveContentGroup } from '../../../../firebase/content.js';
+import { COPY_SCHEMA } from '../../../../content/siteCopy.js';
+import { saveErrorMessage } from '../../../../firebase/errors.js';
+import { useToast } from '../../../../context/ToastContext.jsx';
+import styles from '../../Admin.module.css';
 
 // Working draft: show the saved override if present, else the in-code default,
 // so the editor always mirrors what's live on the site.

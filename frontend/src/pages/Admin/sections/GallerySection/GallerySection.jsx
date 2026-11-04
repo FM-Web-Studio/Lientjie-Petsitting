@@ -2,14 +2,14 @@ import { useState, useEffect, useRef } from 'react';
 import {
   getAlbums, createAlbum, updateAlbum, deleteAlbum,
   addImagesToAlbum, removeImageFromAlbum, albumCover,
-} from '../../../firebase/gallery.js';
-import { prepareImages } from '../../../utils/image.js';
-import { saveErrorMessage } from '../../../firebase/errors.js';
-import { useToast } from '../../../context/ToastContext.jsx';
-import { getGalleryCategories, saveGalleryCategories } from '../../../firebase/categories.js';
-import Skeleton from '../../../components/Skeleton/Skeleton.jsx';
-import SearchableDropdown from '../../../components/SearchableDropdown/SearchableDropdown.jsx';
-import styles from '../Admin.module.css';
+} from '../../../../firebase/gallery.js';
+import { prepareImages } from '../../../../utils/image.js';
+import { saveErrorMessage } from '../../../../firebase/errors.js';
+import { useToast } from '../../../../context/ToastContext.jsx';
+import { getGalleryCategories, saveGalleryCategories } from '../../../../firebase/categories.js';
+import Skeleton from '../../../../components/Skeleton';
+import SearchableDropdown from '../../../../components/SearchableDropdown';
+import styles from '../../Admin.module.css';
 
 const optionsFor = (categories, current) =>
   (current && !categories.includes(current) ? [current, ...categories] : categories);

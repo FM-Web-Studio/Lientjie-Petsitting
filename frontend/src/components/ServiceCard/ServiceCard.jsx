@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import Skeleton from '../Skeleton/Skeleton.jsx';
+import Skeleton from '../Skeleton';
 import styles from './ServiceCard.module.css';
 
 /*

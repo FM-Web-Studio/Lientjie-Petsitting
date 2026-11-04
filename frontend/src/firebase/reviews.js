@@ -1,9 +1,10 @@
 import {
-  collection, collectionGroup, doc, getDocs, addDoc, updateDoc, deleteDoc,
-  query, where, orderBy, increment, serverTimestamp, writeBatch,
+  collection, collectionGroup, doc, getDocs, updateDoc, deleteDoc,
+  query, where, orderBy, increment, writeBatch,
 } from 'firebase/firestore';
 import { db } from './app.js';
 import { COLLECTIONS, REVIEW_COMMENTS, REVIEW_LIMITS } from './config.js';
+import { callPublic } from './functions.js';
 
 /*
  * Public reviews, with comments and likes.
@@ -107,33 +108,30 @@ export async function getAllCommentsFlat() {
 // ── Writing (public) ────────────────────────────────────────────────────────
 
 /**
- * Submit a review. It is created unpublished; `approved`, `likes` and
- * `createdAt` are fixed here and re-checked by rules, so a crafted client can't
- * self-publish, arrive pre-liked, or backdate itself to the top of the list.
+ * Submit a review through the postReview function, which checks for spam and saves
+ * it unpublished. trap is trapFields() from the Honeypot component.
  */
-export async function submitReview({ authorName, rating, title, body, petName, serviceUsed }) {
-  const data = {
+export async function submitReview({ authorName, rating, title, body, petName, serviceUsed }, trap) {
+  return callPublic('postReview', {
+    kind: 'review',
     authorName: clip(authorName, REVIEW_LIMITS.authorName.max),
     rating: Number(rating),
     title: clip(title, REVIEW_LIMITS.title.max),
     body: clip(body, REVIEW_LIMITS.body.max),
     petName: clip(petName, REVIEW_LIMITS.petName.max),
     serviceUsed: clip(serviceUsed, 80),
-    approved: false,
-    likes: 0,
-    createdAt: serverTimestamp(),
-  };
-  return addDoc(reviewsCol(), data);
+    ...trap,
+  });
 }
 
 /** Post a comment on a published review. Also unpublished until approved. */
-export async function submitComment(reviewId, { authorName, body }) {
-  return addDoc(commentsCol(reviewId), {
+export async function submitComment(reviewId, { authorName, body }, trap) {
+  return callPublic('postReview', {
+    kind: 'comment',
+    reviewId,
     authorName: clip(authorName, REVIEW_LIMITS.authorName.max),
     body: clip(body, REVIEW_LIMITS.comment.max),
-    approved: false,
-    likes: 0,
-    createdAt: serverTimestamp(),
+    ...trap,
   });
 }
 

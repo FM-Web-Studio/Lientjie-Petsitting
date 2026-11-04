@@ -3,7 +3,17 @@
     "target": "lientjie-petsitting",
     "public": "frontend/dist",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
-    "rewrites": [{ "source": "**", "destination": "/index.html" }],
+    "trailingSlash": false,
+    "rewrites": [
+      { "source": "/services", "destination": "/services.html" },
+      { "source": "/gallery", "destination": "/gallery.html" },
+      { "source": "/reviews", "destination": "/reviews.html" },
+      { "source": "/about", "destination": "/about.html" },
+      { "source": "/contact", "destination": "/contact.html" },
+      { "source": "/privacy", "destination": "/privacy.html" },
+      { "source": "/terms", "destination": "/terms.html" },
+      { "source": "/admin", "destination": "/admin.html" }
+    ],
     "headers": [
       {
         "source": "**/*.@(js|css|svg|png|jpg|jpeg|webp|gif|woff2)",
@@ -22,6 +32,10 @@
       },
       {
         "source": "/admin",
+        "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+      },
+      {
+        "source": "/admin.html",
         "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
       }
     ]

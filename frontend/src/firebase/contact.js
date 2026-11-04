@@ -1,19 +1,20 @@
 import {
-  collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy, serverTimestamp, Timestamp,
+  collection, getDocs, doc, updateDoc, deleteDoc, query, orderBy,
 } from 'firebase/firestore';
 import { db } from './app.js';
 import { COLLECTIONS, CONTACT_LIMITS } from './config.js';
-import { CONTACT_RETENTION_DAYS } from '../content/legal.js';
+import { callPublic } from './functions.js';
 
 const col = () => collection(db, COLLECTIONS.messages);
 
 const clip = (value, max) => String(value ?? '').trim().slice(0, max);
 
-// Every field is always written, matching petsitting_messages in firestore.rules.
-// expireAt drives the TTL policy that deletes the message on that date.
-export async function sendMessage(data) {
+// Sent through the sendMessage function, which checks for spam, stamps the time and
+// the expiry date, and saves it. trap is trapFields() from the Honeypot component.
+export async function sendMessage(data, trap) {
   const L = CONTACT_LIMITS;
-  return addDoc(col(), {
+  return callPublic('sendMessage', {
+    site: 'petsitting',
     name: clip(data.name, L.name),
     email: clip(data.email, L.email),
     phone: clip(data.phone, L.phone),
@@ -21,9 +22,7 @@ export async function sendMessage(data) {
     petType: clip(data.petType, L.petType),
     serviceInterest: clip(data.serviceInterest, L.serviceInterest),
     message: clip(data.message, L.message),
-    read: false,
-    createdAt: serverTimestamp(),
-    expireAt: Timestamp.fromMillis(Date.now() + CONTACT_RETENTION_DAYS * 864e5),
+    ...trap,
   });
 }
 

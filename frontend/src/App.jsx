@@ -1,14 +1,15 @@
+import { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext.jsx';
 import { ToastProvider } from './context/ToastContext.jsx';
 import { ThemeProvider } from './context/ThemeContext.jsx';
 import { ContentProvider } from './context/ContentContext.jsx';
 import { DataProvider } from './context/DataContext.jsx';
-import Navigation from './components/Navigation/Navigation.jsx';
-import Footer from './components/Footer/Footer.jsx';
-import Toast from './components/Toast/Toast.jsx';
+import Navigation from './components/Navigation';
+import Footer from './components/Footer';
+import Toast from './components/Toast';
 import useMomentumScroll from './hooks/useMomentumScroll.js';
-import { Home, Services, Gallery, Reviews, Contact, Bio, Admin, NotFound, Privacy, Terms } from './pages/index.js';
+import { Home, Services, Gallery, Reviews, Contact, Bio, Admin, NotFound, Privacy, Terms } from './pages';
 import styles from './App.module.css';
 
 // Public site chrome - nav + footer. The admin panel is standalone (no chrome),
@@ -18,7 +19,9 @@ function PublicLayout() {
   return (
     <div className={styles.layout}>
       <Navigation />
-      <main className={styles.main}><Outlet /></main>
+      <main className={styles.main}>
+        <Suspense fallback={<div className={styles.pending} />}><Outlet /></Suspense>
+      </main>
       <Footer />
     </div>
   );
@@ -34,7 +37,7 @@ export default function App() {
               <BrowserRouter>
                 <Routes>
                   {/* Admin - standalone, self-gating, no public nav/footer */}
-                  <Route path="/admin" element={<Admin />} />
+                  <Route path="/admin" element={<Suspense fallback={null}><Admin /></Suspense>} />
 
                   <Route element={<PublicLayout />}>
                     <Route path="/" element={<Home />} />

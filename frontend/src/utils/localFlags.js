@@ -43,7 +43,7 @@ export function toggleLiked(id) {
 const LAST_POST_KEY = 'petsitting.lastReviewAt';
 
 /** Minimum gap between review submissions from one browser. */
-export const REVIEW_COOLDOWN_MS = 5 * 60 * 1000;
+const REVIEW_COOLDOWN_MS = 5 * 60 * 1000;
 
 /** Milliseconds still to wait before this browser may post again (0 if ready). */
 export function reviewCooldownRemaining() {

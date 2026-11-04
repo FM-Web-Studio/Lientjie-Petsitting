@@ -1,7 +1,7 @@
 rules_version = '2';
 
-// Shared by both Lientjie sites. Keep byte-identical in Lientjie-Petsitting/storage.rules
-// and Lientjie-Portfolio/frontend/storage.rules: the last deploy from either repo wins.
+// Shared by both Lientjie sites, and owned by this repo only: the portfolio repo
+// deploys hosting only, so its storage rules are added here.
 service firebase.storage {
   match /b/{bucket}/o {
 

@@ -27,9 +27,16 @@
  *   5. firebase deploy --only functions
  */
 const { onDocumentCreated } = require('firebase-functions/v2/firestore');
+const { onCall, HttpsError } = require('firebase-functions/v2/https');
 const { defineString, defineSecret } = require('firebase-functions/params');
 const logger = require('firebase-functions/logger');
 const nodemailer = require('nodemailer');
+const crypto = require('node:crypto');
+const { initializeApp } = require('firebase-admin/app');
+const { getFirestore, FieldValue, Timestamp } = require('firebase-admin/firestore');
+
+initializeApp();
+const db = getFirestore();
 
 // Must match the region of the Firestore database. Verified via
 // `firebase firestore:databases:get` -> lientjie-project is in europe-west1.
@@ -202,3 +209,177 @@ const opts = (document) => ({ document, region: REGION, secrets: [SMTP_PASSWORD]
 exports.onPortfolioMessage = onDocumentCreated(opts('portfolio_messages/{id}'), makeHandler('portfolio_messages'));
 exports.onPetsittingMessage = onDocumentCreated(opts('petsitting_messages/{id}'), makeHandler('petsitting_messages'));
 exports.onPetsittingReview = onDocumentCreated(opts('petsitting_reviews/{id}'), makeHandler('petsitting_reviews'));
+
+// ── Public writes ───────────────────────────────────────────────────────────
+// Visitors never write Firestore directly: the contact forms, reviews and comments
+// all come through these two functions, which drop bots, limit how often one
+// person can post, and only then save with admin rights. firestore.rules denies
+// every direct create on those collections.
+
+const DAY = 24 * 60 * 60 * 1000;
+// Keep in step with the retention the privacy policies promise.
+const KEEP_DAYS = 365;
+const MIN_FILL_MS = 3000;
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const CALLABLE = {
+  region: REGION,
+  maxInstances: 5,
+  cors: [/^https:\/\/lientjie-(portfolio|petsitting)\.(web\.app|firebaseapp\.com)$/, /^https?:\/\/localhost(:\d+)?$/],
+};
+
+// A one-way scramble, so no address or IP is ever stored as it is.
+const scramble = (value) => crypto.createHash('sha256').update(`lientjie:${value}`).digest('hex').slice(0, 40);
+const clientIp = (req) => String(req?.headers?.['x-forwarded-for'] ?? req?.ip ?? 'unknown').split(',')[0].trim();
+const text = (v, max) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
+// Bots fill the hidden field or post instantly.
+const looksLikeBot = (d) => !!text(d.website, 200) || !(Number(d.elapsed) >= MIN_FILL_MS);
+
+// Deletes a few spent rate records each time, so the collection never grows.
+const sweepLimits = async () => {
+  const old = await db.collection('rateLimits').where('expireAt', '<', Timestamp.now()).limit(25).get();
+  if (old.empty) return;
+  const batch = db.batch();
+  old.docs.forEach((d) => batch.delete(d.ref));
+  await batch.commit();
+};
+
+/*
+ * Runs one rate-limited save in a transaction.
+ *   scope   names the counters, 'msg' or 'post'
+ *   limits  { short: { count, ms }, day, everyoneDay, keyDay }
+ *   keys    { sender, key, repeat }, already scrambled; key is the email address when there is one
+ *   save    (tx, now) => void, called only when every limit passes
+ * Returns 'sent', 'repeat', 'sender' or 'everyone'.
+ */
+const limited = async (scope, limits, keys, save) => {
+  const now = Date.now();
+  const day = new Date(now).toISOString().slice(0, 10);
+  const refs = {
+    sender: db.doc(`rateLimits/${scope}-s-${keys.sender}`),
+    key: keys.key ? db.doc(`rateLimits/${scope}-e-${keys.key}`) : null,
+    repeat: db.doc(`rateLimits/${scope}-m-${keys.repeat}`),
+    everyone: db.doc(`rateLimits/${scope}-day-${day}`),
+  };
+
+  const verdict = await db.runTransaction(async (tx) => {
+    const [s, k, m, all] = await Promise.all(
+      [refs.sender, refs.key, refs.repeat, refs.everyone].map((r) => (r ? tx.get(r) : null)),
+    );
+    if (m.exists) return 'repeat';
+    const sentBy = (s.get('times') ?? []).filter((t) => now - t < DAY);
+    const recent = sentBy.filter((t) => now - t < limits.short.ms);
+    const sentTo = k ? (k.get('times') ?? []).filter((t) => now - t < DAY) : [];
+    if (recent.length >= limits.short.count || sentBy.length >= limits.day || (k && sentTo.length >= limits.keyDay)) return 'sender';
+    if ((all.get('count') ?? 0) >= limits.everyoneDay) return 'everyone';
+
+    const expireAt = Timestamp.fromMillis(now + DAY);
+    tx.set(refs.sender, { times: [...sentBy, now], expireAt });
+    if (refs.key) tx.set(refs.key, { times: [...sentTo, now], expireAt });
+    tx.set(refs.repeat, { expireAt });
+    tx.set(refs.everyone, { count: FieldValue.increment(1), expireAt: Timestamp.fromMillis(now + 2 * DAY) }, { merge: true });
+    save(tx, now);
+    return 'sent';
+  });
+
+  sweepLimits().catch((err) => logger.warn('Rate limit sweep failed', { error: err?.message }));
+  return verdict;
+};
+
+const finish = (verdict, scope) => {
+  // The same post twice is treated as sent, so a double click never shows an error.
+  if (verdict === 'sent' || verdict === 'repeat') return { ok: true };
+  logger.info('Public write: limit reached', { scope, verdict });
+  throw new HttpsError('resource-exhausted', verdict === 'everyone' ? 'everyone' : 'sender');
+};
+
+// The extra fields each site's contact form sends, with the longest value each may have.
+const MESSAGE_FIELDS = {
+  portfolio: { collection: 'portfolio_messages', optional: { subject: 150 } },
+  petsitting: { collection: 'petsitting_messages', optional: { phone: 30, petName: 60, petType: 40, serviceInterest: 100 } },
+};
+const MESSAGE_LIMITS = { short: { count: 2, ms: 10 * 60 * 1000 }, day: 5, keyDay: 5, everyoneDay: 40 };
+
+// Both contact forms post here:
+//   { site: 'portfolio' | 'petsitting', name, email, message, ...extra fields, website, elapsed }
+exports.sendMessage = onCall(CALLABLE, async (request) => {
+  const d = request.data ?? {};
+  const site = Object.hasOwn(MESSAGE_FIELDS, d.site) ? d.site : null;
+  if (looksLikeBot(d)) {
+    logger.info('Contact form: dropped a likely bot', { site });
+    return { ok: true };
+  }
+
+  const name = text(d.name, 100);
+  const email = text(d.email, 254);
+  const message = text(d.message, 5000);
+  if (!site || !name || !message || !EMAIL.test(email)) {
+    throw new HttpsError('invalid-argument', 'The name, email or message is missing or not valid.');
+  }
+  const { collection, optional } = MESSAGE_FIELDS[site];
+  const extra = Object.fromEntries(Object.entries(optional).map(([k, max]) => [k, text(d[k], max)]));
+
+  const lower = email.toLowerCase();
+  const keys = {
+    sender: scramble(clientIp(request.rawRequest)),
+    key: scramble(lower),
+    repeat: scramble(`${lower}|${message.toLowerCase()}`),
+  };
+  const verdict = await limited('msg', MESSAGE_LIMITS, keys, (tx, now) => {
+    tx.create(db.collection(collection).doc(), {
+      name, email, ...extra, message,
+      read: false,
+      createdAt: FieldValue.serverTimestamp(),
+      expireAt: Timestamp.fromMillis(now + KEEP_DAYS * DAY),
+    });
+  });
+  return finish(verdict, 'msg');
+});
+
+const POST_LIMITS = { short: { count: 3, ms: 10 * 60 * 1000 }, day: 10, everyoneDay: 60 };
+
+// Petsitting reviews and comments post here. Both arrive unapproved and wait for the admin.
+//   { kind: 'review', authorName, rating, title, body, petName, serviceUsed, website, elapsed }
+//   { kind: 'comment', reviewId, authorName, body, website, elapsed }
+exports.postReview = onCall(CALLABLE, async (request) => {
+  const d = request.data ?? {};
+  const kind = d.kind === 'review' || d.kind === 'comment' ? d.kind : null;
+  if (looksLikeBot(d)) {
+    logger.info('Review form: dropped a likely bot', { kind });
+    return { ok: true };
+  }
+
+  const bad = () => new HttpsError('invalid-argument', 'Some of the details are missing or not valid.');
+  const authorName = text(d.authorName, 60);
+  if (!kind || authorName.length < 2) throw bad();
+
+  let body;
+  let save;
+  if (kind === 'review') {
+    body = text(d.body, 2000);
+    const rating = Number(d.rating);
+    if (body.length < 10 || !Number.isInteger(rating) || rating < 1 || rating > 5) throw bad();
+    const fields = {
+      authorName, rating, title: text(d.title, 100), body, petName: text(d.petName, 60), serviceUsed: text(d.serviceUsed, 80),
+    };
+    save = (tx) => tx.create(db.collection('petsitting_reviews').doc(), {
+      ...fields, approved: false, likes: 0, createdAt: FieldValue.serverTimestamp(),
+    });
+  } else {
+    body = text(d.body, 700);
+    const reviewId = text(d.reviewId, 128);
+    if (body.length < 2 || !reviewId || reviewId.includes('/')) throw bad();
+    // Comments only go on a published review.
+    const review = await db.doc(`petsitting_reviews/${reviewId}`).get();
+    if (!review.exists || review.get('approved') !== true) throw bad();
+    save = (tx) => tx.create(review.ref.collection('petsitting_review_comments').doc(), {
+      authorName, body, approved: false, likes: 0, createdAt: FieldValue.serverTimestamp(),
+    });
+  }
+
+  const keys = {
+    sender: scramble(clientIp(request.rawRequest)),
+    repeat: scramble(`${kind}|${body.toLowerCase()}`),
+  };
+  return finish(await limited('post', POST_LIMITS, keys, save), 'post');
+});

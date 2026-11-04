@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { getContent, saveContentGroup } from '../../../firebase/content.js';
-import { CONTACT_INFO_FIELDS, resolveGroup } from '../../../content/siteCopy.js';
-import { saveErrorMessage } from '../../../firebase/errors.js';
-import { useToast } from '../../../context/ToastContext.jsx';
-import styles from '../Admin.module.css';
+import { getContent, saveContentGroup } from '../../../../firebase/content.js';
+import { CONTACT_INFO_FIELDS, resolveGroup } from '../../../../content/siteCopy.js';
+import { saveErrorMessage } from '../../../../firebase/errors.js';
+import { useToast } from '../../../../context/ToastContext.jsx';
+import styles from '../../Admin.module.css';
 
 export default function ContactInfoSection() {
   const { addToast } = useToast();

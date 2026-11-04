@@ -1,10 +1,12 @@
 import { Link } from 'react-router-dom';
 import { useData } from '../../context/DataContext.jsx';
 import { useContent } from '../../context/ContentContext.jsx';
-import ServiceCard, { ServiceCardSkeleton, SERVICE_COLORS, serviceColor } from '../../components/ServiceCard/ServiceCard.jsx';
+import ServiceCard, { ServiceCardSkeleton, SERVICE_COLORS, serviceColor } from '../../components/ServiceCard';
 import styles from './Services.module.css';
+import usePageMeta from '../../hooks/usePageMeta.js';
 
 export default function Services() {
+  usePageMeta({ title: 'Services' });
   const { services, loading, errors } = useData();
   const { copy } = useContent();
   const t = copy('services');

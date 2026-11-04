@@ -1,4 +1,4 @@
-import Skeleton from '../Skeleton/Skeleton.jsx';
+import Skeleton from '../Skeleton';
 import styles from './BioBlock.module.css';
 
 /*

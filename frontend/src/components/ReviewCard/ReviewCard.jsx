@@ -1,9 +1,9 @@
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import StarRating from '../StarRating/StarRating.jsx';
-import Skeleton from '../Skeleton/Skeleton.jsx';
+import StarRating from '../StarRating';
+import Skeleton from '../Skeleton';
 import { REVIEW_LIMITS } from '../../firebase/config.js';
-import Honeypot, { caughtBot } from '../Honeypot/Honeypot.jsx';
+import Honeypot, { caughtBot, trapFields } from '../Honeypot';
 import styles from './ReviewCard.module.css';
 
 /*
@@ -19,7 +19,7 @@ import styles from './ReviewCard.module.css';
 const initial = (name = '') => name.trim().charAt(0).toUpperCase() || '🐾';
 
 /** Firestore Timestamp | Date | ms → a short human date. */
-export const formatDate = (ts) => {
+const formatDate = (ts) => {
   if (!ts) return '';
   const d = ts.toDate ? ts.toDate() : new Date(ts);
   if (Number.isNaN(d.getTime())) return '';
@@ -62,7 +62,7 @@ export default function ReviewCard({
     e.preventDefault();
     setSending(true);
     try {
-      const posted = await onSubmitComment?.(review.id, { ...form, isBot: caughtBot(trap) });
+      const posted = await onSubmitComment?.(review.id, { ...form, isBot: caughtBot(trap), trap: trapFields(trap) });
       // Only clear the box if it actually went through - otherwise a failed
       // submit silently eats what the visitor typed.
       if (posted) setForm({ authorName: '', body: '' });

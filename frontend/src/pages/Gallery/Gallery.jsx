@@ -2,11 +2,13 @@ import { useMemo, useState } from 'react';
 import { useData } from '../../context/DataContext.jsx';
 import { useContent } from '../../context/ContentContext.jsx';
 import { GALLERY_ALL } from '../../firebase/config.js';
-import GalleryTile, { GalleryTileSkeleton } from '../../components/GalleryTile/GalleryTile.jsx';
-import Lightbox from '../../components/Lightbox/Lightbox.jsx';
+import GalleryTile, { GalleryTileSkeleton } from '../../components/GalleryTile';
+import Lightbox from '../../components/Lightbox';
 import styles from './Gallery.module.css';
+import usePageMeta from '../../hooks/usePageMeta.js';
 
 export default function Gallery() {
+  usePageMeta({ title: 'Gallery' });
   const { albums, galleryCategories, loading, errors } = useData();
   const { copy } = useContent();
   const t = copy('gallery');

@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import { getServices, addService, updateService, deleteService } from '../../../firebase/services.js';
-import { SERVICE_CATEGORIES } from '../../../firebase/config.js';
-import { useToast } from '../../../context/ToastContext.jsx';
-import Skeleton from '../../../components/Skeleton/Skeleton.jsx';
-import KebabMenu from '../../../components/KebabMenu/KebabMenu.jsx';
-import Modal from '../../../components/Modal/Modal.jsx';
-import SearchableDropdown from '../../../components/SearchableDropdown/SearchableDropdown.jsx';
-import styles from '../Admin.module.css';
+import { getServices, addService, updateService, deleteService } from '../../../../firebase/services.js';
+import { SERVICE_CATEGORIES } from '../../../../firebase/config.js';
+import { useToast } from '../../../../context/ToastContext.jsx';
+import Skeleton from '../../../../components/Skeleton';
+import KebabMenu from '../../../../components/KebabMenu';
+import Modal from '../../../../components/Modal';
+import SearchableDropdown from '../../../../components/SearchableDropdown';
+import styles from '../../Admin.module.css';
 
 const BLANK = { name: '', icon: '🐾', description: '', price: '', priceUnit: 'session', duration: '', category: 'Other', order: 0, active: true, includes: [] };
 

@@ -9,18 +9,21 @@ import {
 } from '../../firebase/reviews.js';
 import { REVIEW_LIMITS, REVIEW_SORTS } from '../../firebase/config.js';
 import { likedIds as readLikedIds, toggleLiked, reviewCooldownRemaining, markReviewPosted } from '../../utils/localFlags.js';
-import ReviewCard, { ReviewCardSkeleton } from '../../components/ReviewCard/ReviewCard.jsx';
-import StarRating from '../../components/StarRating/StarRating.jsx';
-import Modal from '../../components/Modal/Modal.jsx';
-import InfoNote from '../../components/InfoNote/InfoNote.jsx';
-import Honeypot, { caughtBot } from '../../components/Honeypot/Honeypot.jsx';
+import ReviewCard, { ReviewCardSkeleton } from '../../components/ReviewCard';
+import StarRating from '../../components/StarRating';
+import Modal from '../../components/Modal';
+import InfoNote from '../../components/InfoNote';
+import Honeypot, { caughtBot, trapFields } from '../../components/Honeypot';
+import { LIMIT_TEXT } from '../../firebase/functions.js';
 import styles from './Reviews.module.css';
+import usePageMeta from '../../hooks/usePageMeta.js';
 
 const BLANK = { authorName: '', rating: 0, title: '', body: '', petName: '', serviceUsed: '' };
 
 const STARS_DESC = [5, 4, 3, 2, 1];
 
 export default function Reviews() {
+  usePageMeta({ title: 'Reviews' });
   const { reviews, services, loading, errors } = useData();
   const { copy } = useContent();
   const { addToast } = useToast();
@@ -95,18 +98,18 @@ export default function Reviews() {
   const handleLikeComment = (reviewId, commentId) =>
     applyLike(commentId, (delta) => likeComment(reviewId, commentId, delta));
 
-  const handleSubmitComment = async (reviewId, { authorName, body, isBot }) => {
+  const handleSubmitComment = async (reviewId, { authorName, body, isBot, trap }) => {
     if (authorName.trim().length < REVIEW_LIMITS.authorName.min || body.trim().length < REVIEW_LIMITS.comment.min) {
       addToast('Please add your name and a comment.', 'warning');
       return false;
     }
     try {
-      if (!isBot) await submitComment(reviewId, { authorName, body });
+      if (!isBot) await submitComment(reviewId, { authorName, body }, trap);
       addToast('Comment sent! It is being processed. 🐾', 'success');
       return true;
     } catch (err) {
       console.error('Comment failed:', err);
-      addToast('Could not post your comment. Please try again.', 'error');
+      addToast(LIMIT_TEXT[err.limit] ?? 'Could not post your comment. Please try again.', 'error');
       return false;
     }
   };
@@ -134,14 +137,14 @@ export default function Reviews() {
 
     setSaving(true);
     try {
-      if (!caughtBot(trap)) await submitReview(form);
+      if (!caughtBot(trap)) await submitReview(form, trapFields(trap));
       markReviewPosted();
       setWriting(false);
       setForm(BLANK);
       addToast('Thank you! Your review has been sent and is being processed. 💛', 'success', 6000);
     } catch (err) {
       console.error('Review failed:', err);
-      addToast('Could not send your review. Please try again.', 'error');
+      addToast(LIMIT_TEXT[err.limit] ?? 'Could not send your review. Please try again.', 'error');
     } finally {
       setSaving(false);
     }

@@ -1,6 +1,6 @@
 {
   "name": "lientjie-functions",
-  "description": "Contact-form email notifications for the Lientjie portfolio + petsitting sites",
+  "description": "Cloud Functions for both Lientjie sites: spam-checked contact forms and reviews, and the notification emails",
   "type": "commonjs",
   "main": "index.js",
   "engines": {
@@ -12,6 +12,7 @@
     "deploy": "firebase deploy --only functions"
   },
   "dependencies": {
+    "firebase-admin": "^13.10.0",
     "firebase-functions": "^6.1.0",
     "nodemailer": "^6.9.14"
   },

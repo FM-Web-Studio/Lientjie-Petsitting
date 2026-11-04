@@ -1,16 +1,19 @@
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { sendMessage } from '../../firebase/contact.js';
+import { LIMIT_TEXT } from '../../firebase/functions.js';
 import { useToast } from '../../context/ToastContext.jsx';
 import { useContent } from '../../context/ContentContext.jsx';
 import { useData } from '../../context/DataContext.jsx';
 import { PET_TYPES, CONTACT_LIMITS, EMAIL_PATTERN } from '../../firebase/config.js';
-import Honeypot, { caughtBot } from '../../components/Honeypot/Honeypot.jsx';
+import Honeypot, { caughtBot, trapFields } from '../../components/Honeypot';
 import styles from './Contact.module.css';
+import usePageMeta from '../../hooks/usePageMeta.js';
 
 const INITIAL = { name: '', email: '', phone: '', petName: '', petType: '', serviceInterest: '', message: '' };
 
 export default function Contact() {
+  usePageMeta({ title: 'Contact' });
   const { addToast } = useToast();
   const { copy } = useContent();
   const { services } = useData();
@@ -38,11 +41,11 @@ export default function Contact() {
     }
     setSending(true);
     try {
-      if (!caughtBot(trap)) await sendMessage(form);
+      if (!caughtBot(trap)) await sendMessage(form, trapFields(trap));
       addToast("Message sent! I'll be in touch soon 🐾", 'success');
       setForm(INITIAL);
-    } catch {
-      addToast('Something went wrong. Please try again.', 'error');
+    } catch (err) {
+      addToast(LIMIT_TEXT[err.limit] ?? 'Something went wrong. Please try again.', 'error');
     } finally {
       setSending(false);
     }

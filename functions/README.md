@@ -1,4 +1,4 @@
-# Contact-form email notifications (shared)
+# Cloud Functions for both Lientjie sites
 
 One Cloud Functions codebase that emails Lientjie whenever a visitor submits a
 contact form on **either** site (both live in the Firebase project
@@ -6,10 +6,15 @@ contact form on **either** site (both live in the Firebase project
 (nodemailer) - no third-party service, the same approach as the Francois0203
 project. Replying to the notification replies to the visitor.
 
-| Trigger | Collection | Site |
-|---|---|---|
-| `onPortfolioMessage`  | `portfolio_messages`  | Portfolio |
-| `onPetsittingMessage` | `petsitting_messages` | Petsitting |
+| Function | What it does |
+|---|---|
+| `sendMessage` | Both contact forms post here (`site: 'portfolio'` or `'petsitting'`). Drops bots (hidden field filled, or sent within 3 seconds of opening the form), limits each sender to 2 messages per 10 minutes and 5 a day, each email address to 5 a day, and all messages to 40 a day, ignores exact repeats, then saves the message. |
+| `postReview` | Petsitting reviews and comments post here (`kind: 'review'` or `'comment'`). Same bot check; 3 posts per 10 minutes and 10 a day per sender, 60 a day in all. Saves them unapproved for the admin to publish. |
+| `onPortfolioMessage` | Emails Lientjie when a `portfolio_messages` document is created |
+| `onPetsittingMessage` | Emails Lientjie when a `petsitting_messages` document is created |
+| `onPetsittingReview` | Emails Lientjie when a review is waiting for approval |
+
+Senders and email addresses are kept only as one-way hashes in `rateLimits`, deleted after a day.
 
 ## One-time setup (no new signups)
 
@@ -55,8 +60,12 @@ project. Replying to the notification replies to the visitor.
 
 ## Notes
 
-- Firestore security rules already allow anyone to *create* a message and only
-  admins to read/delete, so no rules change is needed.
+- The Firestore rules deny every direct create on messages, reviews and comments,
+  so the forms only work through `sendMessage` and `postReview`. Deploy functions
+  BEFORE the rules, or the forms break. Both sites' deploy workflows check that the
+  functions answer before deploying hosting.
+- This repo owns `firestore.rules`, `storage.rules` and these functions for both
+  sites. The portfolio repo deploys hosting only.
 - The function never rethrows on send failure (a bad password won't cause a retry
   storm); check `firebase functions:log` if a notification doesn't arrive. The
   message is stored in Firestore (and shown in the admin inbox) regardless.

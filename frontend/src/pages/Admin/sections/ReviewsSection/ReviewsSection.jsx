@@ -2,11 +2,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   getAllReviews, getAllCommentsFlat, setReviewApproved, setCommentApproved,
   deleteReview, deleteComment, ratingSummary,
-} from '../../../firebase/reviews.js';
-import { useToast } from '../../../context/ToastContext.jsx';
-import Skeleton from '../../../components/Skeleton/Skeleton.jsx';
-import StarRating from '../../../components/StarRating/StarRating.jsx';
-import styles from '../Admin.module.css';
+} from '../../../../firebase/reviews.js';
+import { useToast } from '../../../../context/ToastContext.jsx';
+import Skeleton from '../../../../components/Skeleton';
+import StarRating from '../../../../components/StarRating';
+import styles from '../../Admin.module.css';
 
 /*
  * Moderation queue for reviews and their comments.

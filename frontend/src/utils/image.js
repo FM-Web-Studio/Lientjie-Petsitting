@@ -99,7 +99,7 @@ async function decode(file) {
  * skipped (non-image, animated GIF) or wouldn't help. Runs on the main thread -
  * used only when the worker is unavailable.
  */
-export async function compressImage(file, opts = {}) {
+async function compressImage(file, opts = {}) {
   const { maxDimension, quality, mimeType } = { ...DEFAULTS, ...opts };
   if (!file.type.startsWith('image/') || file.type === 'image/gif') return file;
 

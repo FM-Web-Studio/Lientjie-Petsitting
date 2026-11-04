@@ -1,10 +1,12 @@
 import { Link } from 'react-router-dom';
 import { useData } from '../../context/DataContext.jsx';
 import { useContent } from '../../context/ContentContext.jsx';
-import BioBlock, { BioBlockSkeleton } from '../../components/BioBlock/BioBlock.jsx';
+import BioBlock, { BioBlockSkeleton } from '../../components/BioBlock';
 import styles from './Bio.module.css';
+import usePageMeta from '../../hooks/usePageMeta.js';
 
 export default function Bio() {
+  usePageMeta({ title: 'About' });
   const { bio, loading } = useData();
   const { copy } = useContent();
   const t = copy('about');

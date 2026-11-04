@@ -12,14 +12,14 @@
  */
 
 // ── Brand / footer ──────────────────────────────────────────────────────────
-export const BRAND_FIELDS = [
+const BRAND_FIELDS = [
   { key: 'brandName',     label: 'Brand name',      type: 'text',     default: "Lientjie's Petsitting" },
   { key: 'footerTagline', label: 'Footer tagline',  type: 'textarea', default: 'Professional, loving care for your furry family members.' },
   { key: 'footerNote',    label: 'Footer note',     type: 'text',     default: 'Made with 💛' },
 ];
 
 // ── Home page ───────────────────────────────────────────────────────────────
-export const HOME_FIELDS = [
+const HOME_FIELDS = [
   { key: 'heroTag',          label: 'Hero - tag',            type: 'text',     default: 'Professional Pet Care in Pretoria 🌟' },
   { key: 'heroTitle',        label: 'Hero - title',          type: 'text',     default: "Your Pet's Home Away From Home!" },
   { key: 'heroSub',          label: 'Hero - subtitle',       type: 'textarea', default: "Loving, professional care for your furry, feathery & scaly family members. Because they deserve the best while you're away." },
@@ -51,7 +51,7 @@ export const HOME_FIELDS = [
 ];
 
 // ── Services page ───────────────────────────────────────────────────────────
-export const SERVICES_FIELDS = [
+const SERVICES_FIELDS = [
   { key: 'heroTitle',    label: 'Hero - title',       type: 'text',     default: 'My Services 🐾' },
   { key: 'heroSubtitle', label: 'Hero - subtitle',    type: 'text',     default: "Professional, loving care tailored to your pet's needs" },
   { key: 'bookBtn',      label: 'Card - book button', type: 'text',     default: 'Book Now' },
@@ -60,13 +60,13 @@ export const SERVICES_FIELDS = [
 ];
 
 // ── Gallery page ────────────────────────────────────────────────────────────
-export const GALLERY_FIELDS = [
+const GALLERY_FIELDS = [
   { key: 'heroTitle',    label: 'Hero - title',    type: 'text', default: 'Our Happy Pets 📸' },
   { key: 'heroSubtitle', label: 'Hero - subtitle', type: 'text', default: 'Wholesome moments from every care session' },
 ];
 
 // ── Reviews page ────────────────────────────────────────────────────────────
-export const REVIEWS_FIELDS = [
+const REVIEWS_FIELDS = [
   { key: 'heroTitle',       label: 'Hero - title',        type: 'text',     default: 'Reviews ⭐' },
   { key: 'heroSubtitle',    label: 'Hero - subtitle',     type: 'text',     default: 'Honest words from the families whose pets I look after' },
   { key: 'writeBlurb',      label: 'Write - blurb',       type: 'text',     default: 'Had me look after your pet?' },
@@ -80,7 +80,7 @@ export const REVIEWS_FIELDS = [
 ];
 
 // ── About / Bio page ────────────────────────────────────────────────────────
-export const ABOUT_FIELDS = [
+const ABOUT_FIELDS = [
   { key: 'heroTitle',    label: 'Hero - title',       type: 'text',     default: 'Meet Lientjie 🐾' },
   { key: 'heroSubtitle', label: 'Hero - subtitle',    type: 'text',     default: 'The person who will love your pet like her own' },
   { key: 'tag',          label: 'Tag',                type: 'text',     default: 'Your trusted petsitter' },
@@ -109,7 +109,7 @@ export const ABOUT_FIELDS = [
 ];
 
 // ── Contact page copy ───────────────────────────────────────────────────────
-export const CONTACT_PAGE_FIELDS = [
+const CONTACT_PAGE_FIELDS = [
   { key: 'heroTitle',    label: 'Hero - title',     type: 'text',     default: "Let's Chat! 💬" },
   { key: 'heroSubtitle', label: 'Hero - subtitle',  type: 'text',     default: "Fill in the form and I'll get back to you as soon as possible" },
   { key: 'formTitle',    label: 'Form - title',     type: 'text',     default: 'Send a Message' },

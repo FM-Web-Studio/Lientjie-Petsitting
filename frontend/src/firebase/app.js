@@ -14,10 +14,10 @@ const firebaseConfig = {
   measurementId: import.meta.env.FIREBASE_MEASUREMENT_ID,
 };
 
-const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+export const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
 
 // App Check stays off until a reCAPTCHA v3 site key is set, so nothing changes before the keys exist.
-export const APP_CHECK_SITE_KEY = import.meta.env.FIREBASE_APPCHECK_SITE_KEY || '';
+const APP_CHECK_SITE_KEY = import.meta.env.FIREBASE_APPCHECK_SITE_KEY || '';
 if (APP_CHECK_SITE_KEY) {
   const debugToken = import.meta.env.FIREBASE_APPCHECK_DEBUG_TOKEN;
   if (import.meta.env.DEV && debugToken) self.FIREBASE_APPCHECK_DEBUG_TOKEN = debugToken === 'true' ? true : debugToken;

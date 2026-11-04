@@ -1,9 +1,10 @@
-import { Fragment, useEffect } from 'react';
+import { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import { useContent } from '../../context/ContentContext.jsx';
 import { useData } from '../../context/DataContext.jsx';
 import { LEGAL_UPDATED, privacyPolicy, termsOfUse } from '../../content/legal.js';
 import styles from './Legal.module.css';
+import usePageMeta from '../../hooks/usePageMeta.js';
 
 const LINK = /\[([^\]]+)\]\(([^)]+)\)/g;
 
@@ -37,11 +38,7 @@ function Legal({ build, other }) {
     site: window.location.host,
   });
 
-  useEffect(() => {
-    const previous = document.title;
-    document.title = `${doc.title} | ${brand}`;
-    return () => { document.title = previous; };
-  }, [doc.title, brand]);
+  usePageMeta({ title: doc.title });
 
   return (
     <div>

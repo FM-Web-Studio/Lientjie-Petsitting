@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { getBio, saveBio, uploadProfileImage, deleteProfileImage } from '../../../firebase/bio.js';
-import { prepareImage } from '../../../utils/image.js';
-import { saveErrorMessage } from '../../../firebase/errors.js';
-import { useToast } from '../../../context/ToastContext.jsx';
-import styles from '../Admin.module.css';
+import { getBio, saveBio, uploadProfileImage, deleteProfileImage } from '../../../../firebase/bio.js';
+import { prepareImage } from '../../../../utils/image.js';
+import { saveErrorMessage } from '../../../../firebase/errors.js';
+import { useToast } from '../../../../context/ToastContext.jsx';
+import styles from '../../Admin.module.css';
 
 // Formats every browser can actually paint in an <img>.
 const RENDERABLE = /^image\/(jpeg|png|webp|gif|avif)$/;

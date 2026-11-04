@@ -37,6 +37,20 @@ jobs:
           ADMIN_EMAILS:                 ${{ secrets.ADMIN_EMAILS }}
           FIREBASE_APPCHECK_SITE_KEY:   ${{ secrets.FIREBASE_APPCHECK_SITE_KEY }}
 
+      # The forms post to the sendMessage and postReview functions, and the rules stop direct writes,
+      # so the functions must be live first or the forms break.
+      - name: Check the form functions are deployed
+        run: |
+          # An empty call is treated as a bot and answered with a quiet success, so nothing is saved.
+          for fn in sendMessage postReview; do
+            status=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: application/json' \
+              -d '{"data":{}}' https://europe-west1-lientjie-project.cloudfunctions.net/$fn)
+            if [ "$status" != "200" ]; then
+              echo "::error::$fn answered $status. Deploy functions first (firebase deploy --only functions), then run this workflow again."
+              exit 1
+            fi
+          done
+
       - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:

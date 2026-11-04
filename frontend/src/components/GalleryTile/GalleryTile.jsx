@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { albumCover } from '../../firebase/gallery.js';
-import Skeleton from '../Skeleton/Skeleton.jsx';
+import Skeleton from '../Skeleton';
 import styles from './GalleryTile.module.css';
 
 /*
