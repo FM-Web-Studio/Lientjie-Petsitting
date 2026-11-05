@@ -19,8 +19,10 @@ export const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfi
 // App Check stays off until a reCAPTCHA Enterprise (Google Cloud Fraud Defense) site key is set.
 const APP_CHECK_SITE_KEY = import.meta.env.FIREBASE_APPCHECK_SITE_KEY || '';
 if (APP_CHECK_SITE_KEY) {
-  const debugToken = import.meta.env.FIREBASE_APPCHECK_DEBUG_TOKEN;
-  if (import.meta.env.DEV && debugToken) self.FIREBASE_APPCHECK_DEBUG_TOKEN = debugToken === 'true' ? true : debugToken;
+  // FIREBASE_APPCHECK_DEBUG_TOKEN (local dev only): empty or false = off, true = print a new debug
+  // token in the browser console to register in App Check, anything else = that registered token.
+  const debugToken = String(import.meta.env.FIREBASE_APPCHECK_DEBUG_TOKEN ?? '').trim();
+  if (import.meta.env.DEV && debugToken && debugToken !== 'false') self.FIREBASE_APPCHECK_DEBUG_TOKEN = debugToken === 'true' ? true : debugToken;
   initializeAppCheck(app, { provider: new ReCaptchaEnterpriseProvider(APP_CHECK_SITE_KEY), isTokenAutoRefreshEnabled: true });
 }
 
