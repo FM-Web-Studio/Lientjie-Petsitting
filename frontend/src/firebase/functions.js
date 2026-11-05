@@ -2,7 +2,7 @@ import { getFunctions, httpsCallable } from 'firebase/functions';
 import { app } from './app.js';
 
 // Visitors never write Firestore directly. Contact messages, reviews, comments and
-// likes go through these functions (functions/index.js), which require App Check,
+// likes go through these functions (functions/ in the Lientjie-Portfolio repo), which require App Check,
 // check for spam and save them.
 //
 // limitedUseAppCheckTokens asks for a fresh single-use token per call. postReview and

@@ -2,13 +2,14 @@ rules_version = '2';
 
 // =============================================================================
 // Ruleset for the shared `lientjie-project` Firebase project, covering BOTH the
-// petsitting site and the portfolio. This repo is its only owner: the portfolio
-// repo deploys hosting only. Two copies deployed from two repos race, and the
-// last deploy silently reverts the other site's rules.
+// petsitting site and the portfolio. This repo is the only owner of the rules
+// (the Cloud Functions live in the Lientjie-Portfolio repo). Two copies deployed
+// from two repos race, and the last deploy silently reverts the other site's rules.
 //
 // Visitors never write documents directly. Contact messages, reviews, comments
 // and likes come through the sendMessage, postReview and likePost functions
-// (functions/), which require App Check, check for spam and write with admin rights.
+// (functions/ in the Lientjie-Portfolio repo), which require App Check, check for
+// spam and write with admin rights.
 // =============================================================================
 
 service cloud.firestore {

@@ -1,7 +1,7 @@
 rules_version = '2';
 
-// Shared by both Lientjie sites, and owned by this repo only: the portfolio repo
-// deploys hosting only, so its storage rules are added here.
+// Shared by both Lientjie sites, and owned by this repo only (the portfolio repo
+// deploys its site and the Cloud Functions, never rules), so its storage rules are here.
 service firebase.storage {
   match /b/{bucket}/o {
 
