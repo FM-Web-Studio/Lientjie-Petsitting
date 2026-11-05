@@ -19,7 +19,7 @@ Senders and email addresses are kept only as one-way hashes in `rateLimits`, del
 
 ### Spam protection, in order
 
-1. **App Check (reCAPTCHA v3)** - every callable has `enforceAppCheck: true`, so a call without a valid
+1. **App Check (reCAPTCHA Enterprise, part of Google Cloud Fraud Defense)** - every callable has `enforceAppCheck: true`, so a call without a valid
    token from one of the two sites is refused before any code runs. `postReview` and `likePost` also
    *consume* each token (`consumeAppCheckToken`), so a token copied out of a browser cannot be replayed.
    `sendMessage` does not, because the portfolio sends ordinary tokens.
@@ -33,12 +33,19 @@ Steps 2-4 answer bots with a quiet success, so they learn nothing about what tri
 
 ## One-time setup (no new signups)
 
-0. **App Check** - in the Firebase console, App Check -> register both web apps with the reCAPTCHA v3
-   provider, and put the site key in each repo's `FIREBASE_APPCHECK_SITE_KEY` GitHub secret (and local
-   `.env`). The reCAPTCHA key must list `lientjie-petsitting.web.app`, `lientjie-petsitting.firebaseapp.com`,
-   both portfolio domains and `localhost`. **Without this the contact forms, reviews and likes all fail.**
-   For local development, register a debug token and set `FIREBASE_APPCHECK_DEBUG_TOKEN` in `.env`.
-
+0. **App Check** - classic reCAPTCHA v3 can no longer be registered, so both sites use the
+   reCAPTCHA Enterprise provider (`ReCaptchaEnterpriseProvider` in `frontend/src/firebase/app.js`).
+   - Google Cloud console -> Security -> **Fraud Defense** (project `lientjie-project`) -> create a
+     **Web**, score-based key (no checkbox challenge) listing `lientjie-petsitting.web.app`,
+     `lientjie-petsitting.firebaseapp.com`, `lientjie-portfolio.web.app`, `lientjie-portfolio.firebaseapp.com`.
+     **Never add `localhost`** to this production key.
+   - Firebase console -> Security -> App Check -> Apps: register **both** web apps with the
+     reCAPTCHA Enterprise provider and that key. Do not press Enforce for Firestore/Storage.
+   - Put the key in each repo's `FIREBASE_APPCHECK_SITE_KEY` GitHub secret and local `.env`.
+   - **Without this the contact forms, reviews and likes all fail.**
+   - Local development: set `FIREBASE_APPCHECK_DEBUG_TOKEN=true` in `.env`, run the site, copy the
+     debug token it prints in the browser console, and add it under App Check -> Apps -> (menu) ->
+     Manage debug tokens.
 
 1. **Blaze plan** - already done.
 
