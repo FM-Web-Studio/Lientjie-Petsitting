@@ -81,11 +81,16 @@ Steps 2-4 answer bots with a quiet success, so they learn nothing about what tri
 6. **Region** - `index.js` sets `REGION = 'europe-west1'` to match the Firestore
    database location. A mismatch makes the deploy fail.
 
-7. **Deploy**
+7. **Deploy** - automatic. The GitHub workflow deploys the functions whenever a push changes
+   anything under `functions/` (or when run by hand with *Also deploy Cloud Functions* ticked),
+   before it checks them and deploys the site. It needs these repo secrets:
+   - `SERVICE_ACCOUNT` - JSON key of the robot account. The run log prints *Deploying as: ...*;
+     that account needs Cloud Functions Admin, Service Account User, Cloud Build Editor, Artifact
+     Registry Administrator, Secret Manager Admin and Service Usage Consumer in `lientjie-project`.
+   - `SMTP_USER` and `NOTIFY_TO` - the same values as in `functions/.env`, which is not in git
+     because the repo is public. `SMTP_HOST`/`SMTP_PORT` secrets are optional (Gmail by default).
 
-   ```bash
-   firebase deploy --only functions --project lientjie-project
-   ```
+   By hand, if ever needed: `firebase deploy --only functions --project lientjie-project`
 
 ## Notes
 
