@@ -161,6 +161,9 @@ export default function ReviewsSection() {
           )}
           <p>
             <strong>{comment.authorName}</strong>
+            {comment.flagged && (
+              <span className={styles.spamBadge} title={(comment.flags || []).join('; ')}>⚠️ Likely spam</span>
+            )}
             <span className={styles.msgDate}> · {fmt(comment.createdAt)}</span>
             {!comment.approved && <span className={styles.unreadBadge} style={{ marginLeft: '0.5rem' }}>Pending</span>}
           </p>
@@ -261,7 +264,7 @@ export default function ReviewsSection() {
                       <div className={styles.msgHeader} style={{ cursor: 'default' }}>
                         <div className={styles.msgMeta}>
                           <span className={styles.dot} />
-                          <strong>{review.authorName}</strong>
+                          <strong>{review.authorName}</strong> {review.flagged && <span className={styles.spamBadge} title={(review.flags || []).join('; ')}>⚠️ Likely spam</span>}
                           <StarRating value={review.rating} size="sm" />
                           {review.petName && <span className={styles.petChip}>🐾 {review.petName}</span>}
                           {review.serviceUsed && <span className={styles.serviceChip}>{review.serviceUsed}</span>}
@@ -304,7 +307,7 @@ export default function ReviewsSection() {
                 <div className={styles.msgHeader} onClick={() => setExpanded(expanded === review.id ? null : review.id)}>
                   <div className={styles.msgMeta}>
                     {!review.approved && <span className={styles.dot} />}
-                    <strong>{review.authorName}</strong>
+                    <strong>{review.authorName}</strong> {review.flagged && <span className={styles.spamBadge} title={(review.flags || []).join('; ')}>⚠️ Likely spam</span>}
                     <StarRating value={review.rating} size="sm" />
                     {thread.length > 0 && <span className={styles.serviceChip}>💬 {thread.length}</span>}
                     {waiting > 0 && <span className={styles.unreadBadge}>{waiting} waiting</span>}

@@ -63,7 +63,7 @@ export default function MessagesSection() {
             <div className={styles.msgHeader} onClick={() => setExpanded(expanded === msg.id ? null : msg.id)}>
               <div className={styles.msgMeta}>
                 {!msg.read && <span className={styles.dot} />}
-                <strong>{msg.name}</strong>
+                <strong>{msg.name}</strong> {msg.flagged && <span className={styles.spamBadge} title={(msg.flags || []).join('; ')}>⚠️ Likely spam</span>}
                 <span className={styles.msgEmail}>{msg.email}</span>
                 {msg.petName && <span className={styles.petChip}>🐾 {msg.petName}{msg.petType ? ` (${msg.petType})` : ''}</span>}
                 {msg.serviceInterest && <span className={styles.serviceChip}>{msg.serviceInterest}</span>}

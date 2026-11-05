@@ -482,3 +482,18 @@ p.helpText { margin: -0.5rem 0 1.25rem; }
   border: 2px solid var(--coral);
   font-weight: 700;
 }
+
+/* Marked by the server's spam check (functions/index.js). Hover shows why. */
+.spamBadge {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0.1rem 0.55rem;
+  border-radius: var(--radius-full);
+  background: var(--yellow-light);
+  border: 1px solid var(--yellow-dark);
+  color: var(--dark);
+  font-size: 0.75rem;
+  font-weight: 800;
+  cursor: help;
+  vertical-align: middle;
+}

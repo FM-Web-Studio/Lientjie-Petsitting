@@ -172,8 +172,15 @@ const makeHandler = (configKey) => async (event) => {
   const data = event.data?.data();
   if (!data) { logger.warn('Trigger fired with no document data', { configKey, id: event.params.id }); return; }
 
+  // A review that looks like spam waits quietly in the admin queue instead of emailing.
+  if (configKey === 'petsitting_reviews' && data.flagged) {
+    logger.info('Flagged review: no notification sent', { id: event.params.id });
+    return;
+  }
+
   const site = SITES[configKey];
   const { name, email, phone, message, extra, subject } = normalise(configKey, data);
+  if (data.flagged) extra.push(['Spam check', `Looks like spam: ${(data.flags || []).join('; ')}`]);
   const when = formatWhen(data.createdAt);
 
   const payload = { site, name, email, phone, message, when, extra };
@@ -191,7 +198,7 @@ const makeHandler = (configKey) => async (event) => {
       from: `"Lientjie Websites" <${SMTP_USER.value()}>`,
       to: NOTIFY_TO.value() || SMTP_USER.value(),
       replyTo: email || undefined,
-      subject: subject || `New ${site.label} message from ${name}`,
+      subject: `${data.flagged ? '[Likely spam] ' : ''}${subject || `New ${site.label} message from ${name}`}`,
       text: buildText(payload),
       html: buildHtml(payload),
     });
@@ -252,17 +259,35 @@ const text = (v, max) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
 // Bots fill the hidden field or post instantly.
 const looksLikeBot = (d) => !!text(d.website, 200) || !(Number(d.elapsed) >= MIN_FILL_MS);
 
-// Link spam: a pet owner asking about a walk has no reason to paste several links, and
-// nothing on the site needs HTML or BBCode. Treated like a bot - a quiet success, nothing saved.
+// ── Spam screening ──────────────────────────────────────────────────────────
+// Two outcomes. Link spam (more than two links, any HTML or BBCode, a link in a name) is
+// dropped with a quiet success - no person writes like that. Everything else that only LOOKS
+// like spam is still saved, but marked flagged with the reasons, so a real enquiry is never
+// lost: flagged messages arrive with "[Likely spam]" in the email subject, and flagged reviews
+// send no email at all and show as "Likely spam" in the admin queue.
+// Only real tags count as HTML, so "<R500 per night>" or "<3" from a person still gets through.
 const LINK = /(https?:\/\/|www\.|\[url|<a\s|\b[a-z0-9-]+\.(ru|cn|xyz|top|click|link|shop|online|site|info|biz)\b)/gi;
-const looksLikeLinkSpam = (...values) => {
-  const all = values.join(' ');
-  // Only real tags count, so "<R500 per night>" or "<3" from a person still gets through.
-  return (all.match(LINK) || []).length > 2
-    || /<\/?(a|p|div|span|img|script|iframe|b|i|u|strong|em|br|font|center)\b[^>]*>|\[\/?url/i.test(all);
+const HTML = /<\/?(a|p|div|span|img|script|iframe|b|i|u|strong|em|br|font|center)\b[^>]*>|\[\/?url/i;
+const SPAM_WORDS = /\b(crypto|bitcoin|btc|forex|casino|betting|viagra|cialis|porn|escort|seo|backlinks?|guest post|lead generation|first page of google|rank(?:ing)? your (?:site|website)|increase your (?:website )?traffic|web ?design (?:services?|agency)|digital marketing (?:services?|agency)|investment opportunity|make money|click here|telegram|unsubscribe|dear (?:sir|madam))\b/gi;
+const NON_LATIN = /[\u0400-\u04FF\u0600-\u06FF\u0E00-\u0E7F\u3040-\u30FF\u4E00-\u9FFF\uAC00-\uD7AF]/g;
+
+const screen = ({ name = '', body = '', extra = [] }) => {
+  const all = [body, ...extra].filter(Boolean).join(' ');
+  const links = (all.match(LINK) || []).length;
+  if (links > 2 || HTML.test(all) || /(https?:\/\/|www\.)/i.test(name)) return { drop: true, flags: [] };
+
+  const flags = [];
+  const words = [...new Set((all.match(SPAM_WORDS) || []).map((w) => w.toLowerCase()))];
+  if (words.length) flags.push(`spam words: ${words.slice(0, 4).join(', ')}`);
+  if (links === 2) flags.push('two links');
+  if (/[^\s@]+@[^\s@]+\.[^\s@]+|\d{6,}/.test(name)) flags.push('contact details in the name');
+  const letters = all.replace(/[^\p{L}]/gu, '');
+  if (letters.length >= 20 && letters.replace(/[^\p{Lu}]/gu, '').length / letters.length > 0.6) flags.push('mostly capitals');
+  if (/(.)\1{5,}/u.test(all)) flags.push('repeated characters');
+  if (letters.length >= 10 && (all.match(NON_LATIN) || []).length / letters.length > 0.3) flags.push('unexpected alphabet');
+  return { drop: false, flags };
 };
-// Names and short fields should never hold a link at all.
-const hasLink = (value) => /(https?:\/\/|www\.)/i.test(value);
+const flagFields = (flags) => (flags.length ? { flagged: true, flags } : { flagged: false });
 
 // Deletes a few spent rate records each time, so the collection never grows.
 const sweepLimits = async () => {
@@ -347,7 +372,8 @@ exports.sendMessage = onCall(CALLABLE, async (request) => {
   }
   const { collection, optional } = MESSAGE_FIELDS[site];
   const extra = Object.fromEntries(Object.entries(optional).map(([k, max]) => [k, text(d[k], max)]));
-  if (hasLink(name) || looksLikeLinkSpam(message, ...Object.values(extra))) {
+  const check = screen({ name, body: message, extra: Object.values(extra) });
+  if (check.drop) {
     logger.info('Contact form: dropped link spam', { site });
     return { ok: true };
   }
@@ -362,6 +388,7 @@ exports.sendMessage = onCall(CALLABLE, async (request) => {
     tx.create(db.collection(collection).doc(), {
       name, email, ...extra, message,
       read: false,
+      ...flagFields(check.flags),
       createdAt: FieldValue.serverTimestamp(),
       expireAt: Timestamp.fromMillis(now + KEEP_DAYS * DAY),
     });
@@ -369,7 +396,8 @@ exports.sendMessage = onCall(CALLABLE, async (request) => {
   return finish(verdict, 'msg');
 });
 
-const POST_LIMITS = { short: { count: 3, ms: 10 * 60 * 1000 }, day: 10, everyoneDay: 60 };
+// A pet sitter gets a handful of reviews a week, so these are deliberately tight.
+const POST_LIMITS = { short: { count: 3, ms: 10 * 60 * 1000 }, day: 6, everyoneDay: 30 };
 
 // Petsitting reviews and comments post here. Both arrive unapproved and wait for the admin.
 //   { kind: 'review', authorName, rating, title, body, petName, serviceUsed, website, elapsed }
@@ -386,34 +414,33 @@ exports.postReview = onCall(CALLABLE_ONCE, async (request) => {
   const authorName = text(d.authorName, 60);
   if (!kind || authorName.length < 2) throw bad();
 
-  let body;
+  const body = text(d.body, kind === 'review' ? 2000 : 700);
+  // Reviews are moderated, so spam never goes live - but it would still fill the queue.
+  const check = screen({ name: authorName, body, extra: [text(d.title, 100), text(d.petName, 60)] });
+  if (check.drop) {
+    logger.info('Review form: dropped link spam', { kind });
+    return { ok: true };
+  }
+
   let save;
   if (kind === 'review') {
-    body = text(d.body, 2000);
     const rating = Number(d.rating);
     if (body.length < 10 || !Number.isInteger(rating) || rating < 1 || rating > 5) throw bad();
     const fields = {
       authorName, rating, title: text(d.title, 100), body, petName: text(d.petName, 60), serviceUsed: text(d.serviceUsed, 80),
     };
     save = (tx) => tx.create(db.collection('petsitting_reviews').doc(), {
-      ...fields, approved: false, likes: 0, createdAt: FieldValue.serverTimestamp(),
+      ...fields, approved: false, likes: 0, ...flagFields(check.flags), createdAt: FieldValue.serverTimestamp(),
     });
   } else {
-    body = text(d.body, 700);
     const reviewId = text(d.reviewId, 128);
     if (body.length < 2 || !reviewId || reviewId.includes('/')) throw bad();
     // Comments only go on a published review.
     const review = await db.doc(`petsitting_reviews/${reviewId}`).get();
     if (!review.exists || review.get('approved') !== true) throw bad();
     save = (tx) => tx.create(review.ref.collection('petsitting_review_comments').doc(), {
-      authorName, body, approved: false, likes: 0, createdAt: FieldValue.serverTimestamp(),
+      authorName, body, approved: false, likes: 0, ...flagFields(check.flags), createdAt: FieldValue.serverTimestamp(),
     });
-  }
-
-  // Reviews are moderated, so spam never goes live - but it would still fill the queue.
-  if (hasLink(authorName) || looksLikeLinkSpam(body, text(d.title, 100))) {
-    logger.info('Review form: dropped link spam', { kind });
-    return { ok: true };
   }
 
   const keys = {
