@@ -7,11 +7,11 @@
 // lientjie-petsitting.firebaseapp.com, and the canonical link keeps them from counting twice.
 export const SITE_URL = 'https://lientjie-petsitting.web.app';
 export const SITE_NAME = "Lientjie's Petsitting";
-const HOME_TITLE = `${SITE_NAME} | Pet care in Pretoria`;
+const HOME_TITLE = `${SITE_NAME} | Pet care in Roodepoort`;
 
 // Hosting caches images for a year, so a changed preview image needs a NEW file name.
 export const SHARE_IMAGE = '/og/share.jpg';
-export const SHARE_ALT = "The Lientjie's Pawradise paw logo beside the words Lientjie's Petsitting, pet sitting, walking and care in Pretoria";
+export const SHARE_ALT = "The Lientjie's Pawradise paw logo beside the words Lientjie's Petsitting, pet sitting, walking and care in Roodepoort";
 
 export const titleFor = (title) => (title ? `${title} | ${SITE_NAME}` : HOME_TITLE);
 
@@ -20,13 +20,13 @@ export const PAGE_META = [
     path: '/',
     file: 'index.html',
     title: HOME_TITLE,
-    description: "Lientjie's Petsitting: loving, reliable pet sitting, walking and care in Pretoria.",
+    description: "Lientjie's Petsitting: loving, reliable pet sitting, walking and care in Roodepoort.",
   },
   {
     path: '/services',
     file: 'services.html',
     title: titleFor('Services'),
-    description: 'Pet sitting, walking and other care services in Pretoria, with what each includes.',
+    description: 'Pet sitting, walking and other care services in Roodepoort, with what each includes.',
   },
   {
     path: '/gallery',
@@ -50,7 +50,7 @@ export const PAGE_META = [
     path: '/contact',
     file: 'contact.html',
     title: titleFor('Contact'),
-    description: 'Ask about pet sitting, walking or care in Pretoria.',
+    description: 'Ask about pet sitting, walking or care in Roodepoort.',
   },
   {
     path: '/privacy',
@@ -81,5 +81,5 @@ export const PERSON_SCHEMA = {
   name: SITE_NAME,
   url: SITE_URL,
   image: absoluteUrl(SHARE_IMAGE),
-  address: { '@type': 'PostalAddress', addressLocality: 'Pretoria', addressCountry: 'ZA' },
+  address: { '@type': 'PostalAddress', addressLocality: 'Roodepoort', addressCountry: 'ZA' },
 };

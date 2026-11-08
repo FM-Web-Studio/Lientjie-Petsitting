@@ -35,7 +35,7 @@ function Legal({ build, other }) {
     owner: bio?.name || 'Lientjie',
     email: info.email,
     phone: info.phone,
-    location: info.location || bio?.location || 'Pretoria, South Africa',
+    location: info.location || bio?.location || 'Roodepoort, South Africa',
     site: window.location.host,
   });
 

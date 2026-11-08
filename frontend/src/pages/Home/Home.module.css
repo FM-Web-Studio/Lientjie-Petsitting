@@ -117,12 +117,6 @@
 .stickerPhotos { animation-delay: -2.5s; }
 .stickerEmoji { font-size: 1.25rem; }
 
-.paw { display: block; font-size: 1.6rem; opacity: 0.75; animation: floaty 6s ease-in-out infinite; padding: 0.3rem; }
-.paw1 { top: -4%; left: 18%; }
-.paw2 { bottom: -2%; right: 22%; }
-.paw2 .paw { font-size: 1.2rem; animation-delay: -3s; }
-.paw3 { top: 46%; right: -6%; }
-.paw3 .paw { animation-delay: -4.5s; }
 
 .dragHint {
   position: absolute;

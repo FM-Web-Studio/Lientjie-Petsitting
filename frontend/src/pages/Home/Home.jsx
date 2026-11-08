@@ -123,7 +123,7 @@ export default function Home() {
                 : <span className={styles.blobEmoji} aria-hidden="true">🐶</span>)}
             </div>
 
-            {/* Stickers and paws can be picked up and thrown; they bounce back home. */}
+            {/* The stickers can be picked up and thrown; they bounce back home. */}
             {summary.total > 0 && (
               <Draggable className={`${styles.spot} ${styles.spotRating}`}>
                 <Link to="/reviews" className={`${styles.sticker} ${styles.stickerRating}`}>
@@ -138,9 +138,6 @@ export default function Home() {
                 <span>See the pets</span>
               </Link>
             </Draggable>
-            <Draggable className={`${styles.spot} ${styles.paw1}`} aria-hidden="true"><span className={styles.paw}>🐾</span></Draggable>
-            <Draggable className={`${styles.spot} ${styles.paw2}`} aria-hidden="true"><span className={styles.paw}>🐾</span></Draggable>
-            <Draggable className={`${styles.spot} ${styles.paw3}`} aria-hidden="true"><span className={styles.paw}>🦴</span></Draggable>
             <span className={styles.dragHint} aria-hidden="true">psst... drag the stickers!</span>
           </div>
         </div>

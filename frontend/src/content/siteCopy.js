@@ -20,7 +20,7 @@ const BRAND_FIELDS = [
 
 // ── Home page ───────────────────────────────────────────────────────────────
 const HOME_FIELDS = [
-  { key: 'heroTag',          label: 'Hero - tag',            type: 'text',     default: 'Professional Pet Care in Pretoria 🌟' },
+  { key: 'heroTag',          label: 'Hero - tag',            type: 'text',     default: 'Professional Pet Care in Roodepoort 🌟' },
   { key: 'heroTitle',        label: 'Hero - title',          type: 'text',     default: "Your Pet's Home Away From Home!" },
   { key: 'heroSub',          label: 'Hero - subtitle',       type: 'textarea', default: "Loving, professional care for your furry, feathery & scaly family members. Because they deserve the best while you're away." },
   { key: 'heroBtnPrimary',   label: 'Hero - primary button', type: 'text',     default: 'View Services' },
@@ -73,7 +73,7 @@ const SERVICES_FIELDS = [
   { key: 'faq3Q', label: 'FAQ 3 - question', type: 'text',     default: 'What should I leave for my pet?' },
   { key: 'faq3A', label: 'FAQ 3 - answer',   type: 'textarea', default: "Their food, treats, lead and bedding, any medication with written instructions, and your vet's details. We go through it all together beforehand." },
   { key: 'faq4Q', label: 'FAQ 4 - question', type: 'text',     default: 'Which areas do you cover?' },
-  { key: 'faq4A', label: 'FAQ 4 - answer',   type: 'textarea', default: 'I work across Pretoria. If you are a little further out, send me a message and we can work something out.' },
+  { key: 'faq4A', label: 'FAQ 4 - answer',   type: 'textarea', default: 'I work across Roodepoort. If you are a little further out, send me a message and we can work something out.' },
 ];
 
 // ── Gallery page ────────────────────────────────────────────────────────────
@@ -138,7 +138,7 @@ const CONTACT_PAGE_FIELDS = [
 // ── Contact details (shared source of truth) ────────────────────────────────
 // Surfaced on the Contact page info cards, the About page, and the footer.
 export const CONTACT_INFO_FIELDS = [
-  { key: 'location',     label: 'Location',       type: 'text', default: 'Pretoria, South Africa' },
+  { key: 'location',     label: 'Location',       type: 'text', default: 'Roodepoort, South Africa' },
   { key: 'responseTime', label: 'Response time',  type: 'text', default: 'Within 24 hours' },
   { key: 'petsAccepted', label: 'Pets accepted',  type: 'text', default: 'Dogs, cats, birds, rabbits & more' },
   { key: 'phone',        label: 'Phone number',   type: 'text', default: '' },
